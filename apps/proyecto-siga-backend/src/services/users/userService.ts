@@ -20,10 +20,9 @@ export class UserService implements IUserService {
     @inject("UserRepo")
     private readonly userRepo: IUserRepo,
     @inject("VerificationService")
-    private readonly verificationService: IVerificationService,
-    // @inject("PasswordResetTokenRepo")
-    // private readonly passwordResetTokenRepo: IPasswordResetTokenRepo,
-  ) {}
+    private readonly verificationService: IVerificationService // @inject("PasswordResetTokenRepo")
+  ) // private readonly passwordResetTokenRepo: IPasswordResetTokenRepo,
+  {}
 
   private async HashPassword(password: string): Promise<string> {
     const rounds = Number(process.env.BCRYPT_SALT_ROUNDS || 10);
@@ -69,16 +68,8 @@ export class UserService implements IUserService {
       if (input.userType === "itmEmployee" && !email.endsWith("@itm.edu.co")) {
         throw BadRequest("Los empleados deben usar correo @itm.edu.co");
       }
-      let hashedPassword:string;
+      const hashedPassword = await this.HashPassword(input.password!);
 
-      if (input.password === "" || !input.password) { // genera password temporales
-        const temporaryPassword = await generateSecurePassword();
-        hashedPassword = await this.HashPassword(temporaryPassword);
-        console.log(`Temporary password: ${temporaryPassword}`); //Solo para testeo
-      }else {
-        hashedPassword = await this.HashPassword(input.password);
-      }
-      
       const user = await this.userRepo.create(
         {
           userNumber: input.userNumber,
@@ -90,15 +81,14 @@ export class UserService implements IUserService {
           birthDate: input.birthDate ? new Date(input.birthDate) : undefined,
           password: hashedPassword,
           isActive: true,
+          verifiedEmail: false,
           lastLogin: null,
         },
         tx
       );
-      if (input.role in ["admin", "psychologist"]) {
-        console.log("implementar logica de envío de email para admin y psychologist");
-        return user as User;
-      }
-      const verificationToken = await this.verificationService.createVerificationToken(user.email);
+
+      const verificationToken =
+        await this.verificationService.createVerificationToken(user.email);
       const verificationUrl = `${process.env.APP_FRONTEND_URL}/verify-email?token=${verificationToken}`;
       await this.emailVerificationService.sendVerificationEmailUser(
         user.email,
@@ -106,6 +96,38 @@ export class UserService implements IUserService {
         verificationUrl
       );
 
+      return user as User;
+    });
+  }
+
+  async createUserByAdmin(input: CreateUserInput): Promise<User> {
+    return prisma.$transaction(async (tx) => {
+      const temporaryPassword = await generateSecurePassword();
+      const hashedPassword = await this.HashPassword(temporaryPassword);
+      console.log(`Temporary password: ${temporaryPassword}`); //Solo para testeo
+      const user = await this.userRepo.create(
+        {
+          userNumber: input.userNumber,
+          email: input.email.toLowerCase(),
+          name: input.name ?? "",
+          role: input.role,
+          userType: input.userType,
+          gender: input.gender,
+          birthDate: input.birthDate ? new Date(input.birthDate) : undefined,
+          password: hashedPassword,
+          isActive: true,
+          verifiedEmail: true,
+          lastLogin: null,
+        },
+        tx
+      );
+
+      await this.emailVerificationService.sendVerificationEmailStaff(
+        user.email,
+        user.name || user.role == "admin" ? "Administrador" : "Psicólogo",
+        temporaryPassword,
+        `${process.env.APP_FRONTEND_URL}`
+      );
 
       return user as User;
     });
@@ -165,7 +187,6 @@ export class UserService implements IUserService {
         //   { userId: id },
         //   { revokedAt: new Date() },
         //   tx
-
         // );
       } catch (error) {
         throw BadRequest("Error al revocar tokens de sesión", {
@@ -191,12 +212,14 @@ export class UserService implements IUserService {
   }
 
   async verifyEmail(token: string): Promise<void> {
-    const email = await this.verificationService.consumeVerificationToken(token);
+    const email = await this.verificationService.consumeVerificationToken(
+      token
+    );
     await prisma.user.update({
       where: { email: email! },
-      data: { 
+      data: {
         verifiedEmail: true,
-      }
+      },
     });
   }
 

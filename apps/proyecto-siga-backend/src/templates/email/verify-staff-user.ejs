@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <title>Neurolab - Bienvenida de Cuenta</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style type="text/css">
+      /* Base */
+      body {
+        margin: 0;
+        padding: 0;
+        min-width: 100%;
+        font-family: Arial, sans-serif;
+        font-size: 16px;
+        line-height: 1.5;
+        background-color: #fafafa;
+        color: #222222;
+      }
+      a {
+        color: #0070f3;
+        text-decoration: none;
+      }
+      h1 {
+        font-size: 24px;
+        font-weight: 700;
+        line-height: 1.25;
+        margin-top: 0;
+        margin-bottom: 15px;
+        text-align: center;
+      }
+      p {
+        margin-top: 0;
+        margin-bottom: 24px;
+      }
+      table td {
+        vertical-align: top;
+      }
+      /* Layout */
+      .email-wrapper {
+        max-width: 600px;
+        margin: 0 auto;
+      }
+      .email-header {
+        background: linear-gradient(135deg, #102D69 0%, #00A0B7 100%);
+        padding: 32px 24px;
+        color: #ffffff;
+      }
+      .email-body {
+        padding: 32px 24px;
+        background-color: #ffffff;
+      }
+      .email-footer {
+        background-color: #f6f6f6;
+        padding: 24px;
+        font-size: 14px;
+        color: #666666;
+        text-align: center;
+      }
+      /* Button Container */
+      .button-container {
+        text-align: center;
+        margin: 30px 0;
+      }
+      /* Primary Button */
+      .button-primary {
+        display: inline-block;
+        background: linear-gradient(135deg, #102D69 0%, #00A0B7 100%);
+        color: #ffffff !important;
+        font-size: 18px;
+        font-weight: 700;
+        text-align: center;
+        text-decoration: none;
+        padding: 16px 48px;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(16, 45, 105, 0.3);
+        transition: all 0.3s ease;
+      }
+      .button-primary:hover {
+        background: linear-gradient(135deg, #00A0B7 0%, #008799 100%);
+        box-shadow: 0 6px 12px rgba(16, 45, 105, 0.4);
+        transform: translateY(-2px);
+      }
+      /* Credentials Box */
+      .credentials-box {
+        background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+        border: 2px solid #00A0B7;
+        border-radius: 12px;
+        padding: 24px;
+        margin: 30px 0;
+        box-shadow: 0 2px 8px rgba(0, 160, 183, 0.1);
+      }
+      .credentials-title {
+        font-size: 18px;
+        font-weight: 700;
+        color: #102D69;
+        margin-bottom: 16px;
+        text-align: center;
+      }
+      .credential-item {
+        background-color: #ffffff;
+        padding: 12px 16px;
+        margin: 12px 0;
+        border-radius: 8px;
+        border-left: 4px solid #00A0B7;
+      }
+      .credential-label {
+        font-size: 12px;
+        font-weight: 600;
+        color: #666666;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 4px;
+      }
+      .credential-value {
+        font-size: 16px;
+        font-weight: 700;
+        color: #102D69;
+        font-family: 'Courier New', monospace;
+        word-break: break-all;
+      }
+      /* Warning Box */
+      .warning-box {
+        background-color: #fff3cd;
+        border-left: 4px solid #ffc107;
+        padding: 16px 20px;
+        margin: 20px 0;
+        border-radius: 4px;
+      }
+      .warning-title {
+        font-size: 16px;
+        font-weight: 700;
+        color: #856404;
+        margin-bottom: 8px;
+      }
+      .warning-text {
+        font-size: 14px;
+        color: #856404;
+        margin: 0;
+      }
+      /* Security Notice */
+      .security-notice {
+        background-color: #f8d7da;
+        border-left: 4px solid #dc3545;
+        padding: 16px 20px;
+        margin: 20px 0;
+        border-radius: 4px;
+      }
+      .security-text {
+        font-size: 14px;
+        color: #721c24;
+        margin: 0;
+      }
+      /* Instructions List */
+      .instructions-list {
+        background-color: #f8f9fa;
+        padding: 20px 24px;
+        border-radius: 8px;
+        margin: 20px 0;
+      }
+      .instructions-list ol {
+        margin: 0;
+        padding-left: 20px;
+      }
+      .instructions-list li {
+        margin: 8px 0;
+        color: #495057;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="email-wrapper">
+      <div class="email-header">
+        <h1>🧠 Bienvenido a Neurolab</h1>
+      </div>
+      <div class="email-body">
+        <p>Hola <strong><%= name %></strong>,</p>
+        <p>
+          Tu cuenta en <strong>Neurolab</strong> ha sido creada exitosamente.
+          A continuación encontrarás tus credenciales de acceso temporales:
+        </p>
+
+        <!-- Credentials Box -->
+        <div class="credentials-box">
+          <div class="credentials-title">🔐 Credenciales de Acceso</div>
+          
+
+          <div class="credential-item">
+            <div class="credential-label">🔑 Contraseña Temporal</div>
+            <div class="credential-value"><%= temporaryPassword %></div>
+          </div>
+        </div>
+
+        <!-- Security Warning -->
+        <div class="security-notice">
+          <strong>⚠️ Importante:</strong>
+          <p class="security-text">
+            Esta es una contraseña temporal. Por seguridad, el sistema te pedirá
+            cambiarla en tu primer inicio de sesión.
+          </p>
+        </div>
+
+        <!-- Instructions -->
+        <div class="instructions-list">
+          <strong>📝 Pasos para activar tu cuenta:</strong>
+          <ol>
+            <li>Haz clic en el botón "Iniciar Sesión" a continuación</li>
+            <li>Ingresa tu correo y contraseña temporal</li>
+            <li>Crea una nueva contraseña segura</li>
+            <li>¡Comienza a usar Neurolab!</li>
+          </ol>
+        </div>
+
+        <!-- Login Button -->
+        <div class="button-container">
+          <a href="<%= loginUrl %>" class="button-primary">
+            🚀 Iniciar Sesión
+          </a>
+        </div>
+
+        <!-- Alternative link -->
+        <p style="font-size: 14px; color: #666666; text-align: center; margin-top: 30px;">
+          Si el botón no funciona, copia y pega este enlace en tu navegador:
+        </p>
+        <p style="text-align: center;">
+          <a href="<%= loginUrl %>" style="color: #00A0B7; word-break: break-all;">
+            <%= loginUrl %>
+          </a>
+        </p>
+
+        <!-- Warning -->
+        <div class="warning-box">
+          <div class="warning-title">🔒 Recomendaciones de Seguridad</div>
+          <p class="warning-text">
+            • No compartas tus credenciales con nadie<br>
+            • Cambia tu contraseña inmediatamente después del primer login<br>
+            • Usa una contraseña única y segura (mínimo 8 caracteres, mayúsculas, minúsculas, números y símbolos)
+          </p>
+        </div>
+
+        <p style="margin-top: 30px; font-size: 14px; color: #666666; font-style: italic;">
+          Si no solicitaste esta cuenta, por favor contacta con soporte inmediatamente.
+        </p>
+      </div>
+      <div class="email-footer">
+        <p>
+          ¿Necesitas ayuda? Contáctanos en<br />
+          <a href="mailto:soporte@neurolab.com">soporte@neurolab.com</a>
+        </p>
+        <p style="margin-top: 16px; color: #999999; font-size: 12px">
+          © <%= new Date().getFullYear() %> Neurolab. Todos los derechos
+          reservados.
+        </p>
+      </div>
+    </div>
+  </body>
+</html>

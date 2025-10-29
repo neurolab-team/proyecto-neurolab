@@ -1,5 +1,6 @@
 import nodeMailer from "nodemailer";
 import dotenv from "dotenv";
+import { Conflict } from "./httpError";
 import ejs from "ejs";
 import path from "path";
 
@@ -19,7 +20,7 @@ const renderEmailTemplate = async (
   templateName: string,
   data: any
 ): Promise<string> => {
-  const templatePath = path.join(
+  const templatePath = path.resolve(
     process.cwd(),
     "apps",
     "proyecto-siga-backend",
@@ -38,7 +39,7 @@ export const sendEmail = async (
   subject: string,
   templateName: string,
   data: Record<string, any>
-): Promise<boolean> => {
+): Promise<void> => {
   try {
     const html = await renderEmailTemplate(templateName, data);
     await transporter.sendMail({
@@ -47,10 +48,8 @@ export const sendEmail = async (
       subject,
       html,
     });
-    return true;
   } catch (error) {
-    console.log("Error sending email:", error);
-    return false;
+    throw Conflict("Error enviando email", { details: error });
   }
 };
 

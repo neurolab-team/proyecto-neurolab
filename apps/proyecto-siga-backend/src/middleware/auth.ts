@@ -57,7 +57,7 @@ export const checkRole = (allowedRoles: AppRole[]) => {
     if (allowedRoles.includes(req.user?.role as AppRole)) {
       return next();
     }
-    return Forbidden();
+    throw Forbidden();
   };
 };
 

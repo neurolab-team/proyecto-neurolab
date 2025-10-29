@@ -71,6 +71,7 @@ AuthController.post(
           name: result.user.name,
           isActive: result.user.isActive,
           lastLogin: result.user.lastLogin,
+          verifiedEmail: result.user.verifiedEmail ,
         },
       },
     });

@@ -38,6 +38,7 @@ export class AuthService implements IAuthService {
         gender: user.gender || "",
         isActive: user.isActive,
         lastLogin: user.lastLogin,
+        verifiedEmail: user.verifiedEmail ,        
       },
     };
   }
@@ -64,6 +65,8 @@ export class AuthService implements IAuthService {
       role: user.role,
       userType: user.userType,
       isActive: user.isActive,
+      gender: user.gender || "",
+      verifiedEmail: user.verifiedEmail ,
       lastLogin: user.lastLogin || undefined,
     };
   }
