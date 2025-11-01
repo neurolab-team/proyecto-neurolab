@@ -2,31 +2,30 @@ import { useState } from "react";
 import axios, { AxiosError } from "axios";
 import { useForm } from "react-hook-form";
 import { useMutation } from "@tanstack/react-query";
+import { useAuth } from "../hooks/useAuth";
+import { User } from "../context/authContext";
 
 type FormData = {
   email: string;
   password: string;
   confirmPassword: string;
 };
-type User = {
-  name: string;
-  email: string;
-};
+
 interface LoginModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onLoginSuccess: () => void;
 }
 type ModalView = "login" | "firstLogin" | "inactive" | "emailVerification";
 
 export default function LoginModal({
   isOpen,
   onClose,
-  onLoginSuccess,
 }: LoginModalProps) {
+  const auth = useAuth();
   const [user, setUser] = useState<User | null>(null);
   const [modalView, setModalView] = useState<ModalView>("login");
   const [accessToken, setAccessToken] = useState("");
+  const [refreshToken, setRefreshToken] = useState("");
   const {
     register,
     handleSubmit,
@@ -38,17 +37,15 @@ export default function LoginModal({
     mutationFn: async (data: FormData) => {
       const response = await axios.post(
         `${process.env.NEXT_PUBLIC_API_URL}/api/auth/login`,
-        data
+        data,
       );
       return response.data;
     },
     onSuccess: (response, _) => {
       const { accessToken, refreshToken, user } = response.data.data;
       setAccessToken(accessToken);
-      localStorage.setItem("accessToken", accessToken);
-      localStorage.setItem("refreshToken", refreshToken);
+      setRefreshToken(refreshToken);
       setUser(user);
-      console.log(!user.isActive, !user.verifiedEmail, !user.lastLogin);
       if (!user.isActive) {
         setModalView("inactive");
       } else if (!user.verifiedEmail) {
@@ -56,7 +53,7 @@ export default function LoginModal({
       } else if (!user.lastLogin) {
         setModalView("firstLogin");
       } else {
-        onLoginSuccess();
+        auth.login(accessToken, refreshToken, user);
         onClose();
       }
     },
@@ -74,14 +71,14 @@ export default function LoginModal({
           headers: {
             Authorization: `Bearer ${accessToken}`,
           },
-        }
+        },
       );
       return response.data;
     },
     onSuccess: () => {
-      onLoginSuccess();
+      if (!user || !accessToken || !refreshToken) return;
+      auth.login(accessToken, refreshToken, user);
       onClose();
-      // Resetear vista
       setModalView("login");
     },
   });
@@ -118,13 +115,13 @@ export default function LoginModal({
               Cuenta Inactiva
             </h3>
             <p className="text-gray-600 mb-4">Tu cuenta ha sido desactivada.</p>
-            {user?.email && (
-              <p className="text-sm text-gray-500 mb-6">
-                Comuníquese con el administrador para activar tu cuenta.
-                <br />
-                <span className="font-semibold">support@neurolab.itm.</span>
-              </p>
-            )}
+
+            <p className="text-sm text-gray-500 mb-6">
+              Comuníquese con el administrador para activar tu cuenta.
+              <br />
+              <span className="font-semibold">support@neurolab.itm.</span>
+            </p>
+
             <button
               onClick={() => {
                 setModalView("login");
@@ -264,9 +261,11 @@ export default function LoginModal({
               <br />
               <span className="font-semibold">support@neurolab.itm.com</span>
             </p>
-            <button className="w-full bg-gradient-to-r from-[#102D69] to-[#00A0B7] text-white py-3 
+            <button
+              className="w-full bg-gradient-to-r from-[#102D69] to-[#00A0B7] text-white py-3 
             rounded-lg font-bold hover:shadow-lg transition-all disabled:opacity-50
-            mb-3">
+            mb-3"
+            >
               ¿Volver a enviar correo de verificación?
             </button>
             <button

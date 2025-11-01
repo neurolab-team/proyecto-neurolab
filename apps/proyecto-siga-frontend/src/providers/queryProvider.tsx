@@ -1,7 +1,7 @@
 'use client';
 import React, { useState } from 'react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-export const Providers = ({children}:{children:React.ReactNode}) => {
+export const QueryClientProviderWrapper = ({children}:{children:React.ReactNode}) => {
     const [queryClient] = useState(() => new QueryClient());
 
   return (
@@ -12,4 +12,4 @@ export const Providers = ({children}:{children:React.ReactNode}) => {
     </div>
   )
 }
-export default Providers;
+export default QueryClientProviderWrapper;
