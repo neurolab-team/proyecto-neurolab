@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <title>Neurolab - Activación de Correo</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style type="text/css">
+      /* Base */
+      body {
+        margin: 0;
+        padding: 0;
+        min-width: 100%;
+        font-family: Arial, sans-serif;
+        font-size: 16px;
+        line-height: 1.5;
+        background-color: #fafafa;
+        color: #222222;
+      }
+      a {
+        color: #0070f3;
+        text-decoration: none;
+      }
+      h1 {
+        font-size: 24px;
+        font-weight: 700;
+        line-height: 1.25;
+        margin-top: 0;
+        margin-bottom: 15px;
+        text-align: center;
+      }
+      p {
+        margin-top: 0;
+        margin-bottom: 24px;
+      }
+      table td {
+        vertical-align: top;
+      }
+      /* Layout */
+      .email-wrapper {
+        max-width: 600px;
+        margin: 0 auto;
+      }
+      .email-header {
+        background: linear-gradient(135deg, #0070f3 0%, #0051cc 100%);
+        padding: 32px 24px;
+        color: #ffffff;
+      }
+      .email-body {
+        padding: 32px 24px;
+        background-color: #ffffff;
+      }
+      .email-footer {
+        background-color: #f6f6f6;
+        padding: 24px;
+        font-size: 14px;
+        color: #666666;
+        text-align: center;
+      }
+      /* Button Container */
+      .button-container {
+        text-align: center;
+        margin: 30px 0;
+      }
+      /* Primary Button */
+      .button-primary {
+        display: inline-block;
+        background: linear-gradient(135deg, #0070f3 0%, #0051cc 100%);
+        color: #ffffff !important;
+        font-size: 18px;
+        font-weight: 700;
+        text-align: center;
+        text-decoration: none;
+        padding: 16px 48px;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0, 112, 243, 0.3);
+        transition: all 0.3s ease;
+      }
+      .button-primary:hover {
+        background: linear-gradient(135deg, #0051cc 0%, #003d99 100%);
+        box-shadow: 0 6px 12px rgba(0, 112, 243, 0.4);
+        transform: translateY(-2px);
+      }
+      /* Alternative link style */
+      .verification-link {
+        display: block;
+        margin: 20px 0;
+        padding: 15px;
+        background-color: #f0f7ff;
+        border: 2px dashed #0070f3;
+        border-radius: 8px;
+        text-align: center;
+        word-break: break-all;
+        font-size: 14px;
+        color: #0070f3;
+      }
+      .warning-text {
+        color: #666666;
+        font-size: 14px;
+        font-style: italic;
+      }
+      .expiry-notice {
+        background-color: #fff3cd;
+        border-left: 4px solid #ffc107;
+        padding: 12px 16px;
+        margin: 20px 0;
+        border-radius: 4px;
+        font-size: 14px;
+        color: #856404;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="email-wrapper">
+      <div class="email-header">
+        <h1>🧠 Bienvenido a Neurolab</h1>
+      </div>
+      <div class="email-body">
+        <p>Hola <strong><%= name %></strong>,</p>
+        <p>
+          Gracias por registrarte en <strong>Neurolab</strong>. Para activar tu
+          cuenta y comenzar a usar nuestros servicios, haz clic en el siguiente botón:
+        </p>
+
+        <!-- Botón principal de verificación -->
+        <div class="button-container">
+          <a href="<%= verificationUrl %>" class="button-primary">
+            Activar mi cuenta
+          </a>
+        </div>
+
+        <!-- Aviso de expiración -->
+        <div class="expiry-notice">
+          ⏰ <strong>Importante:</strong> Este enlace expirará en 24 horas.
+        </div>
+
+        <!-- Link alternativo por si el botón no funciona -->
+        <p style="font-size: 14px; color: #666666; text-align: center; margin-top: 30px;">
+          ¿No funciona el botón? Copia y pega este enlace en tu navegador:
+        </p>
+        <div class="verification-link">
+          <a href="<%= verificationUrl %>" style="color: #0070f3;">
+            <%= verificationUrl %>
+          </a>
+        </div>
+
+        <p class="warning-text" style="margin-top: 30px;">
+          Si no te registraste en Neurolab, por favor ignora este correo y el enlace
+          expirará automáticamente.
+        </p>
+      </div>
+      <div class="email-footer">
+        <p>
+          ¿Tienes preguntas? No dudes en contactarnos en<br />
+          <a href="mailto:soporte@neurolab.com">soporte@neurolab.com</a>
+        </p>
+        <p style="margin-top: 16px; color: #999999; font-size: 12px">
+          © <%= new Date().getFullYear() %> Neurolab. Todos los derechos
+          reservados.
+        </p>
+      </div>
+    </div>
+  </body>
+</html>

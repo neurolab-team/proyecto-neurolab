@@ -14,35 +14,45 @@ export const UsersController = Router();
 const userService = container.resolve<IUserService>("UserService");
 
 UsersController.use(auth, asAdminOrPsychologist);
-const roles = ["admin", "psychologist", "user"] as const;
-
+const role = ["user"] as const;
+// const rolesAdmin = [..,admin, "psychologist", "user"] as const; // not implemented yet
 interface userResponse {
-  userId: string;
   userNumber: string;
   email: string;
   name: string;
   role: string;
   isActive: boolean;
+  gender: string;
 }
 
 const CreateUserDto = z.object({
-  email: z.string().min(3).trim().transform((s) => s.toLowerCase()),
+  email: z
+    .string()
+    .min(3)
+    .trim()
+    .transform((s) => s.toLowerCase()),
   name: z.string().trim().optional().nullable(),
-  role: z.enum(roles),
+  role: z.enum(role),
   userNumber: z.string().min(1).trim(),
-})
+  gender: z.string(),
+  password: z.string().min(6).optional()
+});
 
 const userTypes = ["itmStudent", "itmEmployee", "external"] as const;
 
 const RegisterDto = z.object({
-  email: z.string().min(3).trim().transform((s) => s.toLowerCase()),
+  email: z
+    .string()
+    .min(3)
+    .trim()
+    .transform((s) => s.toLowerCase()),
   name: z.string().min(1).trim(),
   userNumber: z.string().min(1).trim(),
   userType: z.enum(userTypes),
   birthDate: z.string().optional(),
   gender: z.string().optional(),
-})
-
+  password:z.string().min(6).optional()
+});
 
 // CRUD Routes using service
 
@@ -67,12 +77,12 @@ UsersController.get(
       throw NotFound("Usuario no encontrado");
     }
     const userResponse: userResponse = {
-      userId: user.userId,
       userNumber: user.userNumber,
       email: user.email,
       name: user.name || "",
       role: user.role,
-      isActive: user.isActive
+      isActive: user.isActive,
+      gender: user.gender ?? "",
     };
     return ok(res, userResponse, "Detalle de usuario");
   })
@@ -89,15 +99,16 @@ UsersController.post(
       name: input.name ?? "",
       userNumber: input.userNumber,
       role: input.role,
-      userType: 'external',
+      userType: "external",
+      password: input.password ?? ""
     });
     const userReponse: userResponse = {
-      userId: user.userId,
       userNumber: user.userNumber,
       email: user.email,
       name: user.name || "",
       role: user.role,
-      isActive: user.isActive
+      isActive: user.isActive,
+      gender: user.gender ?? "",
     };
     return created(
       res,
@@ -106,7 +117,6 @@ UsersController.post(
     );
   })
 );
-
 
 UsersController.patch(
   "/:id/deactivate",
@@ -153,18 +163,40 @@ UsersController.get(
 
 const PublicUsersController = Router();
 
-// PublicUsersController.post(
-//   "/verify-email",
-//   wrap(async (req: any, res) => {
-//     const { token } = z.object({ token: z.string() }).parse(req.body);
-//     await userService.verifyEmail(token);
-//     return ok(
-//       res,
-//       null,
-//       "Email verificado exitosamente. Tu cuenta ha sido activada."
-//     );
-//   })
-// );
+PublicUsersController.post(
+  "/register",
+  wrap(async (req: any, res) => {
+    const input = RegisterDto.parse(req.body);
+    const user = await userService.createUser({
+      email: input.email,
+      name: input.name,
+      userNumber: input.userNumber,
+      userType: input.userType,
+      birthDate: input.birthDate,
+      gender: input.gender,
+      password: input.password,
+      role: "user",
+    });
+    return created(
+      res,
+      { userId: user.userId, email: user.email },
+      "Usuario registrado con éxito. Se ha enviado un email de verificación."
+    );
+  })
+);
+
+PublicUsersController.post(
+  "/verify-email",
+  wrap(async (req: any, res) => {
+    const { token,email } = z.object({ token: z.string(), email: z.string() }).parse(req.body);
+    await userService.verifyEmail(token,email);
+    return ok(
+      res,
+      null,
+      "Email verificado exitosamente. Tu cuenta ha sido activada."
+    );
+  })
+);
 
 // PublicUsersController.post(
 //   "/request-password-reset",
@@ -225,7 +257,7 @@ PublicUsersController.post(
       userType: input.userType,
       birthDate: input.birthDate,
       gender: input.gender,
-      role: 'user',
+      role: "user",
     });
     return created(
       res,

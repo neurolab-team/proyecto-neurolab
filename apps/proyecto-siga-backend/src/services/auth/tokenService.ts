@@ -1,87 +1,58 @@
 import { inject, injectable } from "tsyringe";
-import { v4 as uuid } from "uuid";
-import { add } from "date-fns";
 import {
   signAccessToken,
   signRefreshToken,
   verifyRefreshToken,
 } from "../../utils/jwt";
 import { Unauthorized } from "../../utils/httpError";
-import type {
-  IUserRepo,
-} from "../../contracts/user/IuserRepo";
-import  type {
-  IRefreshTokenRepo
-} from "../../contracts/auth/IrefreshTokenRepo";
+import type { IUserRepo } from "../../contracts/user/IuserRepo";
 import { IRefreshTokenService } from "../../contracts/auth/IrefreshTokenService";
-
-const parseTTL = (s?: string) => {
-  const fallback = { days: 30 };
-  if (!s) return fallback;
-  const m = /^(\d+)([smhd])$/.exec(s);
-  if (!m) return fallback;
-  const n = Math.max(Number(m[1]), 1);
-  switch (m[2]) {
-    case "s":
-      return { seconds: n };
-    case "m":
-      return { minutes: n };
-    case "h":
-      return { hours: n };
-    default:
-      return { days: n };
-  }
-};
+import { TokenCacheService } from "../token/tokenCacheService";
 
 @injectable()
 export class TokenService implements IRefreshTokenService {
   constructor(
     @inject("UserRepo") private readonly userRepo: IUserRepo,
-    @inject("RefreshTokenRepo")
-    private readonly refreshTokenRepo: IRefreshTokenRepo
+    @inject("TokenCacheService")
+    private readonly tokenCacheService: TokenCacheService,
   ) {}
 
-  private async generateTokens(
-    user: { userId: string; role: string; email: string; tokenVersion: number | null },
-    ua?: string,
-    ip?: string
+  private async generateTokens(//que pasa si genero varias veces?
+    user: {
+      userId: string;
+      role: string;
+      email: string;
+      tokenVersion: number | null;
+    },
   ) {
-    const jti = uuid();
-    const refreshTtl = parseTTL(process.env.REFRESH_TOKEN_TTL);
-    const expiresAt = add(new Date(), refreshTtl);
-
-    await this.refreshTokenRepo.create({
-      jti,
-      user: { connect: { userId: user.userId } },
-      expiresAt,
-      userAgent: ua,
-      ip,
-    });
-
     const accessToken = signAccessToken({
       sub: user.userId,
       role: user.role,
       email: user.email,
       tokenVersion: user.tokenVersion || 0,
     });
+    await this.tokenCacheService.storeAccessToken(user.userId, accessToken); 
+
     const refreshToken = signRefreshToken({
       sub: user.userId,
       role: user.role,
       email: user.email,
       tokenVersion: user.tokenVersion || 0,
-      jti,
     });
+    await this.tokenCacheService.storeRefreshToken(user.userId, refreshToken);
 
     return { accessToken, refreshToken };
   }
 
-  async issuePair(userId: string, ua?: string, ip?: string) {
+  // no me gusta que vuelva a buscar el usuario
+  async issuePair(userId: string) {
     const user = await this.userRepo.findById(userId);
     if (!user) throw Unauthorized("Usuario no encontrado");
-    return this.generateTokens(user, ua, ip);
+    return this.generateTokens(user);
   }
 
-  async rotateRefresh(oldToken: string, ua?: string, ip?: string) {
+  //Revisar la logica de rotacion
+  async rotateRefresh(oldToken: string) {
     let payload;
     try {
       payload = verifyRefreshToken(oldToken);
@@ -91,34 +62,38 @@ export class TokenService implements IRefreshTokenService {
       throw Unauthorized("Refresh token inválido");
     }
 
-    const rt = await this.refreshTokenRepo.findById(payload.jti);
-    if (!rt) throw Unauthorized("Refresh token no registrado");
-    if (rt.revokedAt) throw Unauthorized("Refresh token revocado");
-    if (rt.expiresAt <= new Date())
-      throw Unauthorized("Refresh token expirado");
+    // const rt = await this.refreshTokenRepo.findById(payload.jti);
+    // if (!rt) throw Unauthorized("Refresh token no registrado");
+    // if (rt.revokedAt) throw Unauthorized("Refresh token revocado");
+    // if (rt.expiresAt <= new Date())
+    //   throw Unauthorized("Refresh token expirado");
 
-    await this.refreshTokenRepo.update(payload.jti, { revokedAt: new Date() });
+    // await this.refreshTokenRepo.update(payload.jti, { revokedAt: new Date() });
 
-    const user = await this.userRepo.findById(rt.userId);
+    const user = await this.userRepo.findById(payload.sub);
     if (!user) throw Unauthorized("Usuario no encontrado");
 
-    return this.generateTokens(user, ua, ip);
+    return this.generateTokens(user);
   }
 
   async revoke(jti: string) {
-    await this.refreshTokenRepo.updateMany(
-      { jti, revokedAt: null },
-      { revokedAt: new Date() }
-    );
+    // await this.refreshTokenRepo.updateMany(
+    //   { jti, revokedAt: null },
+    //   { revokedAt: new Date() }
+    // );
+    console.log("no implementado");
   }
   async revokeAllForUser(userId: string) {
-    await this.userRepo.update(userId, { tokenVersion: { increment: 1 } });
-    await this.refreshTokenRepo.updateMany(
-      { userId, revokedAt: null },
-      { revokedAt: new Date() }
-    );
+    // await this.userRepo.update(userId, { tokenVersion: { increment: 1 } });
+    // await this.refreshTokenRepo.updateMany(
+    //   { userId, revokedAt: null },
+    //   { revokedAt: new Date() }
+    // );
+    console.log("no implementado");
   }
 }
 
-// TokenService debe ser resuelto por el contenedor DI
-// No exportar instancia singleton
+/*TODO:
+  - TokenServiceRepo se debe eliminar solo usar cache
+
+*/

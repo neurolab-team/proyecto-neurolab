@@ -1,13 +1,13 @@
 import { Router } from "express";
 import { z } from "zod";
 import { auth, AuthedRequest } from "../middleware/auth";
-import container from '../container/index'
+import container from "../container/index";
 import { IAuthService } from "../contracts/auth/IauthService";
 import { TokenService } from "../services/auth/tokenService";
 import { wrap } from "../middleware/async";
 import { Unauthorized } from "../utils/httpError";
 import { verifyRefreshToken } from "../utils/jwt";
-import {ok} from "../utils/jsonResponse";
+import { ok } from "../utils/jsonResponse";
 
 export const AuthController = Router();
 
@@ -38,7 +38,6 @@ const ChangePasswordDto = z.object({
     .min(6, "La nueva contraseña debe tener al menos 6 caracteres"),
 });
 
-
 const parseRefreshToken = (refreshToken: string) => {
   const parts = refreshToken.split(".");
   if (parts.length !== 3) {
@@ -57,13 +56,9 @@ AuthController.post(
     const result = await authService.login(email, password);
 
     // Generate token pair
-    const tokens = await tokenService.issuePair(
-      result.user.userId,
-      req.headers["user-agent"] as string,
-      req.ip
-    );
+    const tokens = await tokenService.issuePair(result.user.userId);
 
-    ok(res,{
+    ok(res, {
       data: {
         accessToken: tokens.accessToken,
         refreshToken: tokens.refreshToken,
@@ -74,6 +69,8 @@ AuthController.post(
           gender: result.user.gender,
           role: result.user.role,
           name: result.user.name,
+          isActive: result.user.isActive,
+          lastLogin: result.user.lastLogin,
         },
       },
     });
@@ -85,13 +82,9 @@ AuthController.post(
   wrap(async (req, res) => {
     const { refreshToken } = RefreshDto.parse(req.body);
 
-    const tokenPair = await tokenService.rotateRefresh(
-      refreshToken,
-      req.headers["user-agent"] as string,
-      req.ip
-    );
+    const tokenPair = await tokenService.rotateRefresh(refreshToken);
 
-    ok(res,{
+    ok(res, {
       data: {
         accessToken: tokenPair.accessToken,
         refreshToken: tokenPair.refreshToken,
@@ -117,7 +110,7 @@ AuthController.post(
 
     await tokenService.revoke(payload.jti);
 
-    ok(res,{
+    ok(res, {
       data: {
         message: "Logout exitoso",
       },
@@ -131,7 +124,7 @@ AuthController.post(
   wrap(async (req: AuthedRequest, res) => {
     await tokenService.revokeAllForUser(req.user!.id);
 
-    ok(res,{
+    ok(res, {
       data: {
         message: "Logout exitoso",
       },
@@ -148,8 +141,8 @@ AuthController.get(
     if (!userProfile) {
       throw Unauthorized("Usuario no encontrado");
     }
-    ok(res,{
-      data: userProfile
+    ok(res, {
+      data: userProfile,
     });
   })
 );
@@ -167,10 +160,10 @@ AuthController.put(
       newPassword
     );
 
-    ok(res,{
+    ok(res, {
       data: {
-        message: "Contraseña cambiada exitosamente"
-      }
+        message: "Contraseña cambiada exitosamente",
+      },
     });
   })
 );

@@ -35,27 +35,26 @@ enum assignmentStatus {
 }
 
 model user {
-  userId       String    @id @default(uuid()) @db.Uuid
-  userNumber   String    @unique
-  email        String    @unique
-  password     String
-  name         String
-  gender       String? 
-  birthDate    DateTime?
-  userType     userType  @default(external)
-  tokenVersion Int       @default(0)
-  role         userRole
-  isActive     Boolean   @default(false)
-  lastLogin    DateTime?
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
+  userId        String    @id @default(uuid()) @db.Uuid
+  userNumber    String    @unique
+  email         String    @unique
+  password      String?
+  name          String
+  gender        String?
+  birthDate     DateTime?
+  userType      userType  @default(external)
+  tokenVersion  Int       @default(0) // mirar si se puede eliminar
+  role          userRole
+  isActive      Boolean   @default(false)
+  lastLogin     DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  verifiedEmail Boolean   @default(false)
 
   // relations
-  refreshTokens            refreshToken[]
-  emailVerificationTokens  emailVerificationToken[]
-  createdTests             test[]         @relation("testCreatedBy")
-  assignmentsTo            assignment[]   @relation("assignedTo")
-  assignmentsBy            assignment[]   @relation("assignedBy")
+  createdTests            test[]                   @relation("testCreatedBy")
+  assignmentsTo           assignment[]             @relation("assignedTo")
+  assignmentsBy           assignment[]             @relation("assignedBy")
 
   @@map("user")
 }
@@ -170,31 +169,5 @@ model assignmentScore {
   interpretation String?
   details        Json?
 
-  @@map("assignment_scores")
-}
-
-model refreshToken {
-  refreshTokenId        String    @id @default(uuid()) @db.Uuid
-  jti       String    @unique
-  userId    String    @db.Uuid
-  user      user      @relation(fields: [userId], references: [userId], onDelete: Cascade)
-  revokedAt DateTime?
-  expiresAt DateTime
-  createdAt DateTime  @default(now())
-  userAgent String?
-  ip        String?
-
-  @@index([userId, revokedAt])
-}
-
-model emailVerificationToken {
-  id        String   @id @default(uuid()) @db.Uuid
-  token     String   @unique
-  userId    String   @db.Uuid
-  user      user     @relation(fields: [userId], references: [userId], onDelete: Cascade)
-  expiresAt DateTime
-  createdAt DateTime @default(now())
-
-  @@index([userId])
-  @@map("email_verification_tokens")
+  @@map("assignmentScores")
 }

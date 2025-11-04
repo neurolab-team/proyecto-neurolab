@@ -51,21 +51,9 @@ function checkVeryCommon(pw: string): string | null {
   return veryCommon.has(pw.toLowerCase()) ? errorMessages.common : null
 }
 
-function checkEmailPart(pw: string, email?: string): string | null {
-  if (!email) return null
-  const local = String(email).split('@')[0]?.toLowerCase()
-  return local && pw.toLowerCase().includes(local) ? errorMessages.emailPart : null
-}
-
-
-
-
-
-
 
 export async function checkPassword(
   password: string,
-  email?: string,
 ): Promise<string[]> {
   const o = optsFromEnv()
   const pw = (password ?? '').trim()
@@ -80,10 +68,6 @@ export async function checkPassword(
   const commonErr = checkVeryCommon(pw)
   if (commonErr) errs.push(commonErr)
 
-  if (o.blockEmailPart) {
-    const emailErr = checkEmailPart(pw, email)
-    if (emailErr) errs.push(emailErr)
-  }
 
   return errs
 }

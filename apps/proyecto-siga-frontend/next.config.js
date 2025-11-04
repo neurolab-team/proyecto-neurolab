@@ -11,6 +11,10 @@ const nextConfig = {
   // Use this to set Nx-specific options
   // See: https://nx.dev/recipes/next/next-config-setup
   nx: {},
+  env:{
+    PORT: '3000',
+    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL
+  }
 };
 
 const plugins = [
