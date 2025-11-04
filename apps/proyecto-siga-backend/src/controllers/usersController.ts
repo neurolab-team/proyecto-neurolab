@@ -8,59 +8,17 @@ import { IUserService } from "../contracts/user/IuserService";
 import { z } from "zod";
 import { NotFound } from "../utils/httpError";
 import { created } from "../utils/jsonResponse";
-
+import { CreateUserDto, RegisterDto } from "@packages/common-schemas/user.schemas";
+import { userResponse } from "@packages/common-schemas/user.schemas";
 // Private Routes
 export const UsersController = Router();
 const userService = container.resolve<IUserService>("UserService");
 
 UsersController.use(auth, asAdminOrPsychologist);
 
-const role = ["user"] as const;
-const staffRoles = ["psychologist", "admin"] as const; 
 
-interface userResponse {
-  userNumber: string;
-  email: string;
-  name: string;
-  role: string;
-  isActive: boolean;
-  gender: string;
-}
 
-const userTypes = ["itmStudent", "itmEmployee", "external"] as const;
-
-//solo para administradores
-const CreateUserDto = z.object({
-  email: z
-    .string()
-    .min(3)
-    .trim()
-    .transform((s) => s.toLowerCase()),
-  name: z.string().trim().optional().nullable(),
-  role: z.enum(staffRoles),
-  userNumber: z.string().min(1).trim(),
-  userType: z.enum(userTypes),
-  birthDate: z.string().optional(),
-  gender: z.string(),
-});
-
-// 
-const RegisterDto = z.object({
-  email: z
-    .string()
-    .min(3)
-    .trim()
-    .transform((s) => s.toLowerCase()),
-  name: z.string().min(1).trim(),
-  role:z.enum(role),
-  userNumber: z.string().min(1).trim(),
-  userType: z.enum(userTypes),
-  birthDate: z.string().optional(),
-  gender: z.string().optional(),
-  password:z.string().min(6).optional()
-});
-
-// CRUD Routes using service
+// Private Routes
 
 UsersController.get(
   "/",
@@ -166,7 +124,7 @@ UsersController.get(
   })
 );
 
-// Routes public
+// Public Routes
 
 const PublicUsersController = Router();
 

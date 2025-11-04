@@ -2,9 +2,8 @@ import { inject, injectable } from "tsyringe";
 import bcrypt from "bcrypt";
 import {
   IUserService,
-  User,
-  CreateUserInput,
 } from "../../contracts/user/IuserService";
+import {User, CreateUserInput} from "@packages/common-types/user.types";
 import { generateSecurePassword } from "../../utils/sendEmail";
 import prisma from "@packages/libs/prisma";
 import { BadRequest, NotFound } from "../../utils/httpError";

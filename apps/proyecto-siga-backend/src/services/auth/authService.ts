@@ -1,16 +1,17 @@
 import { inject, injectable } from "tsyringe";
 import bcrypt from "bcrypt";
 import {
-  IAuthService,
   UserAuth,
   LoginCredentials,
   LoginResult,
   UserProfile,
-} from "../../contracts/auth/IauthService";
+} from "@packages/common-types/auth.types";
+import { IAuthService } from "../../contracts/auth/IauthService";
 import type { IUserRepo } from "../../contracts/user/IuserRepo";
 import { Unauthorized, BadRequest } from "../../utils/httpError";
 import { checkPassword } from "../../security/passwordPolicy";
-import { User } from "../../contracts";
+import { User } from "@packages/common-types/user.types";
+
 @injectable()
 export class AuthService implements IAuthService {
   constructor(
