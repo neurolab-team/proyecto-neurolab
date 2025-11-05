@@ -1,4 +1,4 @@
-import { auth, asAdminOrPsychologist } from "../middleware/auth";
+import { auth, asAdminOrPsychologist, asAdmin } from "../middleware/auth";
 import container from "../container/index";
 import { CommonDtos } from "../shared/validators";
 import { Router } from "express";
@@ -8,58 +8,22 @@ import { IUserService } from "../contracts/user/IuserService";
 import { z } from "zod";
 import { NotFound } from "../utils/httpError";
 import { created } from "../utils/jsonResponse";
-
+import { CreateUserDto, RegisterDto } from "@packages/common-schemas/user.schemas";
+import { userResponse } from "@packages/common-schemas/user.schemas";
 // Private Routes
 export const UsersController = Router();
 const userService = container.resolve<IUserService>("UserService");
 
 UsersController.use(auth, asAdminOrPsychologist);
-const role = ["user"] as const;
-// const rolesAdmin = [..,admin, "psychologist", "user"] as const; // not implemented yet
-interface userResponse {
-  userNumber: string;
-  email: string;
-  name: string;
-  role: string;
-  isActive: boolean;
-  gender: string;
-}
 
-const CreateUserDto = z.object({
-  email: z
-    .string()
-    .min(3)
-    .trim()
-    .transform((s) => s.toLowerCase()),
-  name: z.string().trim().optional().nullable(),
-  role: z.enum(role),
-  userNumber: z.string().min(1).trim(),
-  gender: z.string(),
-  password: z.string().min(6).optional()
-});
 
-const userTypes = ["itmStudent", "itmEmployee", "external"] as const;
 
-const RegisterDto = z.object({
-  email: z
-    .string()
-    .min(3)
-    .trim()
-    .transform((s) => s.toLowerCase()),
-  name: z.string().min(1).trim(),
-  userNumber: z.string().min(1).trim(),
-  userType: z.enum(userTypes),
-  birthDate: z.string().optional(),
-  gender: z.string().optional(),
-  password:z.string().min(6).optional()
-});
-
-// CRUD Routes using service
+// Private Routes
 
 UsersController.get(
   "/",
   auth,
-  asAdminOrPsychologist,
+  asAdmin,
   wrap(async (req: any, res) => {
     const users = await userService.getUsers();
     return ok(res, users, "Listado de usuarios");
@@ -91,16 +55,17 @@ UsersController.get(
 UsersController.post(
   "/",
   auth,
-  asAdminOrPsychologist,
+  asAdmin,
   wrap(async (req: any, res) => {
     const input = CreateUserDto.parse(req.body);
-    const user = await userService.createUser({
+    const user = await userService.createUserByAdmin({
       email: input.email,
       name: input.name ?? "",
       userNumber: input.userNumber,
       role: input.role,
-      userType: "external",
-      password: input.password ?? ""
+      userType: input.userType,
+      birthDate: input.birthDate,
+      gender: input.gender
     });
     const userReponse: userResponse = {
       userNumber: user.userNumber,
@@ -159,7 +124,7 @@ UsersController.get(
   })
 );
 
-// Routes public
+// Public Routes
 
 const PublicUsersController = Router();
 

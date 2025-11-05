@@ -1,9 +1,14 @@
 import { Router } from "express";
-import { z } from "zod";
 import { auth, AuthedRequest } from "../middleware/auth";
 import container from "../container/index";
 import { IAuthService } from "../contracts/auth/IauthService";
 import { TokenService } from "../services/auth/tokenService";
+import {
+  LoginDto,
+  RefreshDto,
+  LogoutDto,
+  ChangePasswordDto,
+} from "@packages/common-schemas/auth.schemas";
 import { wrap } from "../middleware/async";
 import { Unauthorized } from "../utils/httpError";
 import { verifyRefreshToken } from "../utils/jwt";
@@ -14,29 +19,7 @@ export const AuthController = Router();
 const authService = container.resolve<IAuthService>("AuthService");
 const tokenService = container.resolve<TokenService>("TokenService");
 
-const LoginDto = z.object({
-  email: z
-    .string()
-    .min(3)
-    .trim()
-    .transform((s) => s.toLowerCase()),
-  password: z.string().min(6),
-});
 
-const RefreshDto = z.object({
-  refreshToken: z.string().min(10),
-});
-
-const LogoutDto = z.object({
-  refreshToken: z.string().min(10),
-});
-
-const ChangePasswordDto = z.object({
-  currentPassword: z.string().min(1, "Contraseña actual requerida"),
-  newPassword: z
-    .string()
-    .min(6, "La nueva contraseña debe tener al menos 6 caracteres"),
-});
 
 const parseRefreshToken = (refreshToken: string) => {
   const parts = refreshToken.split(".");
@@ -71,6 +54,7 @@ AuthController.post(
           name: result.user.name,
           isActive: result.user.isActive,
           lastLogin: result.user.lastLogin,
+          verifiedEmail: result.user.verifiedEmail ,
         },
       },
     });

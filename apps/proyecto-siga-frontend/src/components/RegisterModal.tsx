@@ -51,21 +51,6 @@ export default function RegisterModal({ isOpen, onClose }: RegisterModalProps) {
     formState: { errors },
   } = useForm<FormData>();
 
-  useEffect(() => {
-    if (success) {
-      if (countdown === 0) {
-        router.push("/login");
-        return;
-      }
-
-      const timer = setTimeout(() => {
-        setCountdown(countdown - 1);
-      }, 1000);
-
-      return () => clearTimeout(timer);
-    }
-  }, [success, countdown, router]);
-
   const signupMutation = useMutation({
     mutationFn: async (data: FormData) => {
       const response = await axios.post(

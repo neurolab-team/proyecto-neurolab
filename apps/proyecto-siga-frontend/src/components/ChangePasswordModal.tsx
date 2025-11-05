@@ -1,15 +1,18 @@
-import { useState } from 'react';
+import { useState } from "react";
 
 interface ChangePasswordModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-export default function ChangePasswordModal({ isOpen, onClose }: ChangePasswordModalProps) {
-  const [currentPassword, setCurrentPassword] = useState('');
-  const [newPassword, setNewPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [error, setError] = useState('');
+export default function ChangePasswordModal({
+  isOpen,
+  onClose,
+}: ChangePasswordModalProps) {
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
 
@@ -17,40 +20,45 @@ export default function ChangePasswordModal({ isOpen, onClose }: ChangePasswordM
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
+    setError("");
 
     if (newPassword !== confirmPassword) {
-      setError('Las contraseñas no coinciden');
+      setError("Las contraseñas no coinciden");
       return;
     }
 
     if (newPassword.length < 6) {
-      setError('La contraseña debe tener al menos 6 caracteres');
+      setError("La contraseña debe tener al menos 6 caracteres");
       return;
     }
 
     if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(newPassword)) {
-      setError('La contraseña debe contener al menos: 1 minúscula, 1 mayúscula y 1 número');
+      setError(
+        "La contraseña debe contener al menos: 1 minúscula, 1 mayúscula y 1 número"
+      );
       return;
     }
 
     setLoading(true);
 
     try {
-      const token = localStorage.getItem('accessToken');
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/change-password`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({ currentPassword, newPassword }),
-      });
+      const token = localStorage.getItem("accessToken");
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/auth/change-password`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ currentPassword, newPassword }),
+        }
+      );
 
       const data = await response.json();
 
       if (!response.ok) {
-        setError(data.message || 'Error al cambiar la contraseña');
+        setError(data.message || "Error al cambiar la contraseña");
         setLoading(false);
         return;
       }
@@ -60,24 +68,42 @@ export default function ChangePasswordModal({ isOpen, onClose }: ChangePasswordM
         onClose();
       }, 2000);
     } catch (err) {
-      setError('Error de conexión');
+      setError("Error de conexión");
       setLoading(false);
     }
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50" onClick={onClose}>
-      <div className="bg-white rounded-xl shadow-2xl w-full max-w-md p-8 relative" onClick={(e) => e.stopPropagation()}>
+    <div
+      className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+      onClick={onClose}
+    >
+      <div
+        className="bg-white rounded-xl shadow-2xl w-full max-w-md p-8 relative"
+        onClick={(e) => e.stopPropagation()}
+      >
         <button
           onClick={onClose}
           className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
         >
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          <svg
+            className="w-6 h-6"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M6 18L18 6M6 6l12 12"
+            />
           </svg>
         </button>
 
-        <h2 className="text-3xl font-bold text-[#102D69] mb-6">Cambiar Contraseña</h2>
+        <h2 className="text-3xl font-bold text-[#102D69] mb-6">
+          Cambiar Contraseña
+        </h2>
 
         {success ? (
           <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg text-center">
@@ -139,7 +165,7 @@ export default function ChangePasswordModal({ isOpen, onClose }: ChangePasswordM
               disabled={loading}
               className="w-full bg-gradient-to-r from-[#102D69] to-[#00A0B7] text-white py-3 rounded-lg font-bold hover:shadow-lg transition-all disabled:opacity-50"
             >
-              {loading ? 'Cambiando contraseña...' : 'Cambiar Contraseña'}
+              {loading ? "Cambiando contraseña..." : "Cambiar Contraseña"}
             </button>
           </form>
         )}

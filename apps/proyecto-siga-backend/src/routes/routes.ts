@@ -9,7 +9,3 @@ router.use('/auth',AuthController);
 
 // public routes
 router.use('/public/users', PublicUsersController)
-
-
-
-

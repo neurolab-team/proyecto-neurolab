@@ -1,16 +1,17 @@
 import { inject, injectable } from "tsyringe";
 import bcrypt from "bcrypt";
 import {
-  IAuthService,
   UserAuth,
   LoginCredentials,
   LoginResult,
   UserProfile,
-} from "../../contracts/auth/IauthService";
+} from "@packages/common-types/auth.types";
+import { IAuthService } from "../../contracts/auth/IauthService";
 import type { IUserRepo } from "../../contracts/user/IuserRepo";
 import { Unauthorized, BadRequest } from "../../utils/httpError";
 import { checkPassword } from "../../security/passwordPolicy";
-import { User } from "../../contracts";
+import { User } from "@packages/common-types/user.types";
+
 @injectable()
 export class AuthService implements IAuthService {
   constructor(
@@ -38,6 +39,7 @@ export class AuthService implements IAuthService {
         gender: user.gender || "",
         isActive: user.isActive,
         lastLogin: user.lastLogin,
+        verifiedEmail: user.verifiedEmail ,        
       },
     };
   }
@@ -64,6 +66,8 @@ export class AuthService implements IAuthService {
       role: user.role,
       userType: user.userType,
       isActive: user.isActive,
+      gender: user.gender || "",
+      verifiedEmail: user.verifiedEmail ,
       lastLogin: user.lastLogin || undefined,
     };
   }

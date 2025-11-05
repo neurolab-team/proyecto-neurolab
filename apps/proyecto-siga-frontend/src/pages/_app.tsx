@@ -1,7 +1,8 @@
 import { AppProps } from "next/app";
 import Head from "next/head";
-import { Providers } from "../providers";
-import './styles.css';
+import { QueryClientProviderWrapper } from "../providers/queryProvider";
+import { AuthProvider } from "../providers/authProvider";
+import "./styles.css";
 
 function CustomApp({ Component, pageProps }: AppProps) {
   return (
@@ -10,9 +11,11 @@ function CustomApp({ Component, pageProps }: AppProps) {
         <title>Welcome to proyecto-siga-frontend!</title>
       </Head>
       <main className="app">
-        <Providers>
-          <Component {...pageProps} />
-        </Providers>
+        <QueryClientProviderWrapper>
+          <AuthProvider>
+            <Component {...pageProps} />
+          </AuthProvider>
+        </QueryClientProviderWrapper>
       </main>
     </>
   );
