@@ -21,13 +21,14 @@ export interface LoginResult {
   user: User
 }
 
+
 export interface LoginCredentials {
   email: string
   password: string
 }
 
-export interface ChangePasswordInput {
-  userId: string
+export interface ChangePasswordData {
   currentPassword: string
   newPassword: string
+  accessToken: string
 }

@@ -31,3 +31,12 @@ export interface UpdateUserInput {
   name?: string
   role?: UserRole
 }
+
+export type userResponse = {
+  userNumber: string;
+  email: string;
+  name: string;
+  role: string;
+  isActive: boolean;
+  gender: string;
+};

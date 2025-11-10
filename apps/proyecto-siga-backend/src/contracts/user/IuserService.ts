@@ -8,7 +8,7 @@ export interface IUserService {
   deactivateUser(id: string): Promise<void>
   activateUser(id: string): Promise<void>
   checkEmailAvailable(email: string, excludeId?: string): Promise<boolean>
-  verifyEmail(token: string,email:string): Promise<void>
+  verifyEmail(token: string): Promise<void>
   // requestPasswordReset(email: string): Promise<void>
   // resetPassword(token: string, newPassword: string): Promise<void>
   // resendActivation(email: string): Promise<void>

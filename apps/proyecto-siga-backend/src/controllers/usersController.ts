@@ -9,7 +9,7 @@ import { z } from "zod";
 import { NotFound } from "../utils/httpError";
 import { created } from "../utils/jsonResponse";
 import { CreateUserDto, RegisterDto } from "@packages/common-schemas/user.schemas";
-import { userResponse } from "@packages/common-schemas/user.schemas";
+import { userResponse } from "@packages/common-types/user.types";
 // Private Routes
 export const UsersController = Router();
 const userService = container.resolve<IUserService>("UserService");
@@ -140,7 +140,7 @@ PublicUsersController.post(
       birthDate: input.birthDate,
       gender: input.gender,
       password: input.password,
-      role: "user",
+      role: "user", // 🔒 SEGURIDAD: Siempre forzar role 'user' en registro público
     });
     return created(
       res,
@@ -153,81 +153,12 @@ PublicUsersController.post(
 PublicUsersController.post(
   "/verify-email",
   wrap(async (req: any, res) => {
-    const { token,email } = z.object({ token: z.string(), email: z.string() }).parse(req.body);
-    await userService.verifyEmail(token,email);
+    const { token } = z.object({ token: z.string() }).parse(req.body);
+    await userService.verifyEmail(token);
     return ok(
       res,
       null,
       "Email verificado exitosamente. Tu cuenta ha sido activada."
-    );
-  })
-);
-
-// PublicUsersController.post(
-//   "/request-password-reset",
-//   wrap(async (req: any, res) => {
-//     const { email } = z.object({ email: z.string() }).parse(req.body);
-
-//     await userService.requestPasswordReset(email);
-//     return ok(
-//       res,
-//       null,
-//       "Si el email existe, recibirás instrucciones para restablecer tu contraseña."
-//     );
-//   })
-// );
-
-// PublicUsersController.post(
-//   "/reset-password",
-//   wrap(async (req: any, res) => {
-//     const { token, password } = z
-//       .object({
-//         token: z.string(),
-//         password: z
-//           .string()
-//           .min(6, "La contraseña debe tener al menos 6 caracteres")
-//           .regex(
-//             /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
-//             "La contraseña debe contener al menos: 1 minúscula, 1 mayúscula y 1 número"
-//           ),
-//       })
-//       .parse(req.body);
-
-//     await userService.resetPassword(token, password);
-//     return ok(res, null, "Contraseña restablecida exitosamente.");
-//   })
-// );
-
-// PublicUsersController.post(
-//   "/resend-activation",
-//   wrap(async (req: any, res) => {
-//     const { email } = z.object({ email: z.string() }).parse(req.body);
-//     await userService.resendActivation(email);
-//     return ok(
-//       res,
-//       null,
-//       "Si el email corresponde a una cuenta no activada, recibirás un nuevo email de activación."
-//     );
-//   })
-// );
-
-PublicUsersController.post(
-  "/register",
-  wrap(async (req: any, res) => {
-    const input = RegisterDto.parse(req.body);
-    const user = await userService.createUser({
-      email: input.email,
-      name: input.name,
-      userNumber: input.userNumber,
-      userType: input.userType,
-      birthDate: input.birthDate,
-      gender: input.gender,
-      role: "user",
-    });
-    return created(
-      res,
-      { userId: user.userId, email: user.email },
-      "Usuario registrado con éxito. Se ha enviado un email de verificación."
     );
   })
 );

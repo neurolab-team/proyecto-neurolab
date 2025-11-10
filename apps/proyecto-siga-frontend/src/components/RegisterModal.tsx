@@ -1,39 +1,40 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
-
 import { useMutation } from "@tanstack/react-query";
-import { useRouter } from "next/navigation";
-import axios from "axios";
+import { usersService } from "../services/users/users";
+import { UserRole, UserType } from "@packages/common-types/user.types";
 
-type UserType = "itmStudent" | "itmEmployee" | "external";
-
-interface RegisterModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-}
-type FormData = {
+type RegisterFormData = {
   userType: UserType;
   name: string;
   email: string;
   userNumber: string;
-  gender: string;
+  gender?: string;
   birthDate: string;
-  password: string;
+  password?: string;
+  role?: UserRole;
 };
 
 interface RegisterModalProps {
   isOpen: boolean;
   onClose: () => void;
+  isAdminMode?: boolean;
+  accessToken?: string;
+  onSuccess?: () => void;
 }
 
-export default function RegisterModal({ isOpen, onClose }: RegisterModalProps) {
+export default function RegisterModal({
+  isOpen,
+  onClose,
+  isAdminMode = false,
+  accessToken,
+  onSuccess,
+}: RegisterModalProps) {
   const [userType, setUserType] = useState<UserType>("external");
-  const [userData, setUserData] = useState<FormData | null>(null);
+  const [userData, setUserData] = useState<RegisterFormData | null>(null);
   const [success, setSuccess] = useState(false);
-  const [countdown, setCountdown] = useState(5);
-  const router = useRouter();
 
   const validateEmail = (email: string, type: UserType | null) => {
     if (!type) return "";
@@ -49,23 +50,31 @@ export default function RegisterModal({ isOpen, onClose }: RegisterModalProps) {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<FormData>();
+  } = useForm<RegisterFormData>();
 
   const signupMutation = useMutation({
-    mutationFn: async (data: FormData) => {
-      const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/public/users/register`,
-        data
-      );
-      return response.data;
+    mutationFn: async (data: RegisterFormData) => {
+      if (isAdminMode && accessToken) {
+        const userData = {
+          ...data,
+          role: (data.role || "user") as UserRole,
+        };
+        return usersService.create(accessToken, userData);
+      } else {
+        const { ...publicUserData } = data;
+        return usersService.register(publicUserData);
+      }
     },
     onSuccess: (_, formData) => {
       setUserData(formData);
       setSuccess(true);
+      if (onSuccess) {
+        onSuccess();
+      }
     },
   });
 
-  const onSubmit = async (data: FormData) => {
+  const onSubmit = async (data: RegisterFormData) => {
     signupMutation.mutate(data);
   };
   if (!isOpen) return null;
@@ -141,7 +150,9 @@ export default function RegisterModal({ isOpen, onClose }: RegisterModalProps) {
                 ¡Registro Exitoso!
               </h3>
               <p className="text-gray-600 mb-4">
-                Se ha enviado una contraseña temporal a tu correo electrónico.{" "}
+                {isAdminMode
+                  ? "Se ha enviado una contraseña temporal a tu correo electrónico."
+                  : "Se ha registrado exitosamente."}
                 {userData?.email}
               </p>
               <button
@@ -179,6 +190,38 @@ export default function RegisterModal({ isOpen, onClose }: RegisterModalProps) {
                   <option value="external">Usuario Externo</option>
                 </select>
               </div>
+
+              {isAdminMode && (
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Rol del usuario *
+                  </label>
+                  <select
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#00A0B7] focus:border-[#00A0B7] transition-all appearance-none bg-white cursor-pointer text-gray-700 font-medium"
+                    style={{
+                      backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2300A0B7'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`,
+                      backgroundRepeat: "no-repeat",
+                      backgroundPosition: "right 1rem center",
+                      backgroundSize: "1.5rem",
+                      paddingRight: "3rem",
+                    }}
+                    {...register("role", {
+                      required: isAdminMode
+                        ? "Este campo es obligatorio"
+                        : false,
+                    })}
+                  >
+                    <option value="user">Usuario</option>
+                    <option value="psychologist">Psicólogo</option>
+                    <option value="admin">Administrador</option>
+                  </select>
+                  {errors.role && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.role.message}
+                    </p>
+                  )}
+                </div>
+              )}
 
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
@@ -251,42 +294,49 @@ export default function RegisterModal({ isOpen, onClose }: RegisterModalProps) {
                   )}
                 </div>
 
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Password
-                  </label>
-                  {/* Agregar que se pueda mostrar la contraseña */}
-                  <input
-                    type="password"
-                    {...register("password", {
-                      required: "Este campo es obligatorio",
-                    })}
-                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#00A0B7] focus:border-[#00A0B7] transition-all"
-                    placeholder="********"
-                  />
-                  {errors.password && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {errors.password.message}
-                    </p>
-                  )}
-                </div>
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Fecha de nacimiento *
-                  </label>
-                  <input
-                    type="date"
-                    {...register("birthDate", {
-                      required: "Este campo es obligatorio",
-                    })}
-                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#00A0B7] focus:border-[#00A0B7] transition-all"
-                  />
-                  {errors.birthDate && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {errors.birthDate.message}
-                    </p>
-                  )}
-                </div>
+                {!isAdminMode && (
+                  <>
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        Password
+                      </label>
+                      {/* Agregar que se pueda mostrar la contraseña */}
+                      <input
+                        type="password"
+                        {...register("password", {
+                          required: !isAdminMode
+                            ? "Este campo es obligatorio"
+                            : false,
+                        })}
+                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#00A0B7] focus:border-[#00A0B7] transition-all"
+                        placeholder="********"
+                      />
+                      {errors.password && (
+                        <p className="text-red-500 text-sm mt-1">
+                          {errors.password.message}
+                        </p>
+                      )}
+                    </div>
+
+                    <div>
+                      <label className={`block text-sm font-semibold text-gray-700 ${isAdminMode ? 'mb-4' : 'mb-2'}`}>
+                        Fecha de nacimiento *
+                      </label>
+                      <input
+                        type="date"
+                        {...register("birthDate", {
+                          required: "Este campo es obligatorio",
+                        })}
+                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#00A0B7] focus:border-[#00A0B7] transition-all"
+                      />
+                      {errors.birthDate && (
+                        <p className="text-red-500 text-sm mt-1">
+                          {errors.birthDate.message}
+                        </p>
+                      )}
+                    </div>
+                  </>
+                )}
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
                     Género
@@ -311,6 +361,7 @@ export default function RegisterModal({ isOpen, onClose }: RegisterModalProps) {
                   </select>
                 </div>
               </div>
+
               <div className="bg-gradient-to-r from-blue-50 to-cyan-50 border-2 border-blue-200 rounded-xl p-4">
                 <div className="flex items-start space-x-3">
                   <svg
@@ -327,7 +378,10 @@ export default function RegisterModal({ isOpen, onClose }: RegisterModalProps) {
                     />
                   </svg>
                   <p className="text-sm text-blue-800">
-                    <strong>Nota:</strong> Se generará una contraseña temporal
+                    <strong>Nota:</strong>{" "}
+                    {isAdminMode
+                      ? "Se generará una contraseña temporal"
+                      : "Se generará un link de verificación"}
                     que será enviada a tu correo electrónico.
                   </p>
                 </div>

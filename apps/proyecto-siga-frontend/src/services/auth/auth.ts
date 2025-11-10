@@ -1,7 +1,13 @@
 import axios, { AxiosError } from "axios";
 import { useMutation } from "@tanstack/react-query";
 
-const login = async (data: LoginData): Promise<LoginResponse> => {
+import {
+  LoginCredentials,
+  LoginResult,
+  ChangePasswordData,
+} from "@packages/common-types/auth.types";
+
+const login = async (data: LoginCredentials): Promise<LoginResult> => {
   const response = await axios.post(
     `${process.env.NEXT_PUBLIC_API_URL}/api/auth/login`,
     data,
@@ -10,12 +16,13 @@ const login = async (data: LoginData): Promise<LoginResponse> => {
 };
 
 const changePassword = async ({
+  currentPassword,
   newPassword,
   accessToken,
 }: ChangePasswordData) => {
   const response = await axios.post(
     `${process.env.NEXT_PUBLIC_API_URL}/api/auth/change-password`,
-    { newPassword },
+    { currentPassword, newPassword },
     {
       headers: {
         Authorization: `Bearer ${accessToken}`,
@@ -26,7 +33,7 @@ const changePassword = async ({
 };
 
 export const useLoginMutation = () => {
-  return useMutation<LoginResponse, AxiosError<{ message: string }>, LoginData>(
+  return useMutation<LoginResult, AxiosError<{ message: string }>, LoginCredentials>(
     {
       mutationFn: login,
     },

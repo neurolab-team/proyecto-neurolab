@@ -1,17 +1,10 @@
-import {
-  createContext
-} from "react";
-
-export type User = {
-  name: string;
-  email: string;
-  isActive: boolean;
-  verifiedEmail: boolean;
-  lastLogin: Date | null;
-};
+import { createContext } from "react";
+import { User } from "@packages/common-types/user.types";
 
 type AuthContextType = {
   user: User | null;
+  accessToken: string | null;
+  refreshToken: string | null;
   isLoading: boolean;
   login: (
     accessToken: string,
