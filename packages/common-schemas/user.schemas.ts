@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 const userTypes = ["itmStudent", "itmEmployee", "external"] as const;
-const role = ["user"] as const;
+//const role = ["user"] as const;
 const staffRoles = ["psychologist", "admin"] as const;
 
 export const CreateUserDto = z.object({
@@ -25,7 +25,7 @@ export const RegisterDto = z.object({
     .trim()
     .transform((s) => s.toLowerCase()),
   name: z.string().min(1).trim(),
-  role: z.enum(role),
+//  role: z.enum(role),
   userNumber: z.string().min(1).trim(),
   userType: z.enum(userTypes),
   birthDate: z.string().optional(),
