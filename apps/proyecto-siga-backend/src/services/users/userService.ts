@@ -123,7 +123,7 @@ export class UserService implements IUserService {
 
       await this.emailVerificationService.sendVerificationEmailStaff(
         user.email,
-        user.name || user.role == "admin" ? "Administrador" : "Psicólogo",
+        user.name || (user.role == "admin" ? "Administrador" : "Psicólogo"),
         temporaryPassword,
         `${process.env.APP_FRONTEND_URL}`
       );

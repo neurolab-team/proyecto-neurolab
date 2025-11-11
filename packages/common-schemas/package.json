@@ -1,0 +1,13 @@
+{
+  "name": "@packages/common-schemas",
+  "version": "1.0.0",
+  "private": true,
+  "main": "./test.schemas.ts",
+  "types": "./test.schemas.ts",
+  "exports": {
+    ".": "./test.schemas.ts",
+    "./test.schemas": "./test.schemas.ts",
+    "./auth.schemas": "./auth.schemas.ts",
+    "./user.schemas": "./user.schemas.ts"
+  }
+}
