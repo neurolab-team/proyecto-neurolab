@@ -1,21 +1,5 @@
 "use client";
 
-<<<<<<< HEAD
-import React, { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
-
-import { useMutation } from "@tanstack/react-query";
-import { useRouter } from "next/navigation";
-import axios from "axios";
-
-type UserType = "itmStudent" | "itmEmployee" | "external";
-
-interface RegisterModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-}
-type FormData = {
-=======
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useMutation } from "@tanstack/react-query";
@@ -23,36 +7,19 @@ import { usersService } from "../services/users/users";
 import { UserRole, UserType } from "@packages/common-types/user.types";
 
 type RegisterFormData = {
->>>>>>> remotes/origin/jhonzabala/refactoringWeb
   userType: UserType;
   name: string;
   email: string;
   userNumber: string;
-<<<<<<< HEAD
-  gender: string;
-  birthDate: string;
-  password: string;
-=======
   gender?: string;
   birthDate: string;
   password?: string;
   role?: UserRole;
->>>>>>> remotes/origin/jhonzabala/refactoringWeb
 };
 
 interface RegisterModalProps {
   isOpen: boolean;
   onClose: () => void;
-<<<<<<< HEAD
-}
-
-export default function RegisterModal({ isOpen, onClose }: RegisterModalProps) {
-  const [userType, setUserType] = useState<UserType>("external");
-  const [userData, setUserData] = useState<FormData | null>(null);
-  const [success, setSuccess] = useState(false);
-  const [countdown, setCountdown] = useState(5);
-  const router = useRouter();
-=======
   isAdminMode?: boolean;
   accessToken?: string;
   onSuccess?: () => void;
@@ -68,7 +35,6 @@ export default function RegisterModal({
   const [userType, setUserType] = useState<UserType>("external");
   const [userData, setUserData] = useState<RegisterFormData | null>(null);
   const [success, setSuccess] = useState(false);
->>>>>>> remotes/origin/jhonzabala/refactoringWeb
 
   const validateEmail = (email: string, type: UserType | null) => {
     if (!type) return "";
@@ -84,17 +50,6 @@ export default function RegisterModal({
     register,
     handleSubmit,
     formState: { errors },
-<<<<<<< HEAD
-  } = useForm<FormData>();
-
-  const signupMutation = useMutation({
-    mutationFn: async (data: FormData) => {
-      const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/public/users/register`,
-        data
-      );
-      return response.data;
-=======
   } = useForm<RegisterFormData>();
 
   const signupMutation = useMutation({
@@ -109,17 +64,10 @@ export default function RegisterModal({
         const { ...publicUserData } = data;
         return usersService.register(publicUserData);
       }
->>>>>>> remotes/origin/jhonzabala/refactoringWeb
     },
     onSuccess: (_, formData) => {
       setUserData(formData);
       setSuccess(true);
-<<<<<<< HEAD
-    },
-  });
-
-  const onSubmit = async (data: FormData) => {
-=======
       if (onSuccess) {
         onSuccess();
       }
@@ -127,7 +75,6 @@ export default function RegisterModal({
   });
 
   const onSubmit = async (data: RegisterFormData) => {
->>>>>>> remotes/origin/jhonzabala/refactoringWeb
     signupMutation.mutate(data);
   };
   if (!isOpen) return null;
@@ -203,13 +150,9 @@ export default function RegisterModal({
                 ¡Registro Exitoso!
               </h3>
               <p className="text-gray-600 mb-4">
-<<<<<<< HEAD
-                Se ha enviado una contraseña temporal a tu correo electrónico.{" "}
-=======
                 {isAdminMode
                   ? "Se ha enviado una contraseña temporal a tu correo electrónico."
                   : "Se ha registrado exitosamente."}
->>>>>>> remotes/origin/jhonzabala/refactoringWeb
                 {userData?.email}
               </p>
               <button
@@ -248,8 +191,6 @@ export default function RegisterModal({
                 </select>
               </div>
 
-<<<<<<< HEAD
-=======
               {isAdminMode && (
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
@@ -282,7 +223,6 @@ export default function RegisterModal({
                 </div>
               )}
 
->>>>>>> remotes/origin/jhonzabala/refactoringWeb
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
                   Nombre completo *
@@ -354,44 +294,6 @@ export default function RegisterModal({
                   )}
                 </div>
 
-<<<<<<< HEAD
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Password
-                  </label>
-                  {/* Agregar que se pueda mostrar la contraseña */}
-                  <input
-                    type="password"
-                    {...register("password", {
-                      required: "Este campo es obligatorio",
-                    })}
-                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#00A0B7] focus:border-[#00A0B7] transition-all"
-                    placeholder="********"
-                  />
-                  {errors.password && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {errors.password.message}
-                    </p>
-                  )}
-                </div>
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Fecha de nacimiento *
-                  </label>
-                  <input
-                    type="date"
-                    {...register("birthDate", {
-                      required: "Este campo es obligatorio",
-                    })}
-                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#00A0B7] focus:border-[#00A0B7] transition-all"
-                  />
-                  {errors.birthDate && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {errors.birthDate.message}
-                    </p>
-                  )}
-                </div>
-=======
                 {!isAdminMode && (
                   <>
                     <div>
@@ -417,7 +319,9 @@ export default function RegisterModal({
                     </div>
 
                     <div>
-                      <label className={`block text-sm font-semibold text-gray-700 ${isAdminMode ? 'mb-4' : 'mb-2'}`}>
+                      <label
+                        className={`block text-sm font-semibold text-gray-700 ${isAdminMode ? "mb-4" : "mb-2"}`}
+                      >
                         Fecha de nacimiento *
                       </label>
                       <input
@@ -435,7 +339,6 @@ export default function RegisterModal({
                     </div>
                   </>
                 )}
->>>>>>> remotes/origin/jhonzabala/refactoringWeb
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
                     Género
@@ -460,10 +363,6 @@ export default function RegisterModal({
                   </select>
                 </div>
               </div>
-<<<<<<< HEAD
-=======
-
->>>>>>> remotes/origin/jhonzabala/refactoringWeb
               <div className="bg-gradient-to-r from-blue-50 to-cyan-50 border-2 border-blue-200 rounded-xl p-4">
                 <div className="flex items-start space-x-3">
                   <svg
@@ -480,14 +379,10 @@ export default function RegisterModal({
                     />
                   </svg>
                   <p className="text-sm text-blue-800">
-<<<<<<< HEAD
-                    <strong>Nota:</strong> Se generará una contraseña temporal
-=======
                     <strong>Nota:</strong>{" "}
                     {isAdminMode
                       ? "Se generará una contraseña temporal"
                       : "Se generará un link de verificación"}
->>>>>>> remotes/origin/jhonzabala/refactoringWeb
                     que será enviada a tu correo electrónico.
                   </p>
                 </div>

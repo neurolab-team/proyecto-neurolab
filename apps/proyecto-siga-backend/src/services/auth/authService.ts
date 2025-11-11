@@ -144,8 +144,4 @@ export class AuthService implements IAuthService {
   }
 }
 //TODO:
-<<<<<<< HEAD
 // evitar porque no hay logica para el last login y definir como se va a manejar cuando un usuario lo desactivan
-=======
-// evitar porque no hay logica para el last login y definir como se va a manejar cuando un usuario lo desactivan
->>>>>>> remotes/origin/jhonzabala/refactoringWeb

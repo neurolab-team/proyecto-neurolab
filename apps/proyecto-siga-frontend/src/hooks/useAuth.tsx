@@ -6,8 +6,4 @@ export const useAuth = () => {
     throw new Error("useAuth debe ser usado dentro de un AuthProvider");
   }
   return context;
-<<<<<<< HEAD
 };
-=======
-};
->>>>>>> remotes/origin/jhonzabala/refactoringWeb
