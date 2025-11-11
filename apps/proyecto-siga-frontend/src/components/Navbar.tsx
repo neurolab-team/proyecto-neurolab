@@ -76,6 +76,7 @@ export default function Navbar() {
                 </button>
               </>
             ) : (
+<<<<<<< HEAD
               <div className="relative">
                 <button
                   onClick={() => setShowMenu(!showMenu)}
@@ -120,6 +121,62 @@ export default function Navbar() {
                   </div>
                 )}
               </div>
+=======
+              <>
+                {user.role === "admin" && (
+                  <button
+                    onClick={() => handleNavigation("/admin")}
+                    className="text-white hover:bg-white/10 px-4 py-2 rounded-lg transition-all font-medium border border-white/30"
+                  >
+                    Panel Admin
+                  </button>
+                )}
+                <div className="relative">
+                  <button
+                    onClick={() => setShowMenu(!showMenu)}
+                    className="text-white hover:bg-white/10 px-4 py-2 rounded-lg transition-all font-medium border border-white/30 flex items-center space-x-2"
+                  >
+                    <span>{user.name?.trim() || user.email}</span>
+                    <svg
+                      className="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M19 9l-7 7-7-7"
+                      />
+                    </svg>
+                  </button>
+
+                  {showMenu && (
+                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl py-2 z-50">
+                      <button
+                        onClick={() => {
+                          setShowMenu(false);
+                          setShowChangePasswordModal(true);
+                        }}
+                        className="w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors"
+                      >
+                        Cambiar Contraseña
+                      </button>
+                      <button
+                        onClick={() => {
+                          logout();
+                          setShowMenu(false);
+                        }}
+                        className="w-full text-left px-4 py-2 text-red-600 hover:bg-gray-100 transition-colors"
+                      >
+                        Cerrar Sesión
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </>
+>>>>>>> remotes/origin/jhonzabala/refactoringWeb
             )}
           </div>
         </div>

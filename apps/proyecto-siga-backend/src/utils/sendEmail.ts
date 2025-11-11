@@ -60,4 +60,8 @@ export const generateSecurePassword = async (): Promise<string> => {
     password += chars.charAt(Math.floor(Math.random() * chars.length));
   }
   return password;
+<<<<<<< HEAD
 };
+=======
+};
+>>>>>>> remotes/origin/jhonzabala/refactoringWeb

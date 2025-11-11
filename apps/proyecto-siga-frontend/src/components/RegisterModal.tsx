@@ -1,5 +1,6 @@
 "use client";
 
+<<<<<<< HEAD
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 
@@ -14,18 +15,35 @@ interface RegisterModalProps {
   onClose: () => void;
 }
 type FormData = {
+=======
+import React, { useState } from "react";
+import { useForm } from "react-hook-form";
+import { useMutation } from "@tanstack/react-query";
+import { usersService } from "../services/users/users";
+import { UserRole, UserType } from "@packages/common-types/user.types";
+
+type RegisterFormData = {
+>>>>>>> remotes/origin/jhonzabala/refactoringWeb
   userType: UserType;
   name: string;
   email: string;
   userNumber: string;
+<<<<<<< HEAD
   gender: string;
   birthDate: string;
   password: string;
+=======
+  gender?: string;
+  birthDate: string;
+  password?: string;
+  role?: UserRole;
+>>>>>>> remotes/origin/jhonzabala/refactoringWeb
 };
 
 interface RegisterModalProps {
   isOpen: boolean;
   onClose: () => void;
+<<<<<<< HEAD
 }
 
 export default function RegisterModal({ isOpen, onClose }: RegisterModalProps) {
@@ -34,6 +52,23 @@ export default function RegisterModal({ isOpen, onClose }: RegisterModalProps) {
   const [success, setSuccess] = useState(false);
   const [countdown, setCountdown] = useState(5);
   const router = useRouter();
+=======
+  isAdminMode?: boolean;
+  accessToken?: string;
+  onSuccess?: () => void;
+}
+
+export default function RegisterModal({
+  isOpen,
+  onClose,
+  isAdminMode = false,
+  accessToken,
+  onSuccess,
+}: RegisterModalProps) {
+  const [userType, setUserType] = useState<UserType>("external");
+  const [userData, setUserData] = useState<RegisterFormData | null>(null);
+  const [success, setSuccess] = useState(false);
+>>>>>>> remotes/origin/jhonzabala/refactoringWeb
 
   const validateEmail = (email: string, type: UserType | null) => {
     if (!type) return "";
@@ -49,6 +84,7 @@ export default function RegisterModal({ isOpen, onClose }: RegisterModalProps) {
     register,
     handleSubmit,
     formState: { errors },
+<<<<<<< HEAD
   } = useForm<FormData>();
 
   const signupMutation = useMutation({
@@ -58,14 +94,40 @@ export default function RegisterModal({ isOpen, onClose }: RegisterModalProps) {
         data
       );
       return response.data;
+=======
+  } = useForm<RegisterFormData>();
+
+  const signupMutation = useMutation({
+    mutationFn: async (data: RegisterFormData) => {
+      if (isAdminMode && accessToken) {
+        const userData = {
+          ...data,
+          role: (data.role || "user") as UserRole,
+        };
+        return usersService.create(accessToken, userData);
+      } else {
+        const { ...publicUserData } = data;
+        return usersService.register(publicUserData);
+      }
+>>>>>>> remotes/origin/jhonzabala/refactoringWeb
     },
     onSuccess: (_, formData) => {
       setUserData(formData);
       setSuccess(true);
+<<<<<<< HEAD
     },
   });
 
   const onSubmit = async (data: FormData) => {
+=======
+      if (onSuccess) {
+        onSuccess();
+      }
+    },
+  });
+
+  const onSubmit = async (data: RegisterFormData) => {
+>>>>>>> remotes/origin/jhonzabala/refactoringWeb
     signupMutation.mutate(data);
   };
   if (!isOpen) return null;
@@ -141,7 +203,13 @@ export default function RegisterModal({ isOpen, onClose }: RegisterModalProps) {
                 ¡Registro Exitoso!
               </h3>
               <p className="text-gray-600 mb-4">
+<<<<<<< HEAD
                 Se ha enviado una contraseña temporal a tu correo electrónico.{" "}
+=======
+                {isAdminMode
+                  ? "Se ha enviado una contraseña temporal a tu correo electrónico."
+                  : "Se ha registrado exitosamente."}
+>>>>>>> remotes/origin/jhonzabala/refactoringWeb
                 {userData?.email}
               </p>
               <button
@@ -180,6 +248,41 @@ export default function RegisterModal({ isOpen, onClose }: RegisterModalProps) {
                 </select>
               </div>
 
+<<<<<<< HEAD
+=======
+              {isAdminMode && (
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Rol del usuario *
+                  </label>
+                  <select
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#00A0B7] focus:border-[#00A0B7] transition-all appearance-none bg-white cursor-pointer text-gray-700 font-medium"
+                    style={{
+                      backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2300A0B7'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`,
+                      backgroundRepeat: "no-repeat",
+                      backgroundPosition: "right 1rem center",
+                      backgroundSize: "1.5rem",
+                      paddingRight: "3rem",
+                    }}
+                    {...register("role", {
+                      required: isAdminMode
+                        ? "Este campo es obligatorio"
+                        : false,
+                    })}
+                  >
+                    <option value="user">Usuario</option>
+                    <option value="psychologist">Psicólogo</option>
+                    <option value="admin">Administrador</option>
+                  </select>
+                  {errors.role && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.role.message}
+                    </p>
+                  )}
+                </div>
+              )}
+
+>>>>>>> remotes/origin/jhonzabala/refactoringWeb
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
                   Nombre completo *
@@ -251,6 +354,7 @@ export default function RegisterModal({ isOpen, onClose }: RegisterModalProps) {
                   )}
                 </div>
 
+<<<<<<< HEAD
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
                     Password
@@ -287,6 +391,51 @@ export default function RegisterModal({ isOpen, onClose }: RegisterModalProps) {
                     </p>
                   )}
                 </div>
+=======
+                {!isAdminMode && (
+                  <>
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        Password
+                      </label>
+                      {/* Agregar que se pueda mostrar la contraseña */}
+                      <input
+                        type="password"
+                        {...register("password", {
+                          required: !isAdminMode
+                            ? "Este campo es obligatorio"
+                            : false,
+                        })}
+                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#00A0B7] focus:border-[#00A0B7] transition-all"
+                        placeholder="********"
+                      />
+                      {errors.password && (
+                        <p className="text-red-500 text-sm mt-1">
+                          {errors.password.message}
+                        </p>
+                      )}
+                    </div>
+
+                    <div>
+                      <label className={`block text-sm font-semibold text-gray-700 ${isAdminMode ? 'mb-4' : 'mb-2'}`}>
+                        Fecha de nacimiento *
+                      </label>
+                      <input
+                        type="date"
+                        {...register("birthDate", {
+                          required: "Este campo es obligatorio",
+                        })}
+                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#00A0B7] focus:border-[#00A0B7] transition-all"
+                      />
+                      {errors.birthDate && (
+                        <p className="text-red-500 text-sm mt-1">
+                          {errors.birthDate.message}
+                        </p>
+                      )}
+                    </div>
+                  </>
+                )}
+>>>>>>> remotes/origin/jhonzabala/refactoringWeb
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
                     Género
@@ -311,6 +460,10 @@ export default function RegisterModal({ isOpen, onClose }: RegisterModalProps) {
                   </select>
                 </div>
               </div>
+<<<<<<< HEAD
+=======
+
+>>>>>>> remotes/origin/jhonzabala/refactoringWeb
               <div className="bg-gradient-to-r from-blue-50 to-cyan-50 border-2 border-blue-200 rounded-xl p-4">
                 <div className="flex items-start space-x-3">
                   <svg
@@ -327,7 +480,14 @@ export default function RegisterModal({ isOpen, onClose }: RegisterModalProps) {
                     />
                   </svg>
                   <p className="text-sm text-blue-800">
+<<<<<<< HEAD
                     <strong>Nota:</strong> Se generará una contraseña temporal
+=======
+                    <strong>Nota:</strong>{" "}
+                    {isAdminMode
+                      ? "Se generará una contraseña temporal"
+                      : "Se generará un link de verificación"}
+>>>>>>> remotes/origin/jhonzabala/refactoringWeb
                     que será enviada a tu correo electrónico.
                   </p>
                 </div>

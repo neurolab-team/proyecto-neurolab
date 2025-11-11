@@ -2,7 +2,11 @@ import { AppProps } from "next/app";
 import Head from "next/head";
 import { QueryClientProviderWrapper } from "../providers/queryProvider";
 import { AuthProvider } from "../providers/authProvider";
+<<<<<<< HEAD
 import "./styles.css";
+=======
+import './styles.css';
+>>>>>>> remotes/origin/jhonzabala/refactoringWeb
 
 function CustomApp({ Component, pageProps }: AppProps) {
   return (

@@ -24,4 +24,8 @@ export class VerificationService implements IVerificationService {
     await this.tokenCacheService.storeVerificationToken(email, token);
     return token; 
   }
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> remotes/origin/jhonzabala/refactoringWeb

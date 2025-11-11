@@ -8,4 +8,8 @@ export interface IAuthService {
     newPassword: string,
   ): Promise<void>;
   validateToken(userId: string, tokenVersion: number): Promise<boolean>;
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> remotes/origin/jhonzabala/refactoringWeb

@@ -13,4 +13,8 @@ export interface IEmailVerificationService {
     temporaryPassword: string,
     loginUrl: string
   ): Promise<void>;
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> remotes/origin/jhonzabala/refactoringWeb

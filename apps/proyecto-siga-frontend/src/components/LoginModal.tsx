@@ -17,7 +17,14 @@ interface LoginModalProps {
 }
 type ModalView = "login" | "firstLogin" | "inactive" | "emailVerification";
 
+<<<<<<< HEAD
 export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
+=======
+export default function LoginModal({
+  isOpen,
+  onClose,
+}: LoginModalProps) {
+>>>>>>> remotes/origin/jhonzabala/refactoringWeb
   const auth = useAuth();
   const [user, setUser] = useState<User | null>(null);
   const [modalView, setModalView] = useState<ModalView>("login");
@@ -34,7 +41,11 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
     mutationFn: async (data: FormData) => {
       const response = await axios.post(
         `${process.env.NEXT_PUBLIC_API_URL}/api/auth/login`,
+<<<<<<< HEAD
         data
+=======
+        data,
+>>>>>>> remotes/origin/jhonzabala/refactoringWeb
       );
       return response.data;
     },
@@ -68,7 +79,11 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
           headers: {
             Authorization: `Bearer ${accessToken}`,
           },
+<<<<<<< HEAD
         }
+=======
+        },
+>>>>>>> remotes/origin/jhonzabala/refactoringWeb
       );
       return response.data;
     },

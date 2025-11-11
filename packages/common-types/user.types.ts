@@ -30,4 +30,17 @@ export interface UpdateUserInput {
   email?: string
   name?: string
   role?: UserRole
+<<<<<<< HEAD
 }
+=======
+}
+
+export type userResponse = {
+  userNumber: string;
+  email: string;
+  name: string;
+  role: string;
+  isActive: boolean;
+  gender: string;
+};
+>>>>>>> remotes/origin/jhonzabala/refactoringWeb

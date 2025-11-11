@@ -57,7 +57,11 @@ export const checkRole = (allowedRoles: AppRole[]) => {
     if (allowedRoles.includes(req.user?.role as AppRole)) {
       return next();
     }
+<<<<<<< HEAD
     return Forbidden();
+=======
+    throw Forbidden();
+>>>>>>> remotes/origin/jhonzabala/refactoringWeb
   };
 };
 

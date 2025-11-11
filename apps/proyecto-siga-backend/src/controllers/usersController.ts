@@ -9,7 +9,11 @@ import { z } from "zod";
 import { NotFound } from "../utils/httpError";
 import { created } from "../utils/jsonResponse";
 import { CreateUserDto, RegisterDto } from "@packages/common-schemas/user.schemas";
+<<<<<<< HEAD
 import { userResponse } from "@packages/common-schemas/user.schemas";
+=======
+import { userResponse } from "@packages/common-types/user.types";
+>>>>>>> remotes/origin/jhonzabala/refactoringWeb
 // Private Routes
 export const UsersController = Router();
 const userService = container.resolve<IUserService>("UserService");
@@ -128,6 +132,7 @@ UsersController.get(
 
 const PublicUsersController = Router();
 
+<<<<<<< HEAD
 PublicUsersController.post(
   "/register",
   wrap(async (req: any, res) => {
@@ -211,6 +216,8 @@ PublicUsersController.post(
 //   })
 // );
 
+=======
+>>>>>>> remotes/origin/jhonzabala/refactoringWeb
 PublicUsersController.post(
   "/register",
   wrap(async (req: any, res) => {
@@ -222,12 +229,30 @@ PublicUsersController.post(
       userType: input.userType,
       birthDate: input.birthDate,
       gender: input.gender,
+<<<<<<< HEAD
       role: "user",
+=======
+      password: input.password,
+      role: "user", // 🔒 SEGURIDAD: Siempre forzar role 'user' en registro público
+>>>>>>> remotes/origin/jhonzabala/refactoringWeb
     });
     return created(
       res,
       { userId: user.userId, email: user.email },
       "Usuario registrado con éxito. Se ha enviado un email de verificación."
+    );
+  })
+);
+
+PublicUsersController.post(
+  "/verify-email",
+  wrap(async (req: any, res) => {
+    const { token } = z.object({ token: z.string() }).parse(req.body);
+    await userService.verifyEmail(token);
+    return ok(
+      res,
+      null,
+      "Email verificado exitosamente. Tu cuenta ha sido activada."
     );
   })
 );

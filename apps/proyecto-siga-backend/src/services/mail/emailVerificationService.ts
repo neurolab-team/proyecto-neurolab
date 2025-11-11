@@ -32,4 +32,8 @@ export class EmailVerificationService implements IEmailVerificationService {
 
     await sendEmail(email, subject, templateName, data);
   }
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> remotes/origin/jhonzabala/refactoringWeb

@@ -21,13 +21,24 @@ export interface LoginResult {
   user: User
 }
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> remotes/origin/jhonzabala/refactoringWeb
 export interface LoginCredentials {
   email: string
   password: string
 }
 
+<<<<<<< HEAD
 export interface ChangePasswordInput {
   userId: string
   currentPassword: string
   newPassword: string
+=======
+export interface ChangePasswordData {
+  currentPassword: string
+  newPassword: string
+  accessToken: string
+>>>>>>> remotes/origin/jhonzabala/refactoringWeb
 }
