@@ -169,8 +169,4 @@ model assignmentScore {
   details        Json?
 
   @@map("assignmentScores")
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> remotes/origin/jhonzabala/refactoringWeb

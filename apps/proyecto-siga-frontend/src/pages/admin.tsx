@@ -1,20 +1,3 @@
-<<<<<<< HEAD
-import Header from "../components/adminHeader";
-import Sidebar from "../components/adminSidebar";
-
-export default function AdminPanelPage() {
-  return (
-    <div className="flex h-screen overflow-hidden">
-      <Sidebar />
-      <div className="flex flex-col flex-1 overflow-auto">
-        <div className="max-w-7x1 mx-auto w-full">
-          <Header />
-        </div>
-      </div>
-    </div>
-  );
-}
-=======
 "use client";
 
 import { useEffect, useState } from "react";
@@ -57,13 +40,8 @@ export default function AdminPanel() {
   });
 
   const updateRoleMutation = useMutation({
-    mutationFn: ({
-      userId,
-      role,
-    }: {
-      userId: string;
-      role: string;
-    }) => usersService.updateRole(accessToken!, userId, role),
+    mutationFn: ({ userId, role }: { userId: string; role: string }) =>
+      usersService.updateRole(accessToken!, userId, role),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["users"] });
     },
@@ -75,7 +53,7 @@ export default function AdminPanel() {
 
   const users: User[] = usersData?.data || [];
   const filteredUsers = users.filter((u) =>
-    u.email.toLowerCase().includes(emailFilter.toLowerCase())
+    u.email.toLowerCase().includes(emailFilter.toLowerCase()),
   );
 
   const getRoleBadgeColor = (role: string) => {
@@ -100,9 +78,7 @@ export default function AdminPanel() {
                 <h1 className="text-4xl font-bold text-[#102D69] mb-2">
                   Panel de Administración
                 </h1>
-                <p className="text-gray-600">
-                  Gestión de usuarios del sistema
-                </p>
+                <p className="text-gray-600">Gestión de usuarios del sistema</p>
               </div>
               <button
                 onClick={() => setShowCreateModal(true)}
@@ -181,8 +157,8 @@ export default function AdminPanel() {
                             {u.userType === "itmStudent"
                               ? "Estudiante ITM"
                               : u.userType === "itmEmployee"
-                              ? "Empleado ITM"
-                              : "Externo"}
+                                ? "Empleado ITM"
+                                : "Externo"}
                           </span>
                         </td>
                         <td className="py-4 px-4">
@@ -196,7 +172,7 @@ export default function AdminPanel() {
                             }
                             disabled={updateRoleMutation.isPending}
                             className={`px-3 py-1 rounded-lg font-semibold text-sm ${getRoleBadgeColor(
-                              u.role
+                              u.role,
                             )} border-0 cursor-pointer`}
                           >
                             <option value="user">Usuario</option>
@@ -248,4 +224,3 @@ export default function AdminPanel() {
     </div>
   );
 }
->>>>>>> remotes/origin/jhonzabala/refactoringWeb
