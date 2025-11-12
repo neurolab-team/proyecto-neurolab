@@ -1,14 +1,15 @@
 import { Router } from "express";
 import { UsersController, PublicUsersController } from "../controllers/usersController";
 import { AuthController } from "../controllers/authController";
+import { AssignmentController } from "../controllers/assignmentController";
 export const router = Router();
 
 // privates routes
 router.use('/users',UsersController);
 router.use('/auth',AuthController);
-
+router.use('/assignments',AssignmentController);
 // public routes
-router.use('/public/users', PublicUsersController)
+router.use('/public/users', PublicUsersController);
 
 
 

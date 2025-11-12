@@ -52,22 +52,22 @@ model user {
   verifiedEmail Boolean   @default(false)
 
   // relations
-  createdTests            test[]                   @relation("testCreatedBy")
-  assignmentsTo           assignment[]             @relation("assignedTo")
-  assignmentsBy           assignment[]             @relation("assignedBy")
+  createdTests  test[]       @relation("testCreatedBy")
+  assignmentsTo assignment[] @relation("assignedTo")
+  assignmentsBy assignment[] @relation("assignedBy")
 
   @@map("user")
 }
 
 model test {
-  testId          String   @id @default(uuid()) @db.Uuid
-  testCode        String?  @unique
-  title           String
-  description     String?
-  isPublished     Boolean  @default(false)
-  createdByNumber String?
-  createdBy       user?    @relation("testCreatedBy", fields: [createdByNumber], references: [userNumber])
-  createdAt       DateTime @default(now())
+  testId      String   @id @default(uuid()) @db.Uuid
+  testCode    String?  @unique
+  title       String
+  description String?
+  isPublished Boolean  @default(false)
+  createdById String?  @db.Uuid
+  createdBy   user?    @relation("testCreatedBy", fields: [createdById], references: [userId])
+  createdAt   DateTime @default(now())
 
   sections    testSection[]
   questions   question[]
@@ -77,20 +77,19 @@ model test {
 }
 
 model testSection {
-  testSectionId   String  @id @default(uuid()) @db.Uuid
+  testSectionId   String     @id @default(uuid()) @db.Uuid
   testSectionCode String?
-  testCode        String
+  testId          String     @db.Uuid
   name            String?
-
-  test      test       @relation(fields: [testCode], references: [testCode], onDelete: Cascade)
-  questions question[]
+  test            test       @relation(fields: [testId], references: [testId], onDelete: Cascade)
+  questions       question[]
 
   @@map("testSections")
 }
 
 model question {
   questionId    String  @id @default(uuid()) @db.Uuid
-  testCode      String
+  testId        String  @db.Uuid
   testSectionId String? @db.Uuid
   //type questionType
   code          String?
@@ -99,11 +98,11 @@ model question {
   metadata      Json?
 
   section        testSection?     @relation(fields: [testSectionId], references: [testSectionId])
-  test           test             @relation(fields: [testCode], references: [testCode], onDelete: Cascade)
+  test           test             @relation(fields: [testId], references: [testId], onDelete: Cascade)
   questionOption questionOption[]
   answers        answer[]
 
-  @@unique([testCode, code])
+  @@unique([testId, code])
   @@map("questions")
 }
 
@@ -123,10 +122,10 @@ model questionOption {
 
 model assignment {
   assignmentId String @id @default(uuid()) @db.Uuid
-  testCode     String
+  testId       String @db.Uuid
 
-  assignedToId String
-  assignedById String
+  assignedToId String @db.Uuid
+  assignedById String @db.Uuid
   status       assignmentStatus @default(assigned)
 
   dueAt       DateTime?
@@ -134,9 +133,9 @@ model assignment {
   completedAt DateTime?
   createdAt   DateTime  @default(now())
 
-  assignedBy user             @relation("assignedBy", fields: [assignedById], references: [userNumber])
-  assignedTo user             @relation("assignedTo", fields: [assignedToId], references: [userNumber])
-  test       test             @relation(fields: [testCode], references: [testCode], onDelete: Cascade, onUpdate: Cascade)
+  assignedBy user             @relation("assignedBy", fields: [assignedById], references: [userId])
+  assignedTo user             @relation("assignedTo", fields: [assignedToId], references: [userId])
+  test       test             @relation(fields: [testId], references: [testId], onDelete: Cascade, onUpdate: Cascade)
   answers    answer[]
   score      assignmentScore?
 
@@ -150,7 +149,7 @@ model answer {
   questionId       String   @db.Uuid
   questionOptionId String?  @db.Uuid
   numericAnswer    Decimal? @db.Decimal(12, 4)
-  score            Decimal? @db.Decimal(12, 4)
+  score            Decimal? @db.Decimal(12, 4) // posible a eliminar
 
   question   question        @relation(fields: [questionId], references: [questionId])
   option     questionOption? @relation(fields: [questionOptionId], references: [questionOptionId])
