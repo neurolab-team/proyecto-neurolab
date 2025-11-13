@@ -29,7 +29,7 @@ export interface CreateAnswer{
   numericAnswer: Decimal | null
 }
 
-export interface CreateManyAsnswersInput {
+export interface CreateManyAnswersInput {
   assignmentId: string,
   answers: CreateAnswer[]
 }
