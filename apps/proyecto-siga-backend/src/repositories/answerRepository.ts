@@ -10,12 +10,19 @@ export class AnswerRepository implements IAnswerRepo {
   async findMany(tx = prisma): Promise<answer[]> {
     return tx.answer.findMany({orderBy: { assignmentId: 'desc' } })
   }
-  async findByAssigmentTest(assigmentId: string, tx = prisma): Promise<answer[]> {
-    return tx.answer.findMany({ where: { assignmentId:assigmentId},orderBy:{questionId: 'asc'} })
+  async findByAssignmentTest(assignmentId: string, tx = prisma): Promise<answer[]> {
+    return tx.answer.findMany({ where: { assignmentId} })
   }
-    async create(data: Prisma.answerCreateInput, tx = prisma): Promise<answer> {
-        return tx.answer.create({ data })
-    }
+  async create(data: Prisma.answerCreateInput, tx = prisma): Promise<answer> {
+      return tx.answer.create({ data })
+  }
+
+  async createMany(data: Prisma.answerCreateManyInput[], tx = prisma): Promise<answer[]> {
+    return tx.answer.createManyAndReturn({
+      data: data,
+      skipDuplicates: false
+    });
+  }
 
 
 }

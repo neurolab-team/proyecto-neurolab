@@ -41,6 +41,16 @@ AnswersController.get(
     })
 );
 
+AnswersController.get(
+    "/assignment/:id",
+    wrap(async (req: any, res) => {
+        const id= CommonDtos.IdParam.parse(req.params).id;
+        const answers = await answerService.getAnswersByAssignmentTest(id);
+        return ok(res, answers, "Listado de respuestas");
+    })
+);
+
+
 AnswersController.post(
     "/",
     wrap(async (req: any, res) => {
