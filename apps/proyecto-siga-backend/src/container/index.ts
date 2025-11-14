@@ -11,6 +11,8 @@ import { VerificationService } from '../services/verification/verificationServic
 import { AssignmentRepository } from '../repositories/assignmentRepository'
 import { AssignmentService } from '../services/assigment/assignmentService'
 import { TestRepository } from '../repositories/testRepository'
+import { AnswerService } from '../services/answer/answerService'
+import { AnswerRepository } from '../repositories/answerRepository'
 //register dependencies - service
 container.register("TokenCacheService", { useClass: TokenCacheService })
 container.register("TokenService",{useClass: TokenService})
@@ -19,10 +21,12 @@ container.register("UserService",{useClass: UserService})
 container.register("VerificationService",{useClass: VerificationService})
 container.register("EmailVerificationService",{useClass: EmailVerificationService})
 container.register("AssignmentService",{useClass:AssignmentService})
+container.register("AnswerService",{useClass: AnswerService})
 //register dependencies - repository
 container.register("TokenCacheRepo",{useClass:TokenCacheRepository})
 container.register("UserRepo", { useClass: UserRepository })
 container.register("AssignmentRepo",{useClass:AssignmentRepository})
 container.register("TestRepo",{useClass:TestRepository})
+container.register("AnswerRepo",{useClass:AnswerRepository})
 
 export default container
