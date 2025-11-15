@@ -148,8 +148,6 @@ model answer {
   assignmentId     String   @db.Uuid
   questionId       String   @db.Uuid
   questionOptionId String?  @db.Uuid
-  numericAnswer    Decimal? @db.Decimal(12, 4)
-  score            Decimal? @db.Decimal(12, 4) // posible a eliminar
 
   question   question        @relation(fields: [questionId], references: [questionId])
   option     questionOption? @relation(fields: [questionOptionId], references: [questionOptionId])

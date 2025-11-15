@@ -17,7 +17,17 @@ module.exports = {
 //     ...createGlobPatternsForDependencies(__dirname)
   ],
   theme: {
-    extend: {},
+    extend: {
+      colors: {
+        'primary-dark': '#102D69',
+        'primary-light': '#00A0B7',
+        'gradient-from': '#E0E7FF', // similar a indigo-100
+        'gradient-via': '#F3E8FF',   // similar a purple-100
+        'gradient-to': '#E0F2FE',     // similar a blue-100
+      },
+    },
   },
-  plugins: [],
+  plugins: [
+    require('@tailwindcss/forms'), // Necesario para estilizar los radio buttons
+  ],
 };

@@ -6,7 +6,11 @@ export const testService = {
   getTestForAssignment: async (assignmentId: string): Promise<any> => {
     const response = axios.get(
       `${API_URL}/api/assignments/${assignmentId}/test`,
-      {headers: { Authorization: `Bearer ${localStorage.getItem("accessToken")}` }},//no es buena practica pero es temporal
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
+      }, //no es buena practica pero es temporal
     );
     return response.then((res) => res.data.data);
   },
@@ -14,13 +18,24 @@ export const testService = {
     assignmentId: string,
     answers: Record<string, string>,
   ): Promise<any> => {
-    console.log(
-      `[Servicio] Enviando ${Object.keys(answers).length} respuestas para: ${assignmentId}`,
+    const answersArray = Object.keys(answers).map((questionId) => {
+      const questionOptionId = answers[questionId];
+      return {
+        questionId: questionId,
+        questionOptionId: questionOptionId,
+      };
+    });
+    const response = axios.post(
+      `${API_URL}/api/answers/many`,
+      { assignmentId: assignmentId, answers: answersArray },
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
+      },
     );
-    // Simulamos una demora de red
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    return { success: true, message: "Test completado" };
+    return response.then((res) => res.data.data);
   },
 };
 //TODO: Reemplazar la manera como se envian los bearer tokens
-// 
+//
