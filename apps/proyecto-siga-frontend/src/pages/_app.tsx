@@ -2,9 +2,16 @@ import { AppProps } from "next/app";
 import Head from "next/head";
 import { QueryClientProviderWrapper } from "../providers/queryProvider";
 import { AuthProvider } from "../providers/authProvider";
-import './styles.css';
+import "./styles.css";
+import AuthGuard from "../components/Auth/AuthGuard";
 
-function CustomApp({ Component, pageProps }: AppProps) {
+type AppPropsWithAuth = AppProps & {
+  Component: {
+    auth?: boolean | string | string[]; 
+  };
+};
+function CustomApp({ Component, pageProps }: AppPropsWithAuth) {
+  const authConfig = Component.auth;
   return (
     <>
       <Head>
@@ -13,7 +20,15 @@ function CustomApp({ Component, pageProps }: AppProps) {
       <main className="app">
         <QueryClientProviderWrapper>
           <AuthProvider>
-            <Component {...pageProps} />
+            <>
+              {authConfig ? (
+                <AuthGuard auth={authConfig}>
+                  {<Component {...pageProps} />}
+                </AuthGuard>
+              ) : (
+                <Component {...pageProps} />
+              )}
+            </>
           </AuthProvider>
         </QueryClientProviderWrapper>
       </main>
