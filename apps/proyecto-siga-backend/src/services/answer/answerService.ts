@@ -41,24 +41,24 @@ export class AnswerService implements IAnswerService {
       },
       ...(input.questionOptionId && {
         option: {
-          connect: { questionOptionId: input.questionOptionId },
-        },
-      }),
-      numericAnswer: input.numericAnswer,
+          connect: { questionOptionId: input.questionOptionId }
+        }
+      })
     });
     return answer as Answer;
   }
 
-  async createManyAnswers(input: CreateManyAnswersInput): Promise<Answer[]> {
-    const answersData = input.answers.map((answerData) => ({
-      assignmentId: input.assignmentId,
-      questionId: answerData.questionId,
-      questionOptionId: answerData.questionOptionId,
-      numericAnswer: answerData.numericAnswer,
-    }));
-    // Bulk insert using answerRepo.createMany (assumed to exist)
-    const createdAnswers = await this.answerRepo.createMany(answersData);
-    return createdAnswers as Answer[];
+  async createManyAnswers(input:CreateManyAnswersInput): Promise<Answer[]>{
+    
+    const answersData = input.answers.map(answerData => ({
+    assignmentId: input.assignmentId,
+    questionId: answerData.questionId,
+    questionOptionId: answerData.questionOptionId,
+  }));
+  // Bulk insert using answerRepo.createMany (assumed to exist)
+  const createdAnswers = await this.answerRepo.createMany(answersData);
+  return createdAnswers as Answer[];
+   
   }
 
   getAnswersByAssignmentTestWithDetails(
