@@ -58,8 +58,8 @@ export default function TestPage() {
               <div className="mt-8">
                 <AnimatePresence mode="wait">
                   <motion.div
-                    key={currentQuestion.id}                    
-                    variants={fadeSlideUp}
+                    key={currentQuestion.questionId}                    
+                    variants={fadeSlideUp}  
                     initial="initial"
                     animate="animate"
                     exit="exit"

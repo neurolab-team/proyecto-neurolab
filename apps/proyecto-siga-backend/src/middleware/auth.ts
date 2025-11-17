@@ -8,7 +8,7 @@ import { TokenCacheService } from "../services/token/tokenCacheService";
 export type AppRole = "admin" | "psychologist" | "user";
 
 export interface AuthedUser {
-  id: string;
+  userId: string;
   role: AppRole;
   email: string;
 }
@@ -39,11 +39,11 @@ export async function auth(
       return next(Unauthorized("Token inválido"));
     }
 
-    req.user = { id: payload.sub, role: payload.role, email: payload.email };
+    req.user = { userId: payload.sub, role: payload.role, email: payload.email };
 
     const tokenCacheService =
       container.resolve<TokenCacheService>("TokenCacheService");
-    await tokenCacheService.storeAccessToken(req.user.id, token);
+    await tokenCacheService.storeAccessToken(req.user.userId, token);
     next();
   } catch (error) {
     return next(
@@ -61,16 +61,6 @@ export const checkRole = (allowedRoles: AppRole[]) => {
   };
 };
 
-export const asAny = (
-  _req: AuthedRequest,
-  _res: Response,
-  next: NextFunction
-) => next();
-
+export const asUser = checkRole(["user"]);
 export const asAdmin = checkRole(["admin"]);
-
 export const asAdminOrPsychologist = checkRole(["admin", "psychologist"]);
-
-
-//TODO:
-//no se usa el asAny en el proyecto revisar como implementarlo o quitarlo

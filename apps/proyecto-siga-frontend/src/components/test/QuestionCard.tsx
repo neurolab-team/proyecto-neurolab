@@ -1,7 +1,7 @@
-import { TestQuestionDto } from "@packages/common-schemas/test.schemas";
+import { Question } from "@packages/common-types/question.types";
 
 type QuestionCardProps = {
-  question: TestQuestionDto;
+  question: Question;
   current: number;
   selectedValue: string | null;
   onOptionSelect: (questionId: string, value: string) => void;
@@ -22,41 +22,38 @@ export const QuestionCard = ({
         </h3>
 
         <div className="flex flex-col space-y-3">
-          {question.options
+          {question.questionOption
             .filter((option) => option.value !== null)
             .map((option) => {
               
-              // Variable para saber si está seleccionada
-              const isSelected = selectedValue === option.id;
+              const isSelected = selectedValue === option.questionOptionId;
 
               return (
                 <label
-                  key={option.id}
+                  key={option.questionOptionId}
                   className={`
                     flex items-center space-x-4 p-4 rounded-lg border-2 
                     cursor-pointer transition-all duration-150
                     ${
                       isSelected
-                        ? 'bg-primary-dark border-primary-dark text-white' // <-- ESTILO SELECCIONADO
-                        : 'bg-white border-gray-200 text-gray-700 hover:border-primary-light' // <-- ESTILO NORMAL
+                        ? 'bg-primary-dark border-primary-dark text-white' 
+                        : 'bg-white border-gray-200 text-gray-700 hover:border-primary-light' 
                     }
                   `}
                 >
                   <input
                     type="radio"
-                    name={question.id}
-                    value={option.id!}
+                    name={question.questionId}
+                    value={option.questionOptionId!}
                     checked={isSelected}
                     onChange={() =>
-                      onOptionSelect(question.id, option.id!)
+                      onOptionSelect(question.questionId, option.questionOptionId!)
                     }
-                    // El color del check cambia con el fondo
                     className={`
                       form-radio h-5 w-5 focus:ring-primary-light
                       ${isSelected ? 'text-white' : 'text-primary-dark'}
                     `}
                   />
-                  {/* El span hereda el color (text-white or text-gray-700) desde la label */}
                   <span className="text-base">{option.label}</span>
                 </label>
               );

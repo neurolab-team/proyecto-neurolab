@@ -46,7 +46,7 @@ AuthController.post(
         accessToken: tokens.accessToken,
         refreshToken: tokens.refreshToken,
         user: {
-          id: result.user.userId,
+          userId: result.user.userId,
           userNumber: result.user.userNumber,
           email: result.user.email,
           gender: result.user.gender,
@@ -54,7 +54,7 @@ AuthController.post(
           name: result.user.name,
           isActive: result.user.isActive,
           lastLogin: result.user.lastLogin,
-          verifiedEmail: result.user.verifiedEmail ,
+          verifiedEmail: result.user.verifiedEmail,
         },
       },
     });
@@ -106,7 +106,7 @@ AuthController.post(
   "/logout-all",
   auth,
   wrap(async (req: AuthedRequest, res) => {
-    await tokenService.revokeAllForUser(req.user!.id);
+    await tokenService.revokeAllForUser(req.user!.userId);
 
     ok(res, {
       data: {
@@ -120,7 +120,7 @@ AuthController.get(
   "/me",
   auth,
   wrap(async (req: AuthedRequest, res) => {
-    const userProfile = await authService.getUserProfile(req.user!.id);
+    const userProfile = await authService.getUserProfile(req.user!.userId);
 
     if (!userProfile) {
       throw Unauthorized("Usuario no encontrado");
@@ -139,7 +139,7 @@ AuthController.put(
 
     // Change password through service (includes all validations)
     await authService.changePassword(
-      req.user!.id,
+      req.user!.userId,
       currentPassword,
       newPassword
     );

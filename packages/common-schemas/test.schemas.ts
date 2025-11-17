@@ -1,21 +1,21 @@
 import { z } from 'zod';
 
 export const testOptionDtoSchema = z.object({
-  id: z.uuid(),
+  questionOptionId: z.uuid(),
   label: z.string(),
   value: z.string().nullable(),
 });
 
 export const testQuestionDtoSchema = z.object({
-  id: z.uuid(),
+  questionId: z.uuid(),
   code: z.string().nullable(),
   prompt: z.string(),
-  options: z.array(testOptionDtoSchema),
+  questionOption: z.array(testOptionDtoSchema),
 });
 
 export const testDataDtoSchema = z.object({
   title: z.string(),
-  questions: z.array(testQuestionDtoSchema),
+  question: z.array(testQuestionDtoSchema),
 });
 
 export type  TestOptionDto = z.infer<typeof testOptionDtoSchema>;

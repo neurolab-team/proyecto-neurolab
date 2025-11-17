@@ -140,7 +140,7 @@ PublicUsersController.post(
       birthDate: input.birthDate,
       gender: input.gender,
       password: input.password,
-      role: "user", // 🔒 SEGURIDAD: Siempre forzar role 'user' en registro público
+      role: "user", 
     });
     return created(
       res,
