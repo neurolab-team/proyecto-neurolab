@@ -13,7 +13,6 @@ import {
   CreateManyAnswersDto,
 } from "@packages/common-schemas/answer.schemas";
 
-import { Prisma } from "@prisma/client";
 
 // Private Routes
 export const AnswersController = Router();
@@ -52,6 +51,16 @@ AnswersController.get(
   }),
 );
 
+AnswersController.get(
+  "/assignmentDetails/:id",
+  wrap(async (req: any, res) => {
+    const id = CommonDtos.IdParam.parse(req.params).id;
+    const answers =
+      await answerService.getAnswersByAssignmentTestWithDetails(id);
+    return ok(res, answers, "Listado de respuestas");
+  }),
+);
+
 AnswersController.post(
   "/",
   wrap(async (req: any, res) => {
@@ -59,11 +68,7 @@ AnswersController.post(
     const answer = await answerService.createAnswer({
       assignmentId: input.assignmentId,
       questionId: input.questionId,
-      questionOptionId: input.questionOptionId,
-      numericAnswer:
-        input.numericAnswer !== null && input.numericAnswer !== undefined
-          ? new Prisma.Decimal(input.numericAnswer)
-          : null,
+      questionOptionId: input.questionOptionId
     });
     return created(res, answer, "Respuesta guardada correctamente");
   }),
@@ -78,10 +83,6 @@ AnswersController.post(
       answers: input.answers.map((answer) => ({
         questionId: answer.questionId,
         questionOptionId: answer.questionOptionId,
-        numericAnswer:
-          answer.numericAnswer !== null && answer.numericAnswer !== undefined
-            ? new Prisma.Decimal(answer.numericAnswer)
-            : null,
       })),
     };
 
@@ -90,5 +91,3 @@ AnswersController.post(
     return created(res, answers, "Respuestas creadas exitosamente");
   }),
 );
-
-//TODO: Update the state in assignment when answers are created to "completed"

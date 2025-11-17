@@ -4,8 +4,30 @@ import {
   Assignment,
   AssignmentWithTestsDataResponse,
 } from "@packages/common-types/assignment.types";
+import { assignment, Prisma } from "@prisma/client";
 
 export class AssignmentRepository implements IAssignmentRepo {
+  
+  updateAssignmentStatus(
+    assignmentId: string,
+    data: Prisma.assignmentUpdateInput,
+  ): Promise<assignment> {
+    const { status } = data;
+    return prisma.assignment.update({
+      where: { assignmentId: assignmentId },
+      data: { status },
+    });
+  }
+
+  assignInitialTestsToUser(
+    data: Prisma.assignmentCreateInput,
+    tx?: Prisma.TransactionClient,
+  ): Promise<assignment> {
+    const prismaClient = tx || prisma;
+    return prismaClient.assignment.create({
+      data,
+    });
+  }
   async getAssignmentsWithTestsByUserId(
     userId: string,
   ): Promise<AssignmentWithTestsDataResponse[] | null> {
@@ -26,7 +48,7 @@ export class AssignmentRepository implements IAssignmentRepo {
         status: true,
       },
     });
-    
+
     const formattedAssignments = assignment.map((asgmnt) => {
       const assignmentResponse: AssignmentWithTestsDataResponse = {
         assignmentId: asgmnt.assignmentId,

@@ -7,6 +7,7 @@ import { NotFound } from "../../utils/httpError";
 import { AssignmentWithTestsDataResponse } from "@packages/common-types/assignment.types";
 import { QuestionOption } from "@packages/common-types/questionsOptions.types";
 import { Question } from "@packages/common-types/question.types";
+import { assignment, Prisma } from "@prisma/client";
 
 @injectable()
 export class AssignmentService implements IAssignmentService {
@@ -16,6 +17,39 @@ export class AssignmentService implements IAssignmentService {
     @inject("TestRepo")
     private readonly testRepo: ITestRepo,
   ) {}
+  markAssignmentAsCompleted(assignmentId: string): Promise<assignment | null> {
+    const updatedData: Prisma.assignmentUpdateInput = {
+      status: "completed",
+    };
+
+    const updated = this.assignmentRepo.updateAssignmentStatus(assignmentId, updatedData);
+    return updated;
+  }
+
+  async assignInitialTestsToUser(
+    userId: string,
+    tx?: Prisma.TransactionClient,
+  ): Promise<void> {
+    const assignment: Prisma.assignmentCreateInput = {
+      assignedBy: {
+        connect: { userId: "52677ff5-75c0-4613-8917-15f8e26ca700" },
+      },
+      assignedTo: {
+        connect: { userId: userId },
+      },
+      test: {
+        connect: { testId: "6996e58f-58e0-4edd-92b4-f1725bf1877d" },
+      },
+      status: "assigned",
+    };
+    const response = await this.assignmentRepo.assignInitialTestsToUser(
+      assignment,
+      tx,
+    );
+    if (!response) {
+      throw new Error("Error al asignar el test inicial al usuario");
+    }
+  }
   async getAssignmentsWithTestsByUserId(
     userId: string,
   ): Promise<AssignmentWithTestsDataResponse[] | null> {

@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
-// import { useRouter } from "next/router";
+import { useRouter } from "next/router";
 import { testService } from "../services/test/test";
 import { Question } from "@packages/common-types/question.types";
+import { assignmentScoreService } from "../services/assignmentScore/assignmentScoreService";
 
 export const useTest = (assigmentId: string) => {
 
@@ -13,6 +14,7 @@ export const useTest = (assigmentId: string) => {
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const router = useRouter();
   useEffect(() => {
     if (assigmentId) {
       setIsLoading(true);
@@ -29,11 +31,14 @@ export const useTest = (assigmentId: string) => {
   const submitTest = async () => {
     setIsSubmitting(true);
     try {
-      await testService.submitTestAnswers(assigmentId as string, answers);
-      // router.push("/test/completed");
-      alert("Tus respuestas han sido enviadas con éxito.");
-    } catch (err) {
-      alert("Hubo un error al enviar tus respuestas.");
+      await testService.submitTestAnswers(assigmentId as string, answers);      
+      await assignmentScoreService.submitAssignmentScore(assigmentId as string);      
+      router.push("/test/completed");
+      
+    } catch (err: any) {
+      const errorMessage = err.response?.data?.message || "Hubo un error al enviar tus respuestas. Por favor, intenta de nuevo.";
+      // Mostrar el mensaje de error al usuario
+      alert(errorMessage); //cambiarlo por un modal o toast      
     } finally {
       setIsSubmitting(false);
     }
@@ -85,4 +90,3 @@ export const useTest = (assigmentId: string) => {
     },
   };
 };
-//TODO: Review the types used

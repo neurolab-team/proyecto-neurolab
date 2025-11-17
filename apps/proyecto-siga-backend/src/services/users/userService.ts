@@ -1,15 +1,14 @@
 import { inject, injectable } from "tsyringe";
 import bcrypt from "bcrypt";
-import {
-  IUserService,
-} from "../../contracts/user/IuserService";
-import {User, CreateUserInput} from "@packages/common-types/user.types";
+import { IUserService } from "../../contracts/user/IuserService";
+import { User, CreateUserInput } from "@packages/common-types/user.types";
 import { generateSecurePassword } from "../../utils/sendEmail";
 import prisma from "@packages/libs/prisma";
 import { BadRequest, NotFound } from "../../utils/httpError";
 import { IEmailVerificationService } from "../../contracts/mail/IemailVerificationService";
 import { IUserRepo } from "../../contracts/user/IuserRepo";
 import { IVerificationService } from "../../contracts/verification/IverificationService";
+import { IAssignmentService } from "../../contracts/assignment/IassignmentService";
 
 @injectable()
 export class UserService implements IUserService {
@@ -19,9 +18,10 @@ export class UserService implements IUserService {
     @inject("UserRepo")
     private readonly userRepo: IUserRepo,
     @inject("VerificationService")
-    private readonly verificationService: IVerificationService // @inject("PasswordResetTokenRepo")
-  ) // private readonly passwordResetTokenRepo: IPasswordResetTokenRepo,
-  {}
+    private readonly verificationService: IVerificationService,
+    @inject("AssignmentService")
+    private readonly assignmentService: IAssignmentService
+  ) {}
 
   private async HashPassword(password: string): Promise<string> {
     const rounds = Number(process.env.BCRYPT_SALT_ROUNDS || 10);
@@ -39,7 +39,7 @@ export class UserService implements IUserService {
 
   async checkEmailAvailable(
     email: string,
-    excludeId?: string
+    excludeId?: string,
   ): Promise<boolean> {
     const existingUser = await this.userRepo.findByEmail(email.toLowerCase());
     if (!existingUser) return true;
@@ -61,7 +61,7 @@ export class UserService implements IUserService {
         !email.endsWith("@correo.itm.edu.co")
       ) {
         throw BadRequest(
-          "Los estudiantes deben usar correo @correo.itm.edu.co"
+          "Los estudiantes deben usar correo @correo.itm.edu.co",
         );
       }
       if (input.userType === "itmEmployee" && !email.endsWith("@itm.edu.co")) {
@@ -83,7 +83,7 @@ export class UserService implements IUserService {
           verifiedEmail: false,
           lastLogin: null,
         },
-        tx
+        tx,
       );
 
       const verificationToken =
@@ -92,8 +92,11 @@ export class UserService implements IUserService {
       await this.emailVerificationService.sendVerificationEmailUser(
         user.email,
         user.name || "Usuario",
-        verificationUrl
+        verificationUrl,
       );
+
+      await this.assignmentService.assignInitialTestsToUser(user.userId, tx);
+      
 
       return user as User;
     });
@@ -118,14 +121,14 @@ export class UserService implements IUserService {
           verifiedEmail: true,
           lastLogin: null,
         },
-        tx
+        tx,
       );
 
       await this.emailVerificationService.sendVerificationEmailStaff(
         user.email,
         user.name || (user.role == "admin" ? "Administrador" : "Psicólogo"),
         temporaryPassword,
-        `${process.env.APP_FRONTEND_URL}`
+        `${process.env.APP_FRONTEND_URL}`,
       );
 
       return user as User;
@@ -178,7 +181,7 @@ export class UserService implements IUserService {
           isActive: false,
           tokenVersion: { increment: 1 },
         },
-        tx
+        tx,
       );
 
       try {
@@ -211,9 +214,8 @@ export class UserService implements IUserService {
   }
 
   async verifyEmail(token: string): Promise<void> {
-    const email = await this.verificationService.consumeVerificationToken(
-      token
-    );
+    const email =
+      await this.verificationService.consumeVerificationToken(token);
     await prisma.user.update({
       where: { email: email! },
       data: {
@@ -360,3 +362,4 @@ export class UserService implements IUserService {
     return user ? !user.isActive : false;
   }
 }
+//TODO: Implementar transacciones en el envio de los correos
