@@ -1,0 +1,17 @@
+{
+  "name": "@packages/common-types",
+  "version": "1.0.0",
+  "private": true,
+  "main": "./user.types.ts",
+  "types": "./user.types.ts",
+  "exports": {
+    ".": "./user.types.ts",
+    "./user.types": "./user.types.ts",
+    "./auth.types": "./auth.types.ts",
+    "./assignment.types": "./assignment.types.ts",
+    "./question.types": "./question.types.ts",
+    "./questionsOptions.types": "./questionsOptions.types.ts",
+    "./answer.types": "./answer.types.ts",
+    "./test.types": "./test.types.ts"
+  }
+}

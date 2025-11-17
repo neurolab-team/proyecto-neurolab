@@ -1,64 +1,37 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/router";
+import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import RegisterModal from "../components/RegisterModal";
 import { useAuth } from "../hooks/useAuth";
 import { usersService } from "../services/users/users";
+import {User} from  "@packages/common-types/user.types";
 
-type User = {
-  userId: string;
-  userNumber: string;
-  email: string;
-  name: string;
-  role: string;
-  userType: string;
-  isActive: boolean;
-  verifiedEmail: boolean;
-};
 
-export default function AdminPanel() {
-  const router = useRouter();
-  const { user, accessToken, isLoading } = useAuth();
+const AdminPanel = () => {
+  const { accessToken } = useAuth();
   const [emailFilter, setEmailFilter] = useState("");
   const [showCreateModal, setShowCreateModal] = useState(false);
   const queryClient = useQueryClient();
 
-  useEffect(() => {
-    if (!isLoading && (!user || user.role !== "admin")) {
-      router.push("/");
-    }
-  }, [user, isLoading, router]);
-
   const { data: usersData, isLoading: loadingUsers } = useQuery({
     queryKey: ["users"],
     queryFn: () => usersService.getAll(accessToken!),
-    enabled: !!accessToken && user?.role === "admin",
+    enabled: !!accessToken 
   });
 
   const updateRoleMutation = useMutation({
-    mutationFn: ({
-      userId,
-      role,
-    }: {
-      userId: string;
-      role: string;
-    }) => usersService.updateRole(accessToken!, userId, role),
+    mutationFn: ({ userId, role }: { userId: string; role: string }) =>
+      usersService.updateRole(accessToken!, userId, role),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["users"] });
     },
   });
-
-  if (isLoading || !user || user.role !== "admin") {
-    return null;
-  }
-
   const users: User[] = usersData?.data || [];
   const filteredUsers = users.filter((u) =>
-    u.email.toLowerCase().includes(emailFilter.toLowerCase())
+    u.email.toLowerCase().includes(emailFilter.toLowerCase()),
   );
 
   const getRoleBadgeColor = (role: string) => {
@@ -83,9 +56,7 @@ export default function AdminPanel() {
                 <h1 className="text-4xl font-bold text-[#102D69] mb-2">
                   Panel de Administración
                 </h1>
-                <p className="text-gray-600">
-                  Gestión de usuarios del sistema
-                </p>
+                <p className="text-gray-600">Gestión de usuarios del sistema</p>
               </div>
               <button
                 onClick={() => setShowCreateModal(true)}
@@ -164,8 +135,8 @@ export default function AdminPanel() {
                             {u.userType === "itmStudent"
                               ? "Estudiante ITM"
                               : u.userType === "itmEmployee"
-                              ? "Empleado ITM"
-                              : "Externo"}
+                                ? "Empleado ITM"
+                                : "Externo"}
                           </span>
                         </td>
                         <td className="py-4 px-4">
@@ -179,7 +150,7 @@ export default function AdminPanel() {
                             }
                             disabled={updateRoleMutation.isPending}
                             className={`px-3 py-1 rounded-lg font-semibold text-sm ${getRoleBadgeColor(
-                              u.role
+                              u.role,
                             )} border-0 cursor-pointer`}
                           >
                             <option value="user">Usuario</option>
@@ -231,3 +202,7 @@ export default function AdminPanel() {
     </div>
   );
 }
+AdminPanel.auth = "admin";
+export default AdminPanel;
+
+// this panel admin panel move to its own file in pages/panel/admin.tsx

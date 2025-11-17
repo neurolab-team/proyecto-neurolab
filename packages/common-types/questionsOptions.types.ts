@@ -1,5 +1,5 @@
 export interface QuestionOption {
     questionOptionId: string;
     label: string;
-    value?: string
+    value?: string;
 }
