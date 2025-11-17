@@ -4,16 +4,17 @@ import {
   AssignmentScore,
   SectionScore,
 } from "@packages/common-types/assignmentScore.types";
-//import prisma from "@packages/libs/prisma";
-//import { BadRequest, NotFound } from "../../utils/httpError";
 import { IAssignmentScoreRepo } from "../../contracts/assignmentScore/IassignmentScoreRepo";
 import { IAnswerRepo } from "../../contracts/answer/IanswerRepo";
 import { Prisma } from "@prisma/client";
 import { BadRequest } from "../../utils/httpError";
+import { IAssignmentService } from "../../contracts/assignment/IassignmentService";
 
 @injectable()
 export class AssignmentScoreService implements IAssignmentScoreService {
   constructor(
+    @inject("AssignmentService")
+    private readonly assignmentService: IAssignmentService,
     @inject("AssignmentScoreRepo")
     private readonly assignmentScoreRepo: IAssignmentScoreRepo,
     @inject("AnswerRepo")
@@ -44,7 +45,6 @@ export class AssignmentScoreService implements IAssignmentScoreService {
     const details = JSON.parse(
       JSON.stringify({
         sections: sectionScores,
-        calculatedAt: new Date().toISOString(),
       }),
     ) as Prisma.InputJsonValue;
 
@@ -55,13 +55,21 @@ export class AssignmentScoreService implements IAssignmentScoreService {
       interpretation: overallInterpretation,
       details: details,
     });
+
+    const isCompleted =
+      await this.assignmentService.markAssignmentAsCompleted(assignmentId);
+    if (!isCompleted) {
+      throw BadRequest(
+        "Ha ocurrido un error al marcar la asignación como completada",
+      );
+    }
     return assignmentScore;
   }
 
   async getAssignmentScoreByAssignmentId(
-    assigmentId: string,
+    assignmentId: string,
   ): Promise<AssignmentScore | null> {
-    return this.assignmentScoreRepo.findByAssignmentId(assigmentId);
+    return this.assignmentScoreRepo.findByAssignmentId(assignmentId);
   }
   async caculateAssignmentScore(assignmentId: string): Promise<{
     sectionScores: SectionScore[];
@@ -116,15 +124,12 @@ export class AssignmentScoreService implements IAssignmentScoreService {
     const normalizedSection = sectionName.toLowerCase();
 
     // Interpretación para Depresión
-    if (
-      normalizedSection.includes("depresión") ||
-      normalizedSection.includes("depresion")
-    ) {
+    if (normalizedSection.includes("depresion")) {
       if (score < 5) return "Normal";
-      if (score >= 5 && score <= 6) return "Depresión leve";
-      if (score >= 7 && score <= 10) return "Depresión moderada";
-      if (score >= 11 && score <= 13) return "Depresión severa";
-      return "Depresión extremadamente severa";
+      if (score >= 5 && score <= 6) return "Depresion leve";
+      if (score >= 7 && score <= 10) return "Depresion moderada";
+      if (score >= 11 && score <= 13) return "Depresion severa";
+      return "Depresion extremadamente severa";
     }
 
     // Interpretación para Ansiedad
@@ -137,10 +142,7 @@ export class AssignmentScoreService implements IAssignmentScoreService {
     }
 
     // Interpretación para Estrés
-    if (
-      normalizedSection.includes("estrés") ||
-      normalizedSection.includes("estres")
-    ) {
+    if (normalizedSection.includes("estres")) {
       if (score < 8) return "Normal";
       if (score >= 8 && score <= 9) return "Estrés leve";
       if (score >= 10 && score <= 12) return "Estrés moderado";

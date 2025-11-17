@@ -16,7 +16,6 @@ export const assignmentScoreService = {
         },
       },
     );
-    console.log(response.data);
     return response.data.data;
   },
 };

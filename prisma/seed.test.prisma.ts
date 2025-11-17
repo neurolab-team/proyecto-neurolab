@@ -151,7 +151,7 @@ async function main() {
       data: {
         testId: newTest.testId!,
         testSectionCode: "D",
-        name: "Depresión",
+        name: "Depresion",
       },
     });
     const sectionA = await tx.testSection.create({
@@ -165,7 +165,7 @@ async function main() {
       data: {
         testId: newTest.testId!,
         testSectionCode: "S",
-        name: "Estrés",
+        name: "Estres",
       },
     });
 
