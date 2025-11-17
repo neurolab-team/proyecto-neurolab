@@ -85,6 +85,14 @@ export default function Navbar() {
                     Panel Admin
                   </button>
                 )}
+                {user.role === "user" && (
+                  <button
+                    onClick={() => handleNavigation("/panel/assignmentTest")} 
+                    className="text-white hover:bg-white/10 px-4 py-2 rounded-lg transition-all font-medium border border-white/30"
+                  >
+                    Mis Pruebas
+                  </button>
+                )}
                 <div className="relative">
                   <button
                     onClick={() => setShowMenu(!showMenu)}
@@ -152,3 +160,4 @@ export default function Navbar() {
     </nav>
   );
 }
+//TODO: refactorizar el changePasswordModal y que el navbar no tenga tanta logica dl estado de los modales

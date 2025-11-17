@@ -4,7 +4,6 @@ import { testService } from "../services/test/test";
 import { Question } from "@packages/common-types/question.types";
 
 export const useTest = (assigmentId: string) => {
-  // const router = useRouter();
 
   const [questions, setQuestions] = useState<Question[]>([]);
   const [title, setTitle] = useState("");
@@ -20,12 +19,11 @@ export const useTest = (assigmentId: string) => {
       testService
         .getTestForAssignment(assigmentId as string)
         .then((data) => {
-          setQuestions(data.questions);
+          setQuestions(data.question);
           setTitle(data.title);
         })
         .catch((err) => setError("No se pudo cargar el test."))
-        .finally(() => setIsLoading(false));
-    }
+        .finally(() => setIsLoading(false));    }
   }, [assigmentId]);
 
   const submitTest = async () => {
@@ -61,12 +59,11 @@ export const useTest = (assigmentId: string) => {
       setCurrentQuestionIndex((prev) => prev - 1);
     }
   };
-
   const currentQuestion = questions[currentQuestionIndex];
   const totalQuestions = questions.length;
 
   const selectedValue = currentQuestion
-    ? answers[currentQuestion.id] || null
+    ? answers[currentQuestion.questionId] || null
     : null;
   const isFirstPage = currentQuestionIndex === 0;
   const isLastPage = currentQuestionIndex === totalQuestions - 1;

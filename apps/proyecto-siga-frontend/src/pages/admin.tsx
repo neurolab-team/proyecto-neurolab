@@ -204,3 +204,5 @@ const AdminPanel = () => {
 }
 AdminPanel.auth = "admin";
 export default AdminPanel;
+
+// this panel admin panel move to its own file in pages/panel/admin.tsx

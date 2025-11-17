@@ -31,7 +31,7 @@ enum assignmentStatus {
   assigned
   in_progress
   completed
-  cancelled
+  expired
 }
 
 model user {
