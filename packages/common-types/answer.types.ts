@@ -8,6 +8,21 @@ export interface Answer {
   numericAnswer: Decimal,
   score: Decimal
 }
+export interface AnswerWithDetails {
+  question: {
+    section: {
+      name: string;
+    };
+  };
+  option: {
+    scoreValue: Decimal;
+  } | null;
+}
+
+export interface AnswerWithDetailsArray {
+  answers: AnswerWithDetails[];
+
+}
 
 
 export interface CreateAnswerInput {
