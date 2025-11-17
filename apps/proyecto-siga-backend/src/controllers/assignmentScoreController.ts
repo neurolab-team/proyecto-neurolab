@@ -17,7 +17,6 @@ const assignmentScoreService = container.resolve<AssignmentScoreService>(
 
 AssignmentScoreController.get(
   "/:id",
-  auth,
   wrap(async (req, res) => {
     const assignmentId = CommonDtos.IdParam.parse(req.params).id;
 
@@ -31,7 +30,7 @@ AssignmentScoreController.get(
     return ok(res, assignmentScore, "Detalle de la asignación");
   }),
 );
-AssignmentScoreController.get(
+AssignmentScoreController.post(
   "/create/:id",
   wrap(async (req, res) => {
     const assignmentId = CommonDtos.IdParam.parse(req.params).id;

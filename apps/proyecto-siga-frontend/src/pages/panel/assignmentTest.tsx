@@ -6,59 +6,60 @@ import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
 import { useAssignedTests } from "../../hooks/useAssignedTests";
 
-// Definimos el tipo aquí (o impórtalo si lo mueves a common)
 type AssignedTest = {
   testId: string;
   assignmentId: string;
-  title: string; // Asumimos que el Hook ya "aplanó" esto (ver nota abajo)
-  status: 'in_progress' | 'completed' | 'assigned' | 'expired';
+  title: string;
+  status: "in_progress" | "completed" | "assigned" | "expired";
   dueDate: string;
-  startDate: string | null; // Puede ser null si no ha empezado
+  startDate: string | null;
 };
 
 const AssignmentTestPanel = () => {
   const [testTitleFilter, setTestTitleFilter] = useState("");
-  
-  // Hook de datos
   const { tests, isLoading, isError } = useAssignedTests();
-
-  // 1. FILTRO SEGURO:
-  // Usamos (test.title || "") para asegurar que sea un string antes del toLowerCase
   const filteredTests = tests.filter((test: AssignedTest) =>
-    (test.title || "").toLowerCase().includes(testTitleFilter.toLowerCase())
+    (test.title || "").toLowerCase().includes(testTitleFilter.toLowerCase()),
   );
 
-  // Badge de Color
-  const getStatusBadge = (status: AssignedTest['status']) => {
+  const getStatusBadge = (status: AssignedTest["status"]) => {
     switch (status) {
-      case "completed": return "bg-green-100 text-green-800";
-      case "in_progress": return "bg-yellow-100 text-yellow-800";
-      case "assigned": return "bg-blue-100 text-blue-800";
-      case "expired": return "bg-red-100 text-red-800";
-      default: return "bg-gray-100 text-gray-800";
+      case "completed":
+        return "bg-green-100 text-green-800";
+      case "in_progress":
+        return "bg-yellow-100 text-yellow-800";
+      case "assigned":
+        return "bg-blue-100 text-blue-800";
+      case "expired":
+        return "bg-red-100 text-red-800";
+      default:
+        return "bg-gray-100 text-gray-800";
     }
   };
 
-  // 2. TEXTO DE ESTADO (Nuevo helper para limpiar el HTML):
-  const getStatusText = (status: AssignedTest['status']) => {
+  const getStatusText = (status: AssignedTest["status"]) => {
     switch (status) {
-      case "completed": return "Completada";
-      case "in_progress": return "En Progreso";
-      case "assigned": return "Asignada"; // O "Pendiente"
-      case "expired": return "Vencida";
-      default: return "Desconocido";
+      case "completed":
+        return "Completada";
+      case "in_progress":
+        return "En Progreso";
+      case "assigned":
+        return "Asignada";
+      case "expired":
+        return "Vencida";
+      default:
+        return "Desconocido";
     }
   };
 
-  // 3. FORMATEO DE FECHA SEGURO:
   const formatDate = (dateString: string | null) => {
-    if (!dateString) return "-"; // Retorna guion si no hay fecha
+    if (!dateString) return "-";
     return new Date(dateString).toLocaleDateString("es-ES", {
-      day: '2-digit',
-      month: 'long',
-      year: 'numeric'
+      day: "2-digit",
+      month: "long",
+      year: "numeric",
     });
-  }
+  };
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -66,18 +67,18 @@ const AssignmentTestPanel = () => {
       <main className="flex-1 bg-gradient-to-br from-indigo-100 via-purple-100 to-blue-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="bg-white rounded-3xl shadow-2xl p-8">
-            
             {/* Header */}
             <div className="flex justify-between items-center mb-8">
               <div>
                 <h1 className="text-4xl font-bold text-[#102D69] mb-2">
                   Mis Pruebas Asignadas
                 </h1>
-                <p className="text-gray-600">Pruebas pendientes y completadas.</p>
+                <p className="text-gray-600">
+                  Pruebas pendientes y completadas.
+                </p>
               </div>
             </div>
 
-            {/* Buscador */}
             <div className="mb-6">
               <input
                 type="text"
@@ -88,7 +89,6 @@ const AssignmentTestPanel = () => {
               />
             </div>
 
-            {/* Estados de Carga / Error */}
             {isLoading ? (
               <div className="text-center py-12">
                 <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-[#00A0B7]"></div>
@@ -97,63 +97,83 @@ const AssignmentTestPanel = () => {
             ) : isError ? (
               <div className="text-center py-12">
                 <p className="text-red-500 font-semibold">
-                  Hubo un error al cargar tus pruebas. Intenta recargar la página.
+                  Hubo un error al cargar tus pruebas. Intenta recargar la
+                  página.
                 </p>
               </div>
             ) : (
-              /* Tabla de Resultados */
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead>
                     <tr className="border-b-2 border-gray-200">
-                      <th className="text-left py-4 px-4 font-semibold text-gray-700">Nombre de la Prueba</th>
-                      <th className="text-left py-4 px-4 font-semibold text-gray-700">Estado</th>
-                      <th className="text-left py-4 px-4 font-semibold text-gray-700">Fecha de Comienzo</th>
-                      <th className="text-left py-4 px-4 font-semibold text-gray-700">Fecha de Vencimiento</th>
-                      <th className="text-left py-4 px-4 font-semibold text-gray-700">Acciones</th>
+                      <th className="text-left py-4 px-4 font-semibold text-gray-700">
+                        Nombre de la Prueba
+                      </th>
+                      <th className="text-left py-4 px-4 font-semibold text-gray-700">
+                        Estado
+                      </th>
+                      <th className="text-left py-4 px-4 font-semibold text-gray-700">
+                        Fecha de Comienzo
+                      </th>
+                      <th className="text-left py-4 px-4 font-semibold text-gray-700">
+                        Fecha de Vencimiento
+                      </th>
+                      <th className="text-left py-4 px-4 font-semibold text-gray-700">
+                        Acciones
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
                     {filteredTests.map((test: AssignedTest) => (
                       <tr
-                        key={test.assignmentId} // ✅ Correcto: ID único de asignación
+                        key={test.assignmentId}
                         data-testid={test.testId}
                         className="border-b border-gray-100 hover:bg-gray-50 transition-colors"
                       >
-                        {/* Renderizamos title directamente (asumiendo hook corregido) */}
                         <td className="py-4 px-4 font-medium text-gray-800">
                           {test.title}
                         </td>
-                        
+
                         <td className="py-4 px-4">
-                          <span className={`px-3 py-1 rounded-lg text-sm font-semibold ${getStatusBadge(test.status)}`}>
+                          <span
+                            className={`px-3 py-1 rounded-lg text-sm font-semibold ${getStatusBadge(test.status)}`}
+                          >
                             {getStatusText(test.status)}
                           </span>
                         </td>
-                        
+
                         <td className="py-4 px-4 text-gray-600">
                           {formatDate(test.startDate)}
                         </td>
-                        
+
                         <td className="py-4 px-4 text-gray-600">
                           {formatDate(test.dueDate)}
                         </td>
-                        
+
                         <td className="py-4 px-4">
-                          {['assigned', 'in_progress'].includes(test.status) && (
+                          {["assigned", "in_progress"].includes(
+                            test.status,
+                          ) && (
                             <Link href={`/test/${test.assignmentId}`} passHref>
                               <button className="bg-gradient-to-r from-[#102D69] to-[#00A0B7] text-white px-4 py-2 rounded-lg font-bold hover:shadow-md transition-all duration-300">
-                                {test.status === 'assigned' ? 'Comenzar Prueba' : 'Continuar Prueba'}
+                                {test.status === "assigned"
+                                  ? "Comenzar Prueba"
+                                  : "Continuar Prueba"}
                               </button>
                             </Link>
                           )}
-                          {test.status === 'completed' && (
-                            <button className="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg font-bold transition-all cursor-not-allowed" disabled>
+                          {test.status === "completed" && (
+                            <button
+                              className="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg font-bold transition-all cursor-not-allowed"
+                              disabled
+                            >
                               Ver Resultados
                             </button>
                           )}
-                           {test.status === 'expired' && (
-                            <span className="text-red-500 font-medium text-sm">No disponible</span>
+                          {test.status === "expired" && (
+                            <span className="text-red-500 font-medium text-sm">
+                              No disponible
+                            </span>
                           )}
                         </td>
                       </tr>
@@ -180,7 +200,7 @@ const AssignmentTestPanel = () => {
       <Footer />
     </div>
   );
-}
+};
 
 AssignmentTestPanel.auth = "user";
 export default AssignmentTestPanel;
