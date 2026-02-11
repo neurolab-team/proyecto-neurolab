@@ -20,7 +20,7 @@ export class UserService implements IUserService {
     @inject("VerificationService")
     private readonly verificationService: IVerificationService,
     @inject("AssignmentService")
-    private readonly assignmentService: IAssignmentService
+    private readonly assignmentService: IAssignmentService,
   ) {}
 
   private async HashPassword(password: string): Promise<string> {
@@ -48,31 +48,31 @@ export class UserService implements IUserService {
   }
 
   async createUser(input: CreateUserInput): Promise<User> {
-    return prisma.$transaction(async (tx) => {
-      const isEmailAvailable = await this.checkEmailAvailable(input.email);
-      if (!isEmailAvailable) {
-        throw BadRequest("El email ya está registrado");
-      }
+    const email = input.email.toLowerCase();
 
-      const email = input.email.toLowerCase();
+    if (
+      input.userType === "itmStudent" &&
+      !email.endsWith("@correo.itm.edu.co")
+    ) {
+      throw BadRequest("Los estudiantes deben usar correo @correo.itm.edu.co");
+    }
 
-      if (
-        input.userType === "itmStudent" &&
-        !email.endsWith("@correo.itm.edu.co")
-      ) {
-        throw BadRequest(
-          "Los estudiantes deben usar correo @correo.itm.edu.co",
-        );
-      }
-      if (input.userType === "itmEmployee" && !email.endsWith("@itm.edu.co")) {
-        throw BadRequest("Los empleados deben usar correo @itm.edu.co");
-      }
-      const hashedPassword = await this.HashPassword(input.password!);
+    if (input.userType === "itmEmployee" && !email.endsWith("@itm.edu.co")) {
+      throw BadRequest("Los empleados deben usar correo @itm.edu.co");
+    }
 
-      const user = await this.userRepo.create(
+    // bcrypt 
+    const hashedPassword = await this.HashPassword(input.password!);
+
+    // token 
+    const verificationToken =
+      await this.verificationService.createVerificationToken(email);
+
+    const user = await prisma.$transaction(async (tx) => {
+      const createdUser = await this.userRepo.create(
         {
           userNumber: input.userNumber,
-          email: input.email.toLowerCase(),
+          email,
           name: input.name ?? "",
           role: input.role,
           userType: input.userType,
@@ -86,28 +86,34 @@ export class UserService implements IUserService {
         tx,
       );
 
-      const verificationToken =
-        await this.verificationService.createVerificationToken(user.email);
-      const verificationUrl = `${process.env.APP_FRONTEND_URL}/verify-email?token=${verificationToken}`;
-      await this.emailVerificationService.sendVerificationEmailUser(
-        user.email,
-        user.name || "Usuario",
-        verificationUrl,
+      await this.assignmentService.assignInitialTestsToUser(
+        createdUser.userId,
+        tx,
       );
 
-      await this.assignmentService.assignInitialTestsToUser(user.userId, tx);
-      
-
-      return user as User;
+      return createdUser as User;
     });
+
+    const verificationUrl = `${process.env.APP_FRONTEND_URL}/verify-email?token=${verificationToken}`;
+
+    await this.emailVerificationService.sendVerificationEmailUser(
+      user.email,
+      user.name || "Usuario",
+      verificationUrl,
+    );
+
+    return user;
+
   }
 
+
   async createUserByAdmin(input: CreateUserInput): Promise<User> {
-    return prisma.$transaction(async (tx) => {
-      const temporaryPassword = await generateSecurePassword();
-      const hashedPassword = await this.HashPassword(temporaryPassword);
-      console.log(`Temporary password: ${temporaryPassword}`); //Solo para testeo
-      const user = await this.userRepo.create(
+    const temporaryPassword = await generateSecurePassword();
+    const hashedPassword = await this.HashPassword(temporaryPassword);
+    console.log(`Temporary password: ${temporaryPassword}`); //Solo para testeo
+
+    const user = await prisma.$transaction(async (tx) => {
+      const createdUser = await this.userRepo.create(
         {
           userNumber: input.userNumber,
           email: input.email.toLowerCase(),
@@ -124,15 +130,18 @@ export class UserService implements IUserService {
         tx,
       );
 
-      await this.emailVerificationService.sendVerificationEmailStaff(
-        user.email,
-        user.name || (user.role == "admin" ? "Administrador" : "Psicólogo"),
-        temporaryPassword,
-        `${process.env.APP_FRONTEND_URL}`,
-      );
-
-      return user as User;
+      
+      return createdUser as User;
     });
+    await this.emailVerificationService.sendVerificationEmailStaff(
+    user.email,
+      user.name || (user.role == "admin" ? "Administrador" : "Psicólogo"),
+      temporaryPassword,
+      `${process.env.APP_FRONTEND_URL}`,
+    );
+    
+    return user;
+
   }
 
   // async updateUser(id: string, input: UpdateUserInput): Promise<User> { //not implemented yet

@@ -64,7 +64,7 @@ export default function LoginModal({
 
   const changePasswordMutation = useMutation({
     mutationFn: async (data: { newPassword: string }) => {
-      const response = await axios.post(
+      const response = await axios.put(
         `${process.env.NEXT_PUBLIC_API_URL}/api/auth/change-password`,
         data,
         {
