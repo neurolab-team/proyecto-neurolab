@@ -50,11 +50,6 @@ export class UserService implements IUserService {
   async createUser(input: CreateUserInput): Promise<User> {
     const email = input.email.toLowerCase();
 
-    const isEmailAvailable = await this.checkEmailAvailable(email);
-    if (!isEmailAvailable) {
-      throw BadRequest("El email ya está registrado");
-    }
-
     if (
       input.userType === "itmStudent" &&
       !email.endsWith("@correo.itm.edu.co")
@@ -66,16 +61,14 @@ export class UserService implements IUserService {
       throw BadRequest("Los empleados deben usar correo @itm.edu.co");
     }
 
-    // bcrypt FUERA
+    // bcrypt 
     const hashedPassword = await this.HashPassword(input.password!);
 
-    // token FUERA
+    // token 
     const verificationToken =
       await this.verificationService.createVerificationToken(email);
 
-    let user: User;
-
-    user = await prisma.$transaction(async (tx) => {
+    const user = await prisma.$transaction(async (tx) => {
       const createdUser = await this.userRepo.create(
         {
           userNumber: input.userNumber,
@@ -110,17 +103,17 @@ export class UserService implements IUserService {
     );
 
     return user;
+
   }
 
 
-  
-
   async createUserByAdmin(input: CreateUserInput): Promise<User> {
-    return prisma.$transaction(async (tx) => {
-      const temporaryPassword = await generateSecurePassword();
-      const hashedPassword = await this.HashPassword(temporaryPassword);
-      console.log(`Temporary password: ${temporaryPassword}`); //Solo para testeo
-      const user = await this.userRepo.create(
+    const temporaryPassword = await generateSecurePassword();
+    const hashedPassword = await this.HashPassword(temporaryPassword);
+    console.log(`Temporary password: ${temporaryPassword}`); //Solo para testeo
+
+    const user = await prisma.$transaction(async (tx) => {
+      const createdUser = await this.userRepo.create(
         {
           userNumber: input.userNumber,
           email: input.email.toLowerCase(),
@@ -137,15 +130,18 @@ export class UserService implements IUserService {
         tx,
       );
 
-      await this.emailVerificationService.sendVerificationEmailStaff(
-        user.email,
-        user.name || (user.role == "admin" ? "Administrador" : "Psicólogo"),
-        temporaryPassword,
-        `${process.env.APP_FRONTEND_URL}`,
-      );
-
-      return user as User;
+      
+      return createdUser as User;
     });
+    await this.emailVerificationService.sendVerificationEmailStaff(
+    user.email,
+      user.name || (user.role == "admin" ? "Administrador" : "Psicólogo"),
+      temporaryPassword,
+      `${process.env.APP_FRONTEND_URL}`,
+    );
+    
+    return user;
+
   }
 
   // async updateUser(id: string, input: UpdateUserInput): Promise<User> { //not implemented yet

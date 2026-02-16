@@ -32,7 +32,7 @@ export class AssignmentService implements IAssignmentService {
   ): Promise<void> {
     const assignment: Prisma.assignmentCreateInput = {
       assignedBy: {
-        connect: { userId: userId}, 
+        connect: { userId: userId }, 
       },
       assignedTo: {
         connect: { userId: userId },
