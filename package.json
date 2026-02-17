@@ -29,6 +29,7 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-hook-form": "^7.65.0",
+    "react-hot-toast": "^2.6.0",
     "redis": "^5.8.3",
     "reflect-metadata": "^0.2.2",
     "tsyringe": "^4.10.0",

@@ -59,7 +59,7 @@ export default function RegisterModal({
           ...data,
           role: (data.role || "user") as UserRole,
         };
-        return usersService.create(accessToken, userData);
+        return usersService.create(userData);
       } else {
         const { ...publicUserData } = data;
         return usersService.register(publicUserData);

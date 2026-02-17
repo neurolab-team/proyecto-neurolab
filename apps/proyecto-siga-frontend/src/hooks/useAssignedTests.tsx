@@ -3,14 +3,14 @@ import { useAuth } from "./useAuth";
 import { assignmentService } from "../services/assignment/assignment"; 
 
 export const useAssignedTests = () => {
-  const { accessToken, user } = useAuth(); 
+  const { user } = useAuth(); 
   const userId = user?.userId!; 
  
   const { data, isLoading, isError } = useQuery({
-    queryKey: ["assignedTests", userId],    
-    queryFn: () => assignmentService.getAllTests(accessToken!, userId!),
-    
-    enabled: !!accessToken && !!userId,
+    queryKey: ["assignedTests", userId],
+    queryFn: () => assignmentService.getAllTests(userId!),
+
+    enabled: !!userId,
     select: (data: any[]) => {
       if (!Array.isArray(data)) return []; 
 
