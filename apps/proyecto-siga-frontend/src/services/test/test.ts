@@ -1,18 +1,11 @@
-import axios from "axios";
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL;
+import apiClient from "../../api/interceptors/axiosConfig";
 
 export const testService = {
   getTestForAssignment: async (assignmentId: string): Promise<any> => {
-    const response = axios.get(
-      `${API_URL}/api/assignments/${assignmentId}/test`,
-      {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-        },
-      }, //no es buena practica pero es temporal
+    const response = await apiClient.get(
+      `/api/assignments/${assignmentId}/test`,
     );
-    return response.then((res) => res.data.data);
+    return response.data.data;
   },
   submitTestAnswers: async (
     assignmentId: string,
@@ -25,17 +18,10 @@ export const testService = {
         questionOptionId: questionOptionId,
       };
     });
-    const response = axios.post(
-      `${API_URL}/api/answers/many`,
+    const response = await apiClient.post(
+      `/api/answers/many`,
       { assignmentId: assignmentId, answers: answersArray },
-      {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-        },
-      },
     );
-    return response.then((res) => res.data.data);
+    return response.data.data;
   },
 };
-//TODO: Reemplazar la manera como se envian los bearer tokens
-//
