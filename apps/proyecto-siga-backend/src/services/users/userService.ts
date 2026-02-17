@@ -50,6 +50,11 @@ export class UserService implements IUserService {
   async createUser(input: CreateUserInput): Promise<User> {
     const email = input.email.toLowerCase();
 
+    const isEmailAvailable = await this.checkEmailAvailable(email);
+    if (!isEmailAvailable) {
+      throw BadRequest("El email ya está registrado");
+    }
+
     if (
       input.userType === "itmStudent" &&
       !email.endsWith("@correo.itm.edu.co")
@@ -61,14 +66,16 @@ export class UserService implements IUserService {
       throw BadRequest("Los empleados deben usar correo @itm.edu.co");
     }
 
-    // bcrypt 
+    // bcrypt FUERA
     const hashedPassword = await this.HashPassword(input.password!);
 
-    // token 
+    // token FUERA
     const verificationToken =
       await this.verificationService.createVerificationToken(email);
 
-    const user = await prisma.$transaction(async (tx) => {
+    let user: User;
+
+    user = await prisma.$transaction(async (tx) => {
       const createdUser = await this.userRepo.create(
         {
           userNumber: input.userNumber,
@@ -103,9 +110,10 @@ export class UserService implements IUserService {
     );
 
     return user;
-
   }
 
+
+  
 
   async createUserByAdmin(input: CreateUserInput): Promise<User> {
     const temporaryPassword = await generateSecurePassword();

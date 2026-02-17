@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import { testService } from "../services/test/test";
 import { Question } from "@packages/common-types/question.types";
-import { assignmentScoreService } from "../services/assignmentScore/assignmentScoreService";
+import { assignmentScoreService } from "../services/assignmentScore/assignmentScore";
 
 export const useTest = (assigmentId: string) => {
 
