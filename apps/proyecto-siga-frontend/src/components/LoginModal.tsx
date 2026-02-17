@@ -1,9 +1,9 @@
 import { useState } from "react";
-import axios, { AxiosError } from "axios";
+import apiClient  from "../api/interceptors/axiosConfig";
 import { useForm } from "react-hook-form";
 import { useMutation } from "@tanstack/react-query";
 import { useAuth } from "../hooks/useAuth";
-import { User } from "../context/authContext";
+import { User } from "@packages/common-types/user.types";
 
 type FormData = {
   email: string;
@@ -17,10 +17,7 @@ interface LoginModalProps {
 }
 type ModalView = "login" | "firstLogin" | "inactive" | "emailVerification";
 
-export default function LoginModal({
-  isOpen,
-  onClose,
-}: LoginModalProps) {
+export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
   const auth = useAuth();
   const [user, setUser] = useState<User | null>(null);
   const [modalView, setModalView] = useState<ModalView>("login");
@@ -35,10 +32,7 @@ export default function LoginModal({
 
   const loginMutation = useMutation({
     mutationFn: async (data: FormData) => {
-      const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/auth/login`,
-        data,
-      );
+      const response = await apiClient.post("/api/auth/login", data);
       return response.data;
     },
     onSuccess: (response, _) => {
@@ -64,15 +58,7 @@ export default function LoginModal({
 
   const changePasswordMutation = useMutation({
     mutationFn: async (data: { newPassword: string }) => {
-      const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/auth/change-password`,
-        data,
-        {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        },
-      );
+      const response = await apiClient.post("/api/auth/change-password", data);
       return response.data;
     },
     onSuccess: () => {
@@ -211,11 +197,7 @@ export default function LoginModal({
 
               {changePasswordMutation.error && (
                 <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
-                  {(
-                    changePasswordMutation.error as AxiosError<{
-                      message: string;
-                    }>
-                  ).response?.data?.message || "Error al cambiar la contraseña"}
+                  "Error al cambiar la contraseña"
                 </div>
               )}
 
@@ -325,8 +307,7 @@ export default function LoginModal({
 
               {loginMutation.error && (
                 <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
-                  {(loginMutation.error as AxiosError<{ message: string }>)
-                    .response?.data?.message || "Credenciales inválidas"}
+                  Credenciales inválidas
                 </div>
               )}
 
