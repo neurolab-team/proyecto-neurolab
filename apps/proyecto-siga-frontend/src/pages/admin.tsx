@@ -18,13 +18,13 @@ const AdminPanel = () => {
 
   const { data: usersData, isLoading: loadingUsers } = useQuery({
     queryKey: ["users"],
-    queryFn: () => usersService.getAll(accessToken!),
+    queryFn: () => usersService.getAll(),
     enabled: !!accessToken 
   });
 
   const updateRoleMutation = useMutation({
     mutationFn: ({ userId, role }: { userId: string; role: string }) =>
-      usersService.updateRole(accessToken!, userId, role),
+      usersService.updateRole(userId, role),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["users"] });
     },

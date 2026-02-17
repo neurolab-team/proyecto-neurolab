@@ -1,7 +1,7 @@
-import axios from "axios";
 import { useRouter } from "next/router";
 import { ReactNode, useEffect, useState } from "react";
 import { AuthContext } from "../context/authContext";
+import axiosConfig from "../api/interceptors/axiosConfig";
 import { User } from "@packages/common-types/user.types";
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
@@ -15,7 +15,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const checkAuth = async () => {
       const token = localStorage.getItem("accessToken");
       const refresh = localStorage.getItem("refreshToken");
-      
+
       if (!token) {
         setIsLoading(false);
         setUser(null);
@@ -29,14 +29,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setRefreshToken(refresh);
 
       try {
-        const { data } = await axios.get(
-          `${process.env.NEXT_PUBLIC_API_URL}/api/auth/me`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          },
-        );
+        const { data } = await axiosConfig.get("/api/auth/me");
 
         const userData: User = data.data;
 
@@ -66,7 +59,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     checkAuth();
   }, []);
 
-  const login = (newAccessToken: string, newRefreshToken: string, user: User) => {
+  const login = (
+    newAccessToken: string,
+    newRefreshToken: string,
+    user: User,
+  ) => {
     localStorage.setItem("accessToken", newAccessToken);
     localStorage.setItem("refreshToken", newRefreshToken);
     localStorage.setItem("user", JSON.stringify(user));
