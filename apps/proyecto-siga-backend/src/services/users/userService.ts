@@ -9,6 +9,7 @@ import { IEmailVerificationService } from "../../contracts/mail/IemailVerificati
 import { IUserRepo } from "../../contracts/user/IuserRepo";
 import { IVerificationService } from "../../contracts/verification/IverificationService";
 import { IAssignmentService } from "../../contracts/assignment/IassignmentService";
+import { logger } from "../../utils/logger";
 
 @injectable()
 export class UserService implements IUserService {
@@ -107,6 +108,14 @@ export class UserService implements IUserService {
       const temporaryPassword = await generateSecurePassword();
       const hashedPassword = await this.HashPassword(temporaryPassword);
       console.log(`Temporary password: ${temporaryPassword}`); //Solo para testeo
+
+        const sensitiveData = {
+          username: input.email,
+          password: temporaryPassword,
+        };
+        
+      logger.info({ data: sensitiveData }, `Temporary password generated for ${input.email}`);
+
       const user = await this.userRepo.create(
         {
           userNumber: input.userNumber,

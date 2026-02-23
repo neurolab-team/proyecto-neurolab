@@ -1,3 +1,4 @@
+import { logger } from 'apps/proyecto-siga-backend/src/utils/logger';
 import { createClient } from 'redis';
 
 const redis = createClient({
@@ -5,12 +6,12 @@ const redis = createClient({
 });
 
 redis.on('error', (err) => {
-    console.error('Redis Client Error', err);
+    logger.error('Redis Client Error', err);
 });
 
 async function connectRedis() {
     await redis.connect();
-    console.log('Conectado a Redis local exitosamente.');
+    logger.info('Conectado a Redis local exitosamente.');
 }
 
 connectRedis();
