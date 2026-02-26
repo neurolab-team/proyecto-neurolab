@@ -8,8 +8,10 @@ export const assignmentService = {
   getAllTests: async (
     userId: string,
   ): Promise<AssignmentWithTestsDataResponse[]> => {
-    const response = apiClient.get<BaseResponse<AssignmentWithTestsDataResponse[]>>(`/api/assignments/by-user/${userId}/tests`);
-    return response.then((res) => res.data.data);
+    const response = await apiClient.get<
+      BaseResponse<AssignmentWithTestsDataResponse[]>
+    >(`/api/assignments/by-user/${userId}/tests`);
+    return response.data.data;
   },
   getTestForAssignment: async (
     assignmentId: string,
@@ -30,10 +32,13 @@ export const assignmentService = {
         questionOptionId: questionOptionId,
       };
     });
-    const response = apiClient.post<BaseResponse<Answer[]>>("/api/answers/many", {
-      assignmentId: assignmentId,
-      answers: answersArray,
-    });
-    return response.then((res) => res.data.data);
+    const response = await apiClient.post<BaseResponse<Answer[]>>(
+      "/api/answers/many",
+      {
+        assignmentId: assignmentId,
+        answers: answersArray,
+      },
+    );
+    return response.data.data;
   },
 };
