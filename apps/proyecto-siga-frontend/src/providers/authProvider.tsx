@@ -3,7 +3,8 @@ import { ReactNode, useEffect, useState } from "react";
 import { AuthContext } from "../context/authContext";
 import axiosConfig from "../api/interceptors/axiosConfig";
 import { User } from "@packages/common-types/user.types";
-
+import { BaseResponse } from "packages/common-types/baseResponse.types";
+//import { UserProfile } from "packages/common-types/auth.types";
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [accessToken, setAccessToken] = useState<string | null>(null);
@@ -27,9 +28,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       // Set tokens immediately from localStorage
       setAccessToken(token);
       setRefreshToken(refresh);
-
+//Recorder implementar el type userProfile yno User como esta actualmente.
       try {
-        const { data } = await axiosConfig.get("/api/auth/me");
+        const { data } = await axiosConfig.get<BaseResponse<User>>("/api/auth/me");
 
         const userData: User = data.data;
 
