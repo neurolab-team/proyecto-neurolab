@@ -1,10 +1,13 @@
 import { TestDataResponse } from "@packages/common-schemas/test.schemas";
 import apiClient from "../../api/interceptors/axiosConfig";
 import { Answer } from "@packages/common-types/answer.types";
+import { BaseResponse } from "packages/common-types/baseResponse.types";
 
 export const testService = {
-  getTestForAssignment: async (assignmentId: string): Promise<TestDataResponse[]> => {
-    const response = await apiClient.get(
+  getTestForAssignment: async (
+    assignmentId: string,
+  ): Promise<TestDataResponse[]> => {
+    const response = await apiClient.get<BaseResponse<TestDataResponse[]>>(
       `/api/assignments/${assignmentId}/test`,
     );
     return response.data.data;
@@ -20,9 +23,12 @@ export const testService = {
         questionOptionId: questionOptionId,
       };
     });
-    const response = await apiClient.post(
+    const response = await apiClient.post<BaseResponse<Answer[]>>(
       `/api/answers/many`,
-      { assignmentId: assignmentId, answers: answersArray },
+      {
+        assignmentId: assignmentId,
+        answers: answersArray,
+      },
     );
     return response.data.data;
   },

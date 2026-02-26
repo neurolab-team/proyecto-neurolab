@@ -32,3 +32,8 @@ export interface ChangePasswordData {
   newPassword: string
   accessToken: string
 }
+
+export interface RegisterResponse {
+  userId: string
+  email: string
+}

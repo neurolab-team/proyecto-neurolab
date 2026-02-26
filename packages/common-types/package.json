@@ -13,6 +13,7 @@
     "./question.types": "./question.types.ts",
     "./questionsOptions.types": "./questionsOptions.types.ts",
     "./answer.types": "./answer.types.ts",
-    "./test.types": "./test.types.ts"
+    "./test.types": "./test.types.ts",
+    "./baseResponse.types": "./baseResponse.types.ts"
   }
 }
