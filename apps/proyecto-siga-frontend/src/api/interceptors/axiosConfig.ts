@@ -1,53 +1,23 @@
-import axios, {
-  AxiosInstance,
-  InternalAxiosRequestConfig,
-  AxiosError,
-  AxiosResponse,
-} from "axios";
-import errorHandlers from "./errorHandler";
-
-const getAccessToken = (): string | null => {
-  if (typeof window !== "undefined") {
-    return localStorage.getItem("accessToken");
-  }
-  return null;
-};
+import axios, { AxiosError, AxiosInstance, AxiosResponse } from "axios";
+import { resolveHttpError } from "./resolveHttpError";
+import { handleHttpErrorEffects } from "./handleHttpErrorEffects";
 
 const apiClient: AxiosInstance = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL,
+  baseURL: "",
   timeout: 10000,
   headers: {
     "Content-Type": "application/json",
   },
 });
 
-apiClient.interceptors.request.use(
-  (config: InternalAxiosRequestConfig) => {
-    const token = getAccessToken();
-    if (token && config.headers) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error: AxiosError) => {
-    return Promise.reject(error);
-  },
-);
-
 apiClient.interceptors.response.use(
   (response: AxiosResponse) => response,
   (error: AxiosError) => {
-    const status = error.response?.status;
-    if (status && errorHandlers[status]) {
-      errorHandlers[status]();
-    } else {
-      errorHandlers[500]();
-    }
-    if (!error.response) {
-      errorHandlers[500]();
-    }
+    const action = resolveHttpError(error);
+    handleHttpErrorEffects(action);
+
     return Promise.reject(error);
-  },
+  }
 );
 
 export default apiClient;

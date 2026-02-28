@@ -1,8 +1,8 @@
 import { useState } from "react";
-import apiClient  from "../api/interceptors/axiosConfig";
 import { useForm } from "react-hook-form";
 import { useMutation } from "@tanstack/react-query";
 import { useAuth } from "../hooks/useAuth";
+import { authService } from "../services/auth/auth";
 import { User } from "@packages/common-types/user.types";
 
 type FormData = {
@@ -21,8 +21,7 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
   const auth = useAuth();
   const [user, setUser] = useState<User | null>(null);
   const [modalView, setModalView] = useState<ModalView>("login");
-  const [accessToken, setAccessToken] = useState("");
-  const [refreshToken, setRefreshToken] = useState("");
+
   const {
     register,
     handleSubmit,
@@ -32,42 +31,42 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
 
   const loginMutation = useMutation({
     mutationFn: async (data: FormData) => {
-      const response = await apiClient.post("/api/auth/login", data);
-      return response.data;
+      return await authService.login({
+        email: data.email,
+        password: data.password,
+      });
     },
-    onSuccess: (response, _) => {
-      const { accessToken, refreshToken, user } = response.data.data;
-      setAccessToken(accessToken);
-      setRefreshToken(refreshToken);
-      setUser(user);
-      if (!user.isActive) {
+    onSuccess: async (loggedUser) => {
+      setUser(loggedUser);
+
+      if (!loggedUser.isActive) {
         setModalView("inactive");
-      } else if (!user.verifiedEmail) {
+      } else if (!loggedUser.verifiedEmail) {
         setModalView("emailVerification");
-      } else if (!user.lastLogin) {
+      } else if (!loggedUser.lastLogin) {
         setModalView("firstLogin");
       } else {
-        auth.login(accessToken, refreshToken, user);
+        await auth.refreshUser();
         onClose();
       }
     },
   });
+
   const onSubmit = (data: FormData) => {
     loginMutation.mutate(data);
   };
 
   const changePasswordMutation = useMutation({
     mutationFn: async (data: { newPassword: string }) => {
-      const response = await apiClient.post("/api/auth/change-password", data);
-      return response.data;
+      await authService.changePassword(data);
     },
-    onSuccess: () => {
-      if (!user || !accessToken || !refreshToken) return;
-      auth.login(accessToken, refreshToken, user);
+    onSuccess: async () => {
+      await auth.refreshUser();
       onClose();
       setModalView("login");
     },
   });
+  
   const onChangePasswordSubmit = (data: FormData) => {
     if (data.password !== data.confirmPassword) {
       return;

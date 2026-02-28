@@ -15,8 +15,8 @@ export const assignmentService = {
   },
   getTestForAssignment: async (
     assignmentId: string,
-  ): Promise<TestDataResponse[]> => {
-    const response = await apiClient.get<BaseResponse<TestDataResponse[]>>(
+  ): Promise<TestDataResponse> => {
+    const response = await apiClient.get<BaseResponse<TestDataResponse>>(
       `api/assignments/${assignmentId}/test`,
     );
     return response.data.data;

@@ -1,97 +1,91 @@
 import { useRouter } from "next/router";
-import { ReactNode, useEffect, useState } from "react";
+import { ReactNode, useCallback, useEffect, useMemo, useState } from "react";
 import { AuthContext } from "../context/authContext";
-import axiosConfig from "../api/interceptors/axiosConfig";
+import apiClient from "../api/interceptors/axiosConfig";
 import { User } from "@packages/common-types/user.types";
-import { BaseResponse } from "packages/common-types/baseResponse.types";
-//import { UserProfile } from "packages/common-types/auth.types";
+import { BaseResponse } from "@packages/common-types/baseResponse.types";
+
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [accessToken, setAccessToken] = useState<string | null>(null);
-  const [refreshToken, setRefreshToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
 
+  const refreshUser = useCallback(async (): Promise<User | null> => {
+    try {
+      const response = await apiClient.get<BaseResponse<User>>("/api/auth/me");
+      setUser(response.data.data);
+      return response.data.data;
+    } catch {
+      setUser(null);
+      return null;
+    }
+  }, []);
+
   useEffect(() => {
+    let isMounted = true;
+
     const checkAuth = async () => {
-      const token = localStorage.getItem("accessToken");
-      const refresh = localStorage.getItem("refreshToken");
-
-      if (!token) {
-        setIsLoading(false);
-        setUser(null);
-        setAccessToken(null);
-        setRefreshToken(null);
-        return;
-      }
-
-      // Set tokens immediately from localStorage
-      setAccessToken(token);
-      setRefreshToken(refresh);
-//Recorder implementar el type userProfile yno User como esta actualmente.
       try {
-        const { data } = await axiosConfig.get<BaseResponse<User>>("/api/auth/me");
-
-        const userData: User = data.data;
-
-        if (
-          !userData.isActive ||
-          !userData.verifiedEmail ||
-          !userData.lastLogin
-        ) {
-          setUser(null);
-          localStorage.setItem("user", JSON.stringify(userData));
-        } else {
-          setUser(userData);
-          localStorage.setItem("user", JSON.stringify(userData));
+        const { data } = await apiClient.get<User>("/api/auth/me");
+        if (isMounted) {
+          setUser(data);
         }
       } catch {
-        setUser(null);
-        setAccessToken(null);
-        setRefreshToken(null);
-        localStorage.removeItem("accessToken");
-        localStorage.removeItem("refreshToken");
-        localStorage.removeItem("user");
+        if (isMounted) {
+          setUser(null);
+        }
       } finally {
-        setIsLoading(false);
+        if (isMounted) {
+          setIsLoading(false);
+        }
       }
     };
 
     checkAuth();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
-  const login = (
-    newAccessToken: string,
-    newRefreshToken: string,
-    user: User,
-  ) => {
-    localStorage.setItem("accessToken", newAccessToken);
-    localStorage.setItem("refreshToken", newRefreshToken);
-    localStorage.setItem("user", JSON.stringify(user));
-    setAccessToken(newAccessToken);
-    setRefreshToken(newRefreshToken);
-    setUser(user);
+  const login = async (email: string, password: string): Promise<void> => {
+    setIsLoading(true);
+
+    try {
+      const { data } = await apiClient.post<BaseResponse<User>>("/api/auth/login", {
+        email,
+        password,
+      });
+
+      const userData = data.data;
+      setUser(userData);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const logout = () => {
-    setUser(null);
-    setAccessToken(null);
-    setRefreshToken(null);
-    localStorage.removeItem("accessToken");
-    localStorage.removeItem("refreshToken");
-    localStorage.removeItem("user");
-
-    router.push("/");
+  const logout = async (): Promise<void> => {
+    try {
+      await apiClient.post("/api/auth/logout");
+    } catch {
+      // aunque falle el backend, limpiamos el estado local
+    } finally {
+      setUser(null);
+      router.push("/");
+    }
   };
 
-  const value = {
-    user,
-    accessToken,
-    refreshToken,
-    isLoading,
-    login,
-    logout,
-  };
+  const value = useMemo(
+    () => ({
+      user,
+      isLoading,
+      isAuthenticated: !!user,
+      login,
+      logout,
+      refreshUser,
+    }),
+    [user, isLoading, refreshUser],
+  );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
