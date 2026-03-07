@@ -2,6 +2,15 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "rootDir": "../../",
+    "baseUrl": ".",
+    "paths": {
+      "@/*": [
+        "src/*"
+      ],
+      "@packages/*": [
+        "../../packages/*"
+      ]
+    },
     "jsx": "preserve",
     "noEmit": true,
     "emitDeclarationOnly": false,
