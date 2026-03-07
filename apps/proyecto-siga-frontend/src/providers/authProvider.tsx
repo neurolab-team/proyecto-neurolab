@@ -1,9 +1,8 @@
 import { useRouter } from "next/router";
 import { ReactNode, useCallback, useEffect, useMemo, useState } from "react";
 import { AuthContext } from "../context/authContext";
-import apiClient from "../api/interceptors/axiosConfig";
 import { User } from "@packages/common-types/user.types";
-import { BaseResponse } from "@packages/common-types/baseResponse.types";
+import { authService } from "../services/auth/auth";
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
@@ -12,9 +11,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const refreshUser = useCallback(async (): Promise<User | null> => {
     try {
-      const response = await apiClient.get<BaseResponse<User>>("/api/auth/me");
-      setUser(response.data.data);
-      return response.data.data;
+      const authUser = await authService.me();
+      setUser(authUser);
+      return authUser;
     } catch {
       setUser(null);
       return null;
@@ -26,7 +25,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     const checkAuth = async () => {
       try {
-        const { data } = await apiClient.get<User>("/api/auth/me");
+        const data = await authService.me();
         if (isMounted) {
           setUser(data);
         }
@@ -52,12 +51,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setIsLoading(true);
 
     try {
-      const { data } = await apiClient.post<BaseResponse<User>>("/api/auth/login", {
-        email,
-        password,
-      });
-
-      const userData = data.data;
+      const userData = await authService.login({ email, password });
       setUser(userData);
     } finally {
       setIsLoading(false);
@@ -66,7 +60,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const logout = async (): Promise<void> => {
     try {
-      await apiClient.post("/api/auth/logout");
+      await authService.logout();
     } catch {
       // aunque falle el backend, limpiamos el estado local
     } finally {

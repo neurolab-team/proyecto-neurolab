@@ -20,7 +20,7 @@ export const authService = {
     await apiClient.post("/api/auth/logout");
   },
 
-    async changePassword(payload: any): Promise<void> {
-      await apiClient.post("/api/auth/change-password", payload);
-    },
+  async changePassword(payload: any): Promise<void> {
+    await apiClient.put("/api/auth/change-password", payload);
+  },
 };

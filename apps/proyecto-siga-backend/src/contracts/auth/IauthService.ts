@@ -7,5 +7,4 @@ export interface IAuthService {
     currentPassword: string,
     newPassword: string,
   ): Promise<void>;
-  validateToken(userId: string, tokenVersion: number): Promise<boolean>;
 }

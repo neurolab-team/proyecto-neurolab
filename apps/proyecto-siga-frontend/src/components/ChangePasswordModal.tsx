@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { authService } from '../services/auth/auth';
+import { useAuth } from '../hooks/useAuth';
 
 interface ChangePasswordModalProps {
   isOpen: boolean;
@@ -6,6 +8,7 @@ interface ChangePasswordModalProps {
 }
 
 export default function ChangePasswordModal({ isOpen, onClose }: ChangePasswordModalProps) {
+  const auth = useAuth();
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -37,30 +40,15 @@ export default function ChangePasswordModal({ isOpen, onClose }: ChangePasswordM
     setLoading(true);
 
     try {
-      const token = localStorage.getItem('accessToken');
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/change-password`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({ currentPassword, newPassword }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        setError(data.message || 'Error al cambiar la contraseña');
-        setLoading(false);
-        return;
-      }
+      await authService.changePassword({ currentPassword, newPassword });
 
       setSuccess(true);
       setTimeout(() => {
+        void auth.logout();
         onClose();
       }, 2000);
     } catch (err) {
-      setError('Error de conexión');
+      setError('Error al cambiar la contraseña');
       setLoading(false);
     }
   };
