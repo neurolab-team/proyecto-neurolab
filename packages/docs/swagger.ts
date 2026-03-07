@@ -1,6 +1,4 @@
 import swaggerAutogen from 'swagger-autogen';
-import path from 'path';
-const __dirname = path.dirname(__filename);
 const doc = {
   info: {
     title: 'Neurolab API',
@@ -9,17 +7,16 @@ const doc = {
   host: 'localhost:6001/api',
   schemes: ['http'],
   securityDefinitions: {
-    BearerAuth: {
+    SessionIdAuth: {
       type: 'apiKey',
-      name: 'Authorization',
+      name: 'x-session-id',
       in: 'header',
-      description: 'Introduce el token JWT con el prefijo Bearer. Ejemplo: "Bearer {token}"'
+      description: 'Introduce el identificador de sesión enviado por el BFF en el header x-session-id'
     }
   },
-  security: [{ BearerAuth: [] }]
+  security: [{ SessionIdAuth: [] }]
 };
 
-console.log(__dirname)
 const outputFile = './swagger-output.json'; 
 const endpointsFiles = ['../../apps/proyecto-siga-backend/src/routes/routes.ts']; 
 

@@ -1,15 +1,10 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import { setSessionCookie } from "../../../libs/server/sessionCookie";
 import { BaseResponse } from "@packages/common-types/baseResponse.types";
 import { User } from "@packages/common-types/user.types";
 import { LoginCredentials } from "@packages/common-types/auth.types";
-
-
-type BackendLoginData = {
-  sessionId: string;
-  user: User;
-};
+import { LoginData } from "@packages/common-types/auth.types";
 
 export default async function handler(
   req: NextApiRequest,
@@ -26,7 +21,7 @@ export default async function handler(
 
   try {
     const { email, password } = req.body as LoginCredentials;
-    const authResponse = await axios.post<BaseResponse<BackendLoginData>>(
+    const authResponse = await axios.post<BaseResponse<LoginData>>(
       `${process.env.NEXT_PUBLIC_API_URL}/auth/login`,
       { email, password },
       {
@@ -55,11 +50,14 @@ export default async function handler(
       message: authResponse.data.message || "Inicio de sesión exitoso",
     });
   } catch (error) {
+    const err = error as AxiosError<BaseResponse<null>>;
+    const status = err.response?.status ?? 500;
+    const message = err.response?.data?.message ?? "Error interno del servidor";
 
-    return res.status(500).json({
+    return res.status(status).json({
       success: false,
       data: null,
-      message: "Error interno del servidor",
+      message,
     });
   }
 }

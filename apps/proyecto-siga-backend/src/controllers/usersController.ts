@@ -1,4 +1,5 @@
-import { auth, asAdminOrPsychologist, asAdmin } from "../middleware/auth";
+import { asAdminOrPsychologist, asAdmin } from "../middleware/auth";
+import { auth } from "../middleware/auth";
 import container from "../container/index";
 import { CommonDtos } from "../shared/validators";
 import { Router } from "express";
@@ -14,7 +15,7 @@ import { userResponse } from "@packages/common-types/user.types";
 export const UsersController = Router();
 const userService = container.resolve<IUserService>("UserService");
 
-UsersController.use(auth, asAdminOrPsychologist);
+UsersController.use(auth);
 
 
 
@@ -22,7 +23,6 @@ UsersController.use(auth, asAdminOrPsychologist);
 
 UsersController.get(
   "/",
-  auth,
   asAdmin,
   wrap(async (req: any, res) => {
     const users = await userService.getUsers();
@@ -32,7 +32,6 @@ UsersController.get(
 
 UsersController.get(
   "/:id",
-  auth,
   asAdminOrPsychologist,
   wrap(async (req: any, res) => {
     const { id } = CommonDtos.IdParam.parse(req.params);
@@ -54,7 +53,6 @@ UsersController.get(
 
 UsersController.post(
   "/",
-  auth,
   asAdmin,
   wrap(async (req: any, res) => {
     const input = CreateUserDto.parse(req.body);
@@ -85,7 +83,6 @@ UsersController.post(
 
 UsersController.patch(
   "/:id/deactivate",
-  auth,
   asAdminOrPsychologist,
   wrap(async (req: any, res) => {
     const { id } = CommonDtos.IdParam.parse(req.params);
@@ -96,7 +93,6 @@ UsersController.patch(
 
 UsersController.patch(
   "/:id/activate",
-  auth,
   asAdminOrPsychologist,
   wrap(async (req: any, res) => {
     const { id } = CommonDtos.IdParam.parse(req.params);
@@ -109,6 +105,7 @@ UsersController.patch(
 
 UsersController.get(
   "/check-email/:email",
+  asAdminOrPsychologist,
   wrap(async (req: any, res) => {
     const email = z.string().parse(req.params.email);
     const { excludeId } = z

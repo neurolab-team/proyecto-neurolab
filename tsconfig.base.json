@@ -6,6 +6,7 @@
     "importHelpers": true,
     "isolatedModules": false,
     "lib": ["es2022"],
+    "baseUrl": ".",
     "module": "nodenext",
     "moduleResolution": "nodenext",
     "emitDecoratorMetadata": true,

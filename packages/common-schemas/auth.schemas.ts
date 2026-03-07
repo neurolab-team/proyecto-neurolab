@@ -9,14 +9,6 @@ export const LoginDto = z.object({
   password: z.string().min(6),
 });
 
-export const RefreshDto = z.object({
-  refreshToken: z.string().min(10),
-});
-
-export const LogoutDto = z.object({
-  refreshToken: z.string().min(10),
-});
-
 export const ChangePasswordDto = z.object({
   currentPassword: z.string().min(1, "Contraseña actual requerida"),
   newPassword: z

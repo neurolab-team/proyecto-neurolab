@@ -21,6 +21,7 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
   const auth = useAuth();
   const [user, setUser] = useState<User | null>(null);
   const [modalView, setModalView] = useState<ModalView>("login");
+  const [loginPassword, setLoginPassword] = useState("");
 
   const {
     register,
@@ -53,17 +54,20 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
   });
 
   const onSubmit = (data: FormData) => {
+    setLoginPassword(data.password);
     loginMutation.mutate(data);
   };
 
   const changePasswordMutation = useMutation({
-    mutationFn: async (data: { newPassword: string }) => {
+    mutationFn: async (data: { currentPassword: string; newPassword: string }) => {
       await authService.changePassword(data);
     },
     onSuccess: async () => {
-      await auth.refreshUser();
+      setUser(null);
+      setLoginPassword("");
       onClose();
       setModalView("login");
+      await auth.logout();
     },
   });
   
@@ -71,7 +75,10 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
     if (data.password !== data.confirmPassword) {
       return;
     }
-    changePasswordMutation.mutate({ newPassword: data.password! });
+    changePasswordMutation.mutate({
+      currentPassword: loginPassword,
+      newPassword: data.password!,
+    });
   };
 
   if (!isOpen) return null;

@@ -21,7 +21,6 @@ interface RegisterModalProps {
   isOpen: boolean;
   onClose: () => void;
   isAdminMode?: boolean;
-  accessToken?: string;
   onSuccess?: () => void;
 }
 
@@ -29,7 +28,6 @@ export default function RegisterModal({
   isOpen,
   onClose,
   isAdminMode = false,
-  accessToken,
   onSuccess,
 }: RegisterModalProps) {
   const [userType, setUserType] = useState<UserType>("external");
@@ -54,7 +52,7 @@ export default function RegisterModal({
 
   const signupMutation = useMutation({
     mutationFn: async (data: RegisterFormData) => {
-      if (isAdminMode && accessToken) {
+      if (isAdminMode) {
         const userData = {
           ...data,
           role: (data.role || "user") as UserRole,
