@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { authService } from '../services/auth/auth';
 import { useAuth } from '../hooks/useAuth';
+import ModalShell from "./ModalShell";
 
 interface ChangePasswordModalProps {
   isOpen: boolean;
@@ -54,84 +55,73 @@ export default function ChangePasswordModal({ isOpen, onClose }: ChangePasswordM
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50" onClick={onClose}>
-      <div className="bg-white rounded-xl shadow-2xl w-full max-w-md p-8 relative" onClick={(e) => e.stopPropagation()}>
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
-        >
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        </button>
+    <ModalShell isOpen={isOpen} onClose={onClose}>
+      <h2 className="text-3xl font-bold text-[#102D69] mb-6">Cambiar Contraseña</h2>
 
-        <h2 className="text-3xl font-bold text-[#102D69] mb-6">Cambiar Contraseña</h2>
-
-        {success ? (
-          <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg text-center">
-            <p className="font-bold">¡Contraseña cambiada exitosamente!</p>
-            <p className="text-sm mt-1">Redirigiendo...</p>
+      {success ? (
+        <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg text-center">
+          <p className="font-bold">¡Contraseña cambiada exitosamente!</p>
+          <p className="text-sm mt-1">Redirigiendo...</p>
+        </div>
+      ) : (
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Contraseña Actual
+            </label>
+            <input
+              type="password"
+              value={currentPassword}
+              onChange={(e) => setCurrentPassword(e.target.value)}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00A0B7] focus:border-transparent"
+              required
+            />
           </div>
-        ) : (
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Contraseña Actual
-              </label>
-              <input
-                type="password"
-                value={currentPassword}
-                onChange={(e) => setCurrentPassword(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00A0B7] focus:border-transparent"
-                required
-              />
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Nueva Contraseña
+            </label>
+            <input
+              type="password"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00A0B7] focus:border-transparent"
+              required
+            />
+            <p className="text-xs text-gray-500 mt-1">
+              Mínimo 6 caracteres, 1 mayúscula, 1 minúscula y 1 número
+            </p>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Confirmar Nueva Contraseña
+            </label>
+            <input
+              type="password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00A0B7] focus:border-transparent"
+              required
+            />
+          </div>
+
+          {error && (
+            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+              {error}
             </div>
+          )}
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Nueva Contraseña
-              </label>
-              <input
-                type="password"
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00A0B7] focus:border-transparent"
-                required
-              />
-              <p className="text-xs text-gray-500 mt-1">
-                Mínimo 6 caracteres, 1 mayúscula, 1 minúscula y 1 número
-              </p>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Confirmar Nueva Contraseña
-              </label>
-              <input
-                type="password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00A0B7] focus:border-transparent"
-                required
-              />
-            </div>
-
-            {error && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
-                {error}
-              </div>
-            )}
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-gradient-to-r from-[#102D69] to-[#00A0B7] text-white py-3 rounded-lg font-bold hover:shadow-lg transition-all disabled:opacity-50"
-            >
-              {loading ? 'Cambiando contraseña...' : 'Cambiar Contraseña'}
-            </button>
-          </form>
-        )}
-      </div>
-    </div>
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-gradient-to-r from-[#102D69] to-[#00A0B7] text-white py-3 rounded-lg font-bold hover:shadow-lg transition-all disabled:opacity-50"
+          >
+            {loading ? 'Cambiando contraseña...' : 'Cambiar Contraseña'}
+          </button>
+        </form>
+      )}
+    </ModalShell>
   );
 }
