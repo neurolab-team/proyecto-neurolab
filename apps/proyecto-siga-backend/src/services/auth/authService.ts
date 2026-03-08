@@ -28,7 +28,6 @@ export class AuthService implements IAuthService {
     password = await this.HashPassword(password);
     const user = await this.validateCredentials(credentials);
     return {
-      token: "",
       user: {
         userId: user.userId,
         userNumber: user.userNumber,
@@ -85,10 +84,14 @@ export class AuthService implements IAuthService {
       userId: user.userId,
       userNumber: user.userNumber,
       email: user.email,
-      name: user.name,
+      name: user.name || "",
       role: user.role,
+      userType: user.userType,
       gender: user.gender || "",
-      createdAt: user.createdAt,
+      birthDate: user.birthDate || undefined,
+      lastLogin: user.lastLogin || undefined,
+      verifiedEmail: user.verifiedEmail,
+      isActive: user.isActive,
     };
   }
 
@@ -125,22 +128,7 @@ export class AuthService implements IAuthService {
 
     await this.userRepo.update(user.userId, {
       password: newPasswordHash,
-      tokenVersion: { increment: 1 },
     });
-  }
-
-  async validateToken(userId: string, tokenVersion: number): Promise<boolean> {
-    try {
-      const user = await this.userRepo.findById(userId);
-
-      if (!user || !user.isActive) {
-        return false;
-      }
-
-      return user.tokenVersion === tokenVersion;
-    } catch (error) {
-      return false;
-    }
   }
 }
 //TODO:

@@ -1,6 +1,6 @@
 import { CreateUserInput,User} from "@packages/common-types/user.types";
 import apiClient from "../../api/interceptors/axiosConfig";
-import { BaseResponse } from "packages/common-types/baseResponse.types";
+import { BaseResponse } from "@packages/common-types/baseResponse.types";
 import { userResponse } from "@packages/common-types/user.types";
 import { RegisterResponse } from "@packages/common-types/auth.types";
 

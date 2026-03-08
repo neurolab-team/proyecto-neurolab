@@ -11,7 +11,7 @@ import {User} from  "@packages/common-types/user.types";
 
 
 const AdminPanel = () => {
-  const { accessToken } = useAuth();
+  const { user } = useAuth();
   const [emailFilter, setEmailFilter] = useState("");
   const [showCreateModal, setShowCreateModal] = useState(false);
   const queryClient = useQueryClient();
@@ -19,7 +19,7 @@ const AdminPanel = () => {
   const { data: usersData, isLoading: loadingUsers } = useQuery({
     queryKey: ["users"],
     queryFn: () => usersService.getAll(),
-    enabled: !!accessToken 
+    enabled: !!user,
   });
 
   const updateRoleMutation = useMutation({
@@ -196,7 +196,6 @@ const AdminPanel = () => {
         isOpen={showCreateModal}
         onClose={() => setShowCreateModal(false)}
         isAdminMode={true}
-        accessToken={accessToken!}
         onSuccess={() => queryClient.invalidateQueries({ queryKey: ["users"] })}
       />
     </div>

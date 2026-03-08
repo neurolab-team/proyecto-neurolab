@@ -16,7 +16,7 @@
         "description": "",
         "parameters": [
           {
-            "name": "authorization",
+            "name": "x-session-id",
             "in": "header",
             "schema": {
               "type": "string"
@@ -33,7 +33,7 @@
         "description": "",
         "parameters": [
           {
-            "name": "authorization",
+            "name": "x-session-id",
             "in": "header",
             "schema": {
               "type": "string"
@@ -60,7 +60,7 @@
             }
           },
           {
-            "name": "authorization",
+            "name": "x-session-id",
             "in": "header",
             "schema": {
               "type": "string"
@@ -85,7 +85,7 @@
             }
           },
           {
-            "name": "authorization",
+            "name": "x-session-id",
             "in": "header",
             "schema": {
               "type": "string"
@@ -112,7 +112,7 @@
             }
           },
           {
-            "name": "authorization",
+            "name": "x-session-id",
             "in": "header",
             "schema": {
               "type": "string"
@@ -139,7 +139,7 @@
             }
           },
           {
-            "name": "authorization",
+            "name": "x-session-id",
             "in": "header",
             "schema": {
               "type": "string"
@@ -206,7 +206,7 @@
         "description": "",
         "parameters": [
           {
-            "name": "authorization",
+            "name": "x-session-id",
             "in": "header",
             "schema": {
               "type": "string"
@@ -225,7 +225,7 @@
         "description": "",
         "parameters": [
           {
-            "name": "authorization",
+            "name": "x-session-id",
             "in": "header",
             "schema": {
               "type": "string"
@@ -244,7 +244,7 @@
         "description": "",
         "parameters": [
           {
-            "name": "authorization",
+            "name": "x-session-id",
             "in": "header",
             "schema": {
               "type": "string"
@@ -261,17 +261,17 @@
   },
   "components": {
     "securitySchemes": {
-      "BearerAuth": {
+      "SessionIdAuth": {
         "type": "apiKey",
-        "name": "Authorization",
+        "name": "x-session-id",
         "in": "header",
-        "description": "Introduce el token JWT con el prefijo Bearer. Ejemplo: \"Bearer {token}\""
+        "description": "Introduce el identificador de sesion enviado por el BFF en el header x-session-id"
       }
     }
   },
   "security": [
     {
-      "BearerAuth": []
+      "SessionIdAuth": []
     }
   ]
 }

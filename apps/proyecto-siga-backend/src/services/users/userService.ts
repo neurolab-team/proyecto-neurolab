@@ -188,7 +188,6 @@ export class UserService implements IUserService {
         id,
         {
           isActive: false,
-          tokenVersion: { increment: 1 },
         },
         tx,
       );

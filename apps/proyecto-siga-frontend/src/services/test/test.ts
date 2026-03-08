@@ -1,13 +1,13 @@
 import { TestDataResponse } from "@packages/common-schemas/test.schemas";
 import apiClient from "../../api/interceptors/axiosConfig";
 import { Answer } from "@packages/common-types/answer.types";
-import { BaseResponse } from "packages/common-types/baseResponse.types";
+import { BaseResponse } from "@packages/common-types/baseResponse.types";
 
 export const testService = {
   getTestForAssignment: async (
     assignmentId: string,
-  ): Promise<TestDataResponse[]> => {
-    const response = await apiClient.get<BaseResponse<TestDataResponse[]>>(
+  ): Promise<TestDataResponse> => {
+    const response = await apiClient.get<BaseResponse<TestDataResponse>>(
       `/api/assignments/${assignmentId}/test`,
     );
     return response.data.data;
