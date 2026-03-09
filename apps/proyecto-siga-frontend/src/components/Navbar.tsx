@@ -1,17 +1,13 @@
 import { useRouter } from "next/router";
 import { useState } from "react";
-import RegisterModal from "./RegisterModal";
-import LoginModal from "./LoginModal";
-import ChangePasswordModal from "./ChangePasswordModal";
 import { useAuth } from "../hooks/useAuth";
+import { useModal } from "../hooks/useModal";
 
 export default function Navbar() {
   const router = useRouter();
   const { user, isLoading, logout } = useAuth();
+  const { openModal } = useModal();
   const [showMenu, setShowMenu] = useState(false);
-  const [showRegisterModal, setShowRegisterModal] = useState(false);
-  const [showLoginModal, setShowLoginModal] = useState(false);
-  const [showChangePasswordModal, setShowChangePasswordModal] = useState(false);
 
   const handleNavigation = (path: string) => {
     router.push(path);
@@ -63,13 +59,13 @@ export default function Navbar() {
             {!user ? (
               <>
                 <button
-                  onClick={() => setShowLoginModal(true)}
+                  onClick={() => openModal("login")}
                   className="text-white hover:bg-white/10 px-4 py-2 rounded-lg transition-all font-medium border border-white/30"
                 >
                   Iniciar Sesión
                 </button>
                 <button
-                  onClick={() => setShowRegisterModal(true)}
+                  onClick={() => openModal("register")}
                   className="bg-white text-[#102D69] hover:bg-blue-50 px-5 py-2 rounded-lg transition-all font-bold shadow-lg hover:shadow-xl"
                 >
                   Registrarse
@@ -87,7 +83,7 @@ export default function Navbar() {
                 )}
                 {user.role === "user" && (
                   <button
-                    onClick={() => handleNavigation("/panel/assignmentTest")} 
+                    onClick={() => handleNavigation("/panel/assignmentTest")}
                     className="text-white hover:bg-white/10 px-4 py-2 rounded-lg transition-all font-medium border border-white/30"
                   >
                     Mis Pruebas
@@ -119,7 +115,7 @@ export default function Navbar() {
                       <button
                         onClick={() => {
                           setShowMenu(false);
-                          setShowChangePasswordModal(true);
+                          openModal("changePassword");
                         }}
                         className="w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors"
                       >
@@ -142,22 +138,6 @@ export default function Navbar() {
           </div>
         </div>
       </div>
-
-      <RegisterModal
-        isOpen={showRegisterModal}
-        onClose={() => setShowRegisterModal(false)}
-      />
-
-      <LoginModal
-        isOpen={showLoginModal}
-        onClose={() => setShowLoginModal(false)}
-      />
-
-      <ChangePasswordModal
-        isOpen={showChangePasswordModal}
-        onClose={() => setShowChangePasswordModal(false)}
-      />
     </nav>
   );
 }
-//TODO: refactorizar el changePasswordModal y que el navbar no tenga tanta logica dl estado de los modales

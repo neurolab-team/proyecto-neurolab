@@ -4,16 +4,15 @@ import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
-import RegisterModal from "../components/RegisterModal";
 import { useAuth } from "../hooks/useAuth";
+import { useModal } from "../hooks/useModal";
 import { usersService } from "../services/users/users";
-import {User} from  "@packages/common-types/user.types";
-
+import { User } from "@packages/common-types/user.types";
 
 const AdminPanel = () => {
   const { user } = useAuth();
+  const { openModal } = useModal();
   const [emailFilter, setEmailFilter] = useState("");
-  const [showCreateModal, setShowCreateModal] = useState(false);
   const queryClient = useQueryClient();
 
   const { data: usersData, isLoading: loadingUsers } = useQuery({
@@ -59,7 +58,14 @@ const AdminPanel = () => {
                 <p className="text-gray-600">Gestión de usuarios del sistema</p>
               </div>
               <button
-                onClick={() => setShowCreateModal(true)}
+                onClick={() =>
+                  openModal("register", {
+                    isAdminMode: true,
+                    onSuccess: () => {
+                      void queryClient.invalidateQueries({ queryKey: ["users"] });
+                    },
+                  })
+                }
                 className="bg-gradient-to-r from-[#102D69] to-[#00A0B7] text-white px-6 py-3 rounded-xl font-bold hover:shadow-xl transform hover:scale-105 transition-all duration-300 flex items-center space-x-2"
               >
                 <svg
@@ -191,13 +197,6 @@ const AdminPanel = () => {
         </div>
       </main>
       <Footer />
-
-      <RegisterModal
-        isOpen={showCreateModal}
-        onClose={() => setShowCreateModal(false)}
-        isAdminMode={true}
-        onSuccess={() => queryClient.invalidateQueries({ queryKey: ["users"] })}
-      />
     </div>
   );
 }
