@@ -37,7 +37,6 @@ export default async function handler(
         timeout: 10000,
       },
     );
-
     return res.status(200).json({
       success: true,
       data: authResponse.data.data,
