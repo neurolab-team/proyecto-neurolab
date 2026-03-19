@@ -31,9 +31,9 @@ AssignmentScoreController.get(
   }),
 );
 AssignmentScoreController.post(
-  "/create/:id",
+  "/create",
   wrap(async (req, res) => {
-    const assignmentId = CommonDtos.IdParam.parse(req.params).id;
+    const assignmentId = CommonDtos.IdParam.parse(req.body).id;
     const assignmentScore =
       await assignmentScoreService.createAssignmentScore(assignmentId);
     return ok(res, assignmentScore, "Puntaje de la asignación creado");

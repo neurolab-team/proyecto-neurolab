@@ -5,11 +5,11 @@ import { BaseResponse } from "@packages/common-types/baseResponse.types";
 export const assignmentScoreService = {
 
   submitAssignmentScore: async (
-    assignmentId: string,
+    id: string,
   ): Promise<BaseResponse<AssignmentScore>> => {
     const response = await apiClient.post<BaseResponse<AssignmentScore>>(
-      `/api/assignmentScores/create/${assignmentId}`,
-      {},
+      `/api/assignmentScores/create`,
+      {id},
    );
     return response.data;
   },
