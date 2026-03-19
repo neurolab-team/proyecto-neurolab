@@ -3,9 +3,11 @@ import { wrap } from "../middleware/async";
 import container from "../container/index";
 import { AssignmentScoreService } from "../services/assignmentScore/assignmentScoreService";
 import { ok } from "../utils/jsonResponse";
+import { created } from "../utils/jsonResponse";
 import { auth } from "../middleware/auth";
 import { CommonDtos } from "../shared/validators";
 import { NotFound } from "../utils/httpError";
+import { AssignmentService } from "../services/assignment/assignmentService";
 
 export const AssignmentScoreController = Router();
 
@@ -14,6 +16,8 @@ AssignmentScoreController.use(auth);
 const assignmentScoreService = container.resolve<AssignmentScoreService>(
   "AssignmentScoreService",
 );
+const assignmentService =
+  container.resolve<AssignmentService>("AssignmentService");
 
 AssignmentScoreController.get(
   "/:id",
@@ -34,8 +38,9 @@ AssignmentScoreController.post(
   "/create",
   wrap(async (req, res) => {
     const assignmentId = CommonDtos.IdParam.parse(req.body).id;
+    await assignmentService.markAssignmentAsCompleted(assignmentId);
     const assignmentScore =
       await assignmentScoreService.createAssignmentScore(assignmentId);
-    return ok(res, assignmentScore, "Puntaje de la asignación creado");
+    return created(res, assignmentScore, "Puntaje de la asignación creado");
   }),
 );

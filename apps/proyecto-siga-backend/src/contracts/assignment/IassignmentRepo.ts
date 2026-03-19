@@ -6,4 +6,5 @@ export interface IAssignmentRepo {
     getAssignmentsWithTestsByUserId(userId:string): Promise<AssignmentWithTestsDataResponse[] | null>;
     assignInitialTestsToUser(data:Prisma.assignmentCreateInput, tx?:Prisma.TransactionClient): Promise<assignment>;
     updateAssignmentStatus(assignmentId:string,data:Prisma.assignmentUpdateInput ): Promise<assignment>; // Implementar tx
+    getTestCodeByAssignmentId(assignmentId: string): Promise<string | null>;
 }

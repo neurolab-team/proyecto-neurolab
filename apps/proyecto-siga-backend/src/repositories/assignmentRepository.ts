@@ -77,4 +77,13 @@ export class AssignmentRepository implements IAssignmentRepo {
       },
     });
   }
+
+  async getTestCodeByAssignmentId(assignmentId: string): Promise<string | null> {
+  const result = await prisma.assignment.findUnique({
+    where: { assignmentId },
+    select: { test: { select: { testCode: true } } },
+  });
+  return result?.test?.testCode ?? null;
+}
+
 }
