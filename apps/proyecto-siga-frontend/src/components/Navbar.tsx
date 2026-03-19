@@ -75,7 +75,7 @@ export default function Navbar() {
               <>
                 {user.role === "admin" && (
                   <button
-                    onClick={() => handleNavigation("/admin")}
+                    onClick={() => handleNavigation("/panel/admin/")}
                     className="text-white hover:bg-white/10 px-4 py-2 rounded-lg transition-all font-medium border border-white/30"
                   >
                     Panel Admin
