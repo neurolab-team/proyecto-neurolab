@@ -6,7 +6,7 @@ import { ModalProvider } from "../providers/modalProvider";
 import { ToastProvider } from "../providers/toastProvider";
 import "./styles.css";
 import AuthGuard from "../components/Auth/AuthGuard";
-import ModalRoot from "../components/ModalRoot";
+import ModalRoot from "../components/modal/core/ModalRoot";
 
 type AppPropsWithAuth = AppProps & {
   Component: {

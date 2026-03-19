@@ -1,7 +1,7 @@
-import LoginModal from "./LoginModal";
-import RegisterModal from "./RegisterModal";
-import ChangePasswordModal from "./ChangePasswordModal";
-import { useModal } from "../hooks/useModal";
+import LoginModal from "../auth/LoginModal";
+import RegisterModal from "../auth/RegisterModal";
+import ChangePasswordModal from "../auth/ChangePasswordModal";
+import { useModal } from "../../../hooks/useModal";
 
 export default function ModalRoot() {
   const { activeModal, closeModal } = useModal();
