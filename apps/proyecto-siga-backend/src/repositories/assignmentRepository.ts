@@ -7,7 +7,6 @@ import {
 import { assignment, Prisma } from "@prisma/client";
 
 export class AssignmentRepository implements IAssignmentRepo {
-  
   updateAssignmentStatus(
     assignmentId: string,
     data: Prisma.assignmentUpdateInput,
@@ -78,12 +77,13 @@ export class AssignmentRepository implements IAssignmentRepo {
     });
   }
 
-  async getTestCodeByAssignmentId(assignmentId: string): Promise<string | null> {
-  const result = await prisma.assignment.findUnique({
-    where: { assignmentId },
-    select: { test: { select: { testCode: true } } },
-  });
-  return result?.test?.testCode ?? null;
-}
-
+  async getTestCodeByAssignmentId(
+    assignmentId: string,
+  ): Promise<string | null> {
+    const result = await prisma.assignment.findUnique({
+      where: { assignmentId },
+      select: { test: { select: { testCode: true } } },
+    });
+    return result?.test?.testCode ?? null;
+  }
 }
