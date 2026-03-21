@@ -6,7 +6,8 @@
     "dev": "npx nx run-many --target=serve --all",
     "ui": "npx nx run proyecto-siga-frontend:dev --port=3000",
     "api-docs": "tsx packages/docs/swagger.ts",
-    "seed:test": "ts-node-dev --respawn --transpile-only prisma/seed.test.prisma.ts"
+    "seed:test": "ts-node-dev --respawn --transpile-only prisma/seed.test.prisma.ts",
+    "seed:test:had": "ts-node-dev --respawn --transpile-only prisma/seed.test.had.prisma.ts"
   },
   "private": true,
   "dependencies": {
