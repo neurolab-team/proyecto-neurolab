@@ -5,7 +5,7 @@ import Navbar from "../../../components/Navbar";
 import Footer from "../../../components/Footer";
 import { useAuth } from "../../../hooks/useAuth";
 import { usersService } from "../../../services/users/users";
-import { User } from "@packages/common-types/user.types";
+import { User, UserRole } from "@packages/common-types/user.types";
 
 const AdminUsersPage = () => {
   const { user } = useAuth();
@@ -19,14 +19,31 @@ const AdminUsersPage = () => {
   });
 
   const updateRoleMutation = useMutation({
-    mutationFn: ({ userId, role }: { userId: string; role: string }) =>
+    mutationFn: ({ userId, role }: { userId: string; role: UserRole }) =>
       usersService.updateRole(userId, role),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["users"] });
     },
   });
 
+  const assignPsychologistMutation = useMutation({
+    mutationFn: ({
+      userId,
+      psychologistId,
+    }: {
+      userId: string;
+      psychologistId: string | null;
+    }) =>
+      usersService.assignPsychologist(userId, { psychologistId }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["users"] });
+    },
+  });
+
   const users: User[] = usersData?.data || [];
+  const psychologists = users.filter(
+    (currentUser) => currentUser.role === "psychologist" && currentUser.isActive,
+  );
   const filteredUsers = users.filter((currentUser) =>
     currentUser.email.toLowerCase().includes(emailFilter.toLowerCase()),
   );
@@ -110,6 +127,9 @@ const AdminUsersPage = () => {
                         Rol
                       </th>
                       <th className="px-4 py-4 text-left font-semibold text-gray-700">
+                        Psicólogo asignado
+                      </th>
+                      <th className="px-4 py-4 text-left font-semibold text-gray-700">
                         Estado
                       </th>
                     </tr>
@@ -142,7 +162,7 @@ const AdminUsersPage = () => {
                             onChange={(event) =>
                               updateRoleMutation.mutate({
                                 userId: currentUser.userId,
-                                role: event.target.value,
+                                role: event.target.value as UserRole,
                               })
                             }
                             disabled={updateRoleMutation.isPending}
@@ -154,6 +174,38 @@ const AdminUsersPage = () => {
                             <option value="psychologist">Psicólogo</option>
                             <option value="admin">Administrador</option>
                           </select>
+                        </td>
+                        <td className="px-4 py-4">
+                          {currentUser.role === "user" ? (
+                            <select
+                              value={currentUser.assignedPsychologistId ?? ""}
+                              onChange={(event) =>
+                                assignPsychologistMutation.mutate({
+                                  userId: currentUser.userId,
+                                  psychologistId:
+                                    event.target.value.trim().length > 0
+                                      ? event.target.value
+                                      : null,
+                                })
+                              }
+                              disabled={assignPsychologistMutation.isPending}
+                              className="w-full cursor-pointer rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-700"
+                            >
+                              <option value="">Sin asignar</option>
+                              {psychologists.map((psychologist) => (
+                                <option
+                                  key={psychologist.userId}
+                                  value={psychologist.userId}
+                                >
+                                  {psychologist.name || psychologist.email}
+                                </option>
+                              ))}
+                            </select>
+                          ) : (
+                            <span className="text-sm text-slate-400">
+                              No aplica
+                            </span>
+                          )}
                         </td>
                         <td className="px-4 py-4">
                           <span

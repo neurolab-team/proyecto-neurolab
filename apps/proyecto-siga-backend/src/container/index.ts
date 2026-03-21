@@ -15,6 +15,8 @@ import { AnswerService } from '../services/answer/answerService'
 import { AnswerRepository } from '../repositories/answerRepository'
 import {AssignmentScoreService} from '../services/assignmentScore/assignmentScoreService'
 import {AssignmentScoreRepository} from '../repositories/assignmentScoreRepository'
+import { PsychologistStudentsQueryService } from '../modules/psychologist/psychologistStudentsQuery'
+import { PsychologistDashboardQueryService } from '../modules/psychologist/psychologistDashboardQuery'
 
 
 //register dependencies - service
@@ -27,6 +29,8 @@ container.register("EmailVerificationService",{useClass: EmailVerificationServic
 container.register("AssignmentService",{useClass:AssignmentService})
 container.register("AnswerService",{useClass: AnswerService})
 container.register("AssignmentScoreService",{useClass:AssignmentScoreService})
+container.register("PsychologistStudentsQueryService",{useClass:PsychologistStudentsQueryService})
+container.register("PsychologistDashboardQueryService",{useClass:PsychologistDashboardQueryService})
 //register dependencies - repository
 container.register("TokenCacheRepo",{useClass:TokenCacheRepository})
 container.register("UserRepo", { useClass: UserRepository })

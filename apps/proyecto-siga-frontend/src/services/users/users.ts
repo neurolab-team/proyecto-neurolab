@@ -1,8 +1,17 @@
-import { CreateUserInput,User} from "@packages/common-types/user.types";
+import {
+  AssignPsychologistInput,
+  CreateUserInput,
+  UpdateUserRoleInput,
+  User,
+} from "@packages/common-types/user.types";
 import apiClient from "../../api/interceptors/axiosConfig";
 import { BaseResponse } from "@packages/common-types/baseResponse.types";
 import { userResponse } from "@packages/common-types/user.types";
 import { RegisterResponse } from "@packages/common-types/auth.types";
+import {
+  PsychologistStudentProfile,
+  PsychologistStudentSummary,
+} from "@packages/common-types/psychologist.types";
 
 type PublicRegisterInput = Omit<CreateUserInput, 'role'>;
 
@@ -24,11 +33,38 @@ export const usersService = {
   },
 
   
-  //No esta implementado en el backend
-  updateRole: async (userId: string, role: string) => {
-    const response = await apiClient.patch(`/api/users/${userId}/role`, { role });
+  updateRole: async (userId: string, role: UpdateUserRoleInput["role"]) => {
+    const response = await apiClient.patch<BaseResponse<User>>(
+      `/api/users/${userId}/role`,
+      { role },
+    );
     return response.data;
   },
-};
 
-      
+  assignPsychologist: async (
+    userId: string,
+    input: AssignPsychologistInput,
+  ) => {
+    const response = await apiClient.patch<BaseResponse<User>>(
+      `/api/users/${userId}/psychologist`,
+      input,
+    );
+    return response.data;
+  },
+
+  getPsychologistStudents: async (): Promise<PsychologistStudentSummary[]> => {
+    const response = await apiClient.get<
+      BaseResponse<PsychologistStudentSummary[]>
+    >(`/api/users/psychologist/students`);
+    return response.data.data;
+  },
+
+  getPsychologistStudentById: async (
+    studentId: string,
+  ): Promise<PsychologistStudentProfile> => {
+    const response = await apiClient.get<
+      BaseResponse<PsychologistStudentProfile>
+    >(`/api/users/psychologist/students/${studentId}`);
+    return response.data.data;
+  },
+};

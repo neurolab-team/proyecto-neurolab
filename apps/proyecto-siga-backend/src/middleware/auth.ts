@@ -63,4 +63,5 @@ export const checkRole = (allowedRoles: AppRole[]) => {
 
 export const asUser = checkRole(["user"]);
 export const asAdmin = checkRole(["admin"]);
+export const asPsychologist = checkRole(["psychologist"]);
 export const asAdminOrPsychologist = checkRole(["admin", "psychologist"]);

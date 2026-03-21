@@ -23,6 +23,85 @@ export class UserRepository implements IUserRepo {
     return tx.user.update({ where: { userId: id }, data })
   }
 
+  async findManyWithPsychologist(tx = prisma) {
+    return tx.user.findMany({
+      include: {
+        assignedPsychologist: {
+          select: {
+            userId: true,
+            name: true,
+            email: true,
+          },
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+    })
+  }
+
+  async findAssignedStudentsByPsychologistId(psychologistId: string, tx = prisma) {
+    return tx.user.findMany({
+      where: {
+        role: 'user',
+        assignedPsychologistId: psychologistId,
+      },
+      include: {
+        assignedPsychologist: {
+          select: {
+            userId: true,
+            name: true,
+            email: true,
+          },
+        },
+        assignmentsTo: {
+          include: {
+            test: {
+              select: {
+                testId: true,
+                title: true,
+                description: true,
+              },
+            },
+            score: true,
+          },
+          orderBy: { createdAt: 'desc' },
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+    })
+  }
+
+  async findAssignedStudentById(psychologistId: string, studentId: string, tx = prisma) {
+    return tx.user.findFirst({
+      where: {
+        userId: studentId,
+        role: 'user',
+        assignedPsychologistId: psychologistId,
+      },
+      include: {
+        assignedPsychologist: {
+          select: {
+            userId: true,
+            name: true,
+            email: true,
+          },
+        },
+        assignmentsTo: {
+          include: {
+            test: {
+              select: {
+                testId: true,
+                title: true,
+                description: true,
+              },
+            },
+            score: true,
+          },
+          orderBy: { createdAt: 'desc' },
+        },
+      },
+    })
+  }
+
   async delete(id: string, tx = prisma): Promise<void> {
     await tx.user.delete({ where: { userId: id } })
   }

@@ -89,6 +89,14 @@ export default function Navbar() {
                     Mis Pruebas
                   </button>
                 )}
+                {user.role === "psychologist" && (
+                  <button
+                    onClick={() => handleNavigation("/panel/psychologist")}
+                    className="text-white hover:bg-white/10 px-4 py-2 rounded-lg transition-all font-medium border border-white/30"
+                  >
+                    Panel Psicólogo
+                  </button>
+                )}
                 <div className="relative">
                   <button
                     onClick={() => setShowMenu(!showMenu)}
