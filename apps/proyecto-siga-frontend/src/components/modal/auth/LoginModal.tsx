@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useMutation } from "@tanstack/react-query";
-import { useAuth } from "../hooks/useAuth";
-import { authService } from "../services/auth/auth";
+import { useAuth } from "../../../hooks/useAuth";
+import { authService } from "../../../services/auth/auth";
 import { User } from "@packages/common-types/user.types";
-import ModalShell from "./ModalShell";
+import ModalShell from "../core/ModalShell";
+import FormErrorBanner from "../../FormErrorBanner";
+import { getApiErrorMessage } from "../../../libs/getApiErrorMessage";
 
 type FormData = {
   email: string;
@@ -199,11 +201,7 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
                 )}
               </div>
 
-              {changePasswordMutation.error && (
-                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
-                  "Error al cambiar la contraseña"
-                </div>
-              )}
+              <FormErrorBanner message={changePasswordMutation.isError ? getApiErrorMessage(changePasswordMutation.error, 'Error al cambiar la contraseña.') : null} />
 
               <button
                 type="submit"
@@ -309,11 +307,7 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
                 )}
               </div>
 
-              {loginMutation.error && (
-                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
-                  Credenciales inválidas
-                </div>
-              )}
+              <FormErrorBanner message={loginMutation.isError ? getApiErrorMessage(loginMutation.error, 'No fue posible iniciar sesión.') : null} />
 
               <button
                 type="submit"

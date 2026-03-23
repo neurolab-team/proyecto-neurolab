@@ -1,5 +1,40 @@
 import { Prisma, user } from "@prisma/client";
 
+export type UserWithAssignedPsychologistRecord = Prisma.userGetPayload<{
+  include: {
+    assignedPsychologist: {
+      select: {
+        userId: true;
+        name: true;
+        email: true;
+      };
+    };
+  };
+}>;
+
+export type AssignedStudentRecord = Prisma.userGetPayload<{
+  include: {
+    assignedPsychologist: {
+      select: {
+        userId: true;
+        name: true;
+        email: true;
+      };
+    };
+    assignmentsTo: {
+      include: {
+        test: {
+          select: {
+            testId: true;
+            title: true;
+            description: true;
+          };
+        };
+        score: true;
+      };
+    };
+  };
+}>;
 
 export interface IUserRepo {
   findById(id: string, tx?: Prisma.TransactionClient): Promise<user | null>;
@@ -17,6 +52,18 @@ export interface IUserRepo {
     data: Prisma.userUpdateInput,
     tx?: Prisma.TransactionClient
   ): Promise<user>;
+  findManyWithPsychologist(
+    tx?: Prisma.TransactionClient
+  ): Promise<UserWithAssignedPsychologistRecord[]>;
+  findAssignedStudentsByPsychologistId(
+    psychologistId: string,
+    tx?: Prisma.TransactionClient
+  ): Promise<AssignedStudentRecord[]>;
+  findAssignedStudentById(
+    psychologistId: string,
+    studentId: string,
+    tx?: Prisma.TransactionClient
+  ): Promise<AssignedStudentRecord | null>;
   delete(id: string, tx?: Prisma.TransactionClient): Promise<void>;
   count(
     where: Prisma.userWhereInput,

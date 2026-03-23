@@ -1,9 +1,11 @@
 import { useForm } from "react-hook-form";
 import { useMutation } from "@tanstack/react-query";
-import { usersService } from "../services/users/users";
-import { notify } from "../libs/toastService";
+import { usersService } from "../../../services/users/users";
+import { notify } from "../../../libs/toastService";
 import { UserRole, UserType } from "@packages/common-types/user.types";
-import ModalShell from "./ModalShell";
+import ModalShell from "../core/ModalShell";
+import FormErrorBanner from "../../FormErrorBanner";
+import { getApiErrorMessage } from "../../../libs/getApiErrorMessage";
 
 type RegisterFormData = {
   userType: UserType;
@@ -29,6 +31,7 @@ export default function RegisterModal({
   isAdminMode = false,
   onSuccess,
 }: RegisterModalProps) {
+
   const validateEmail = (email: string, type: UserType | null) => {
     if (!type) return "";
     if (type === "itmStudent" && !email.endsWith("@correo.itm.edu.co")) {
@@ -307,6 +310,8 @@ export default function RegisterModal({
               </p>
             </div>
           </div>
+
+          <FormErrorBanner message={signupMutation.isError ? getApiErrorMessage(signupMutation.error, 'No fue posible completar el registro.') : null} />
 
           <button
             type="submit"

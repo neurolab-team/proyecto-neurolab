@@ -21,21 +21,22 @@ AuthController.post(
     const session = await sessionService.createSession({
       userId: result.user.userId,
     });
+    const user = await authService.updateLastLogin(result.user.userId);
 
     return ok(
       res,
       {
         sessionId: session.sessionId,
         user: {
-          userId: result.user.userId,
-          userNumber: result.user.userNumber,
-          email: result.user.email,
-          gender: result.user.gender,
-          role: result.user.role,
-          name: result.user.name,
-          isActive: result.user.isActive,
-          lastLogin: result.user.lastLogin,
-          verifiedEmail: result.user.verifiedEmail,
+          userId: user.userId,
+          userNumber: user.userNumber,
+          email: user.email,
+          gender: user.gender,
+          role: user.role,
+          name: user.name,
+          isActive: user.isActive,
+          lastLogin: user.lastLogin,
+          verifiedEmail: user.verifiedEmail,
         },
       },
       "Inicio de sesión exitoso",

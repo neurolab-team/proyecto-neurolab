@@ -10,6 +10,7 @@
     "./auth.types": "./auth.types.ts",
     "./assignment.types": "./assignment.types.ts",
     "./assignmentScore.types": "./assignmentScore.types.ts",
+    "./psychologist.types": "./psychologist.types.ts",
     "./question.types": "./question.types.ts",
     "./questionsOptions.types": "./questionsOptions.types.ts",
     "./answer.types": "./answer.types.ts",

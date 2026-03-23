@@ -1,6 +1,7 @@
 import { inject, injectable } from "tsyringe";
 import { IAssignmentScoreService } from "../../contracts/assignmentScore/IassignmentScoreService";
 import {
+  AttentionLevel,
   AssignmentScore,
   SectionScore,
 } from "@packages/common-types/assignmentScore.types";
@@ -9,6 +10,13 @@ import { IAnswerRepo } from "../../contracts/answer/IanswerRepo";
 import { Prisma } from "@prisma/client";
 import { BadRequest } from "../../utils/httpError";
 import { IAssignmentService } from "../../contracts/assignment/IassignmentService";
+
+const ATTENTION_LEVEL_WEIGHT: Record<AttentionLevel, number> = {
+  high: 3,
+  medium: 2,
+  low: 1,
+  none: 0,
+};
 
 @injectable()
 export class AssignmentScoreService implements IAssignmentScoreService {
@@ -35,7 +43,7 @@ export class AssignmentScoreService implements IAssignmentScoreService {
       throw BadRequest("Assignment score already exists for this assignment");
     }
     //Calculate score before creating assignment score record
-    const { sectionScores, totalScore } =
+    const { sectionScores, totalScore, attentionLevel } =
       await this.caculateAssignmentScore(assignmentId);
     //Create general interpretation
     const overallInterpretation = sectionScores
@@ -52,6 +60,7 @@ export class AssignmentScoreService implements IAssignmentScoreService {
       assignment: { connect: { assignmentId: assignmentId } },
       totalScore: new Prisma.Decimal(totalScore),
       percentile: null,
+      attentionLevel,
       interpretation: overallInterpretation,
       details: details,
     });
@@ -63,17 +72,21 @@ export class AssignmentScoreService implements IAssignmentScoreService {
         "Ha ocurrido un error al marcar la asignación como completada",
       );
     }
-    return assignmentScore;
+    return this.toAssignmentScoreDto(assignmentScore);
   }
 
   async getAssignmentScoreByAssignmentId(
     assignmentId: string,
   ): Promise<AssignmentScore | null> {
-    return this.assignmentScoreRepo.findByAssignmentId(assignmentId);
+    const assignmentScore =
+      await this.assignmentScoreRepo.findByAssignmentId(assignmentId);
+
+    return assignmentScore ? this.toAssignmentScoreDto(assignmentScore) : null;
   }
   async caculateAssignmentScore(assignmentId: string): Promise<{
     sectionScores: SectionScore[];
     totalScore: number;
+    attentionLevel: AttentionLevel;
   }> {
     // Obtener las respuestas con sus relaciones
     const answers =
@@ -90,6 +103,7 @@ export class AssignmentScoreService implements IAssignmentScoreService {
             sectionName,
             totalScore: 0,
             interpretation: "",
+            attentionLevel: "none",
           };
         }
 
@@ -101,55 +115,160 @@ export class AssignmentScoreService implements IAssignmentScoreService {
     );
 
     // Convertir a array e interpretar cada sección
-    const sectionScores = Object.values(sectionScoresMap).map((section) => ({
-      ...section,
-      interpretation: this.interpretScore(
+    const sectionScores = Object.values(sectionScoresMap).map((section) => {
+      const evaluation = this.evaluateSectionScore(
         section.sectionName,
         section.totalScore,
-      ),
-    }));
+      );
+
+      return {
+        ...section,
+        interpretation: evaluation.interpretation,
+        attentionLevel: evaluation.attentionLevel,
+      };
+    });
 
     // Calcular el puntaje total general
     const totalScore = sectionScores.reduce(
       (sum, section) => sum + section.totalScore,
       0,
     );
+    const attentionLevel = sectionScores.reduce<AttentionLevel>(
+      (highest, section) =>
+        ATTENTION_LEVEL_WEIGHT[section.attentionLevel] >
+        ATTENTION_LEVEL_WEIGHT[highest]
+          ? section.attentionLevel
+          : highest,
+      "none",
+    );
 
     return {
       sectionScores,
       totalScore,
+      attentionLevel,
     };
   }
-  private interpretScore(sectionName: string, score: number): string {
-    const normalizedSection = sectionName.toLowerCase();
+  private normalizeSectionName(sectionName: string): string {
+    return sectionName
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "");
+  }
+
+  private evaluateSectionScore(
+    sectionName: string,
+    score: number,
+  ): { interpretation: string; attentionLevel: AttentionLevel } {
+    const normalizedSection = this.normalizeSectionName(sectionName);
 
     // Interpretación para Depresión
     if (normalizedSection.includes("depresion")) {
-      if (score < 5) return "Normal";
-      if (score >= 5 && score <= 6) return "Depresion leve";
-      if (score >= 7 && score <= 10) return "Depresion moderada";
-      if (score >= 11 && score <= 13) return "Depresion severa";
-      return "Depresion extremadamente severa";
+      if (score < 5) {
+        return { interpretation: "Normal", attentionLevel: "none" };
+      }
+      if (score >= 5 && score <= 6) {
+        return {
+          interpretation: "Depresion leve",
+          attentionLevel: "low",
+        };
+      }
+      if (score >= 7 && score <= 10) {
+        return {
+          interpretation: "Depresion moderada",
+          attentionLevel: "medium",
+        };
+      }
+      if (score >= 11 && score <= 13) {
+        return {
+          interpretation: "Depresion severa",
+          attentionLevel: "high",
+        };
+      }
+      return {
+        interpretation: "Depresion extremadamente severa",
+        attentionLevel: "high",
+      };
     }
 
     // Interpretación para Ansiedad
     if (normalizedSection.includes("ansiedad")) {
-      if (score < 4) return "Normal";
-      if (score === 4) return "Ansiedad leve";
-      if (score >= 5 && score <= 7) return "Ansiedad moderada";
-      if (score >= 8 && score <= 9) return "Ansiedad severa";
-      return "Ansiedad extremadamente severa";
+      if (score < 4) {
+        return { interpretation: "Normal", attentionLevel: "none" };
+      }
+      if (score === 4) {
+        return {
+          interpretation: "Ansiedad leve",
+          attentionLevel: "low",
+        };
+      }
+      if (score >= 5 && score <= 7) {
+        return {
+          interpretation: "Ansiedad moderada",
+          attentionLevel: "medium",
+        };
+      }
+      if (score >= 8 && score <= 9) {
+        return {
+          interpretation: "Ansiedad severa",
+          attentionLevel: "high",
+        };
+      }
+      return {
+        interpretation: "Ansiedad extremadamente severa",
+        attentionLevel: "high",
+      };
     }
 
     // Interpretación para Estrés
     if (normalizedSection.includes("estres")) {
-      if (score < 8) return "Normal";
-      if (score >= 8 && score <= 9) return "Estrés leve";
-      if (score >= 10 && score <= 12) return "Estrés moderado";
-      if (score >= 13 && score <= 16) return "Estrés severo";
-      return "Estrés extremadamente severo";
+      if (score < 8) {
+        return { interpretation: "Normal", attentionLevel: "none" };
+      }
+      if (score >= 8 && score <= 9) {
+        return {
+          interpretation: "Estrés leve",
+          attentionLevel: "low",
+        };
+      }
+      if (score >= 10 && score <= 12) {
+        return {
+          interpretation: "Estrés moderado",
+          attentionLevel: "medium",
+        };
+      }
+      if (score >= 13 && score <= 16) {
+        return {
+          interpretation: "Estrés severo",
+          attentionLevel: "high",
+        };
+      }
+      return {
+        interpretation: "Estrés extremadamente severo",
+        attentionLevel: "high",
+      };
     }
 
-    return "No interpretado";
+    return {
+      interpretation: "No interpretado",
+      attentionLevel: "none",
+    };
+  }
+
+  private toAssignmentScoreDto(assignmentScore: {
+    assignmentId: string;
+    totalScore: { toNumber(): number };
+    percentile?: { toNumber(): number } | null;
+    attentionLevel: AttentionLevel;
+    interpretation?: string | null;
+    details?: Prisma.JsonValue | null;
+  }): AssignmentScore {
+    return {
+      assignmentId: assignmentScore.assignmentId,
+      totalScore: assignmentScore.totalScore.toNumber(),
+      percentile: assignmentScore.percentile?.toNumber() ?? null,
+      attentionLevel: assignmentScore.attentionLevel,
+      interpretation: assignmentScore.interpretation ?? null,
+      details: assignmentScore.details ?? undefined,
+    };
   }
 }
