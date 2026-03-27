@@ -14,7 +14,7 @@ export default function Navbar() {
   };
 
   const navSkeleton = (
-    <nav className="bg-gradient-to-r from-[#102D69] to-[#00A0B7] shadow-lg">
+    <nav className="bg-[#001d4e] shadow-lg">
       <div className="w-full px-8">
         <div className="flex items-center justify-between h-16" />
       </div>
@@ -24,7 +24,7 @@ export default function Navbar() {
   if (isLoading) return navSkeleton;
 
   return (
-    <nav className="bg-gradient-to-r from-[#102D69] to-[#00A0B7] shadow-lg">
+    <nav className="bg-[#001d4e] shadow-lg">
       <div className="w-full px-8">
         <div className="flex items-center justify-between h-16">
           <button
@@ -46,13 +46,13 @@ export default function Navbar() {
               <>
                 <button
                   onClick={() => openModal("login")}
-                  className="text-white hover:bg-white/10 px-4 py-2 rounded-lg transition-all text-sm font-medium border border-white/30"
+                  className="text-white hover:bg-white/20 px-4 py-2 rounded-lg transition-all duration-300 text-sm font-medium border border-white/30 shadow-md hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0"
                 >
                   Iniciar Sesión
                 </button>
                 <button
                   onClick={() => openModal("register")}
-                  className="bg-white text-[#102D69] hover:bg-blue-50 px-4 py-2 rounded-lg transition-all text-sm font-bold shadow"
+                  className="bg-white text-[#001d4e] hover:bg-blue-50 px-4 py-2 rounded-lg transition-all duration-300 text-sm font-bold shadow-md hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0"
                 >
                   Registrarse
                 </button>
@@ -62,7 +62,7 @@ export default function Navbar() {
                 {user.role === "admin" && (
                   <button
                     onClick={() => handleNavigation("/panel/admin/")}
-                    className="text-white hover:bg-white/10 px-4 py-2 rounded-lg transition-all text-sm font-medium border border-white/30"
+                    className="text-white hover:bg-white/20 px-4 py-2 rounded-lg transition-all duration-300 text-sm font-medium border border-white/30 shadow-md hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0"
                   >
                     Panel Admin
                   </button>
@@ -70,7 +70,7 @@ export default function Navbar() {
                 {user.role === "psychologist" && (
                   <button
                     onClick={() => handleNavigation("/panel/psychologist/")}
-                    className="text-white hover:bg-white/10 px-4 py-2 rounded-lg transition-all text-sm font-medium border border-white/30"
+                    className="text-white hover:bg-white/20 px-4 py-2 rounded-lg transition-all duration-300 text-sm font-medium border border-white/30 shadow-md hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0"
                   >
                     Mi Panel
                   </button>
@@ -78,7 +78,7 @@ export default function Navbar() {
                 {user.role === "user" && (
                   <button
                     onClick={() => handleNavigation("/panel/assignmentTest")}
-                    className="text-white hover:bg-white/10 px-4 py-2 rounded-lg transition-all text-sm font-medium border border-white/30"
+                    className="text-white hover:bg-white/10 px-4 py-2 rounded-lg transition-all duration-300 text-sm font-medium border border-white/30 shadow-md hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0"
                   >
                     Mis Pruebas
                   </button>
@@ -89,7 +89,7 @@ export default function Navbar() {
                 <div className="relative">
                   <button
                     onClick={() => setShowMenu(!showMenu)}
-                    className="flex items-center gap-2 text-white hover:bg-white/10 pl-3 pr-2 py-2 rounded-lg transition-all text-sm font-medium border border-white/30"
+                    className="flex items-center gap-2 text-white hover:bg-white/10 pl-3 pr-2 py-2 rounded-lg transition-all duration-300 text-sm font-medium border border-white/30 shadow-md hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0"
                   >
                     <div className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center text-xs font-bold uppercase">
                       {(user.name?.trim() || user.email).charAt(0)}
