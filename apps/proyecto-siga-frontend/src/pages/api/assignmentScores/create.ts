@@ -31,7 +31,7 @@ export default async function handler(
     });
   }
 
-  const { id } = req.query;
+  const { id } = req.body;
 
   if (typeof id !== "string" || id.trim().length === 0) {
     return res.status(400).json({
@@ -43,8 +43,8 @@ export default async function handler(
 
   try {
     const response = await axios.post<BaseResponse<AssignmentScore>>(
-      `${process.env.NEXT_PUBLIC_API_URL}/assignmentScores/create/${id}`,
-      {},
+      `${process.env.NEXT_PUBLIC_API_URL}/assignmentScores/create`,
+      {id},
       {
         headers: {
           "x-session-id": sessionId,

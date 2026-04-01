@@ -1,0 +1,44 @@
+import { ITestInterpreter } from "../contracts/interpretation/ITestInterpreter";
+
+/**
+ * EXAMPLE: Template for creating a new test interpreter
+ *
+ * To add a new test interpretation:
+ * 1. Copy this file and rename it (e.g., Phq9Interpreter.ts)
+ * 2. Update the class name and testCode
+ * 3. Implement the interpretation logic in interpretSection()
+ * 4. Register it in InterpretationFactory.ts in the registerDefaultInterpreters() method
+ *
+ * Example: this.register("PHQ-9", new Phq9Interpreter());
+ */
+export class ExampleInterpreter implements ITestInterpreter {
+  // Set the testCode to match the testCode field in your database
+  readonly testCode = "YOUR-TEST-CODE";
+
+  interpretSection(sectionName: string, score: number): string {
+    const normalizedSection = sectionName.toLowerCase();
+
+    // Example: Interpretation for "Anxiety" section
+    if (normalizedSection.includes("anxiety")) {
+      if (score < 5) return "Minimal anxiety";
+      if (score >= 5 && score <= 9) return "Mild anxiety";
+      if (score >= 10 && score <= 14) return "Moderate anxiety";
+      if (score >= 15 && score <= 19) return "Moderately severe anxiety";
+      return "Severe anxiety";
+    }
+
+    // Example: Interpretation for "Depression" section
+    if (normalizedSection.includes("depression")) {
+      if (score < 5) return "Minimal depression";
+      if (score >= 5 && score <= 9) return "Mild depression";
+      if (score >= 10 && score <= 14) return "Moderate depression";
+      if (score >= 15 && score <= 19) return "Moderately severe depression";
+      return "Severe depression";
+    }
+
+    // Add more sections as needed...
+
+    // Default fallback
+    return "No interpretation available";
+  }
+}

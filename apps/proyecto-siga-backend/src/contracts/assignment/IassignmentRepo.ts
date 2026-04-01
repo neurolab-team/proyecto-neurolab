@@ -22,6 +22,7 @@ export interface IAssignmentRepo {
     ): Promise<PsychologistAssignmentRecord | null>;
     assignInitialTestsToUser(data:Prisma.assignmentCreateInput, tx?:Prisma.TransactionClient): Promise<assignment>;
     updateAssignmentStatus(assignmentId:string,data:Prisma.assignmentUpdateInput ): Promise<assignment>; // Implementar tx
+    getTestCodeByAssignmentId(assignmentId: string): Promise<string | null>;
     markAssignmentAsReviewed(
       assignmentId: string,
       reviewedAt: Date,
