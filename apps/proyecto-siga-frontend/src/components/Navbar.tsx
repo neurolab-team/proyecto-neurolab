@@ -13,60 +13,46 @@ export default function Navbar() {
     router.push(path);
   };
 
-  if (isLoading) {
-    return (
-      <nav className="bg-gradient-to-r from-[#102D69] to-[#00A0B7] shadow-lg">
-        <div className="w-full px-8">
-          <div className="flex items-center justify-between h-20">
-            {/* Espacio reservado para mantener la altura */}
-          </div>
-        </div>
-      </nav>
-    );
-  }
+  const navSkeleton = (
+    <nav className="bg-gradient-to-r from-[#102D69] to-[#00A0B7] shadow-lg">
+      <div className="w-full px-8">
+        <div className="flex items-center justify-between h-16" />
+      </div>
+    </nav>
+  );
+
+  if (isLoading) return navSkeleton;
 
   return (
     <nav className="bg-gradient-to-r from-[#102D69] to-[#00A0B7] shadow-lg">
       <div className="w-full px-8">
-        <div className="flex items-center justify-between h-20">
-          <div className="text-white">
-            <div className="font-bold text-lg">
-              Sistema de Evaluación Psicológica
-            </div>
-            <div className="text-sm text-blue-100">
-              Instituto Tecnológico Metropolitano
-            </div>
-          </div>
+        <div className="flex items-center justify-between h-16">
+          <button
+            onClick={() => handleNavigation("/")}
+            className="hover:opacity-80 transition-opacity focus:outline-none"
+          >
+            <img
+              src="/img/logo-itm.png"
+              alt="Logo ITM"
+              className="h-14 w-auto object-contain"
+              onError={(e) => {
+                e.currentTarget.style.display = "none";
+              }}
+            />
+          </button>
 
-          <div className="absolute left-1/2 transform -translate-x-1/2">
-            <div
-              onClick={() => handleNavigation("/")}
-              className="hover:bg-white/10 rounded-lg transition-all border border-white/30 p-2"
-              style={{ cursor: "pointer" }}
-            >
-              <img
-                src="/img/logo-itm.png"
-                alt="Logo ITM"
-                className="w-40 h-14 object-contain"
-                onError={(e) => {
-                  e.currentTarget.style.display = "none";
-                }}
-              />
-            </div>
-          </div>
-
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center gap-2">
             {!user ? (
               <>
                 <button
                   onClick={() => openModal("login")}
-                  className="text-white hover:bg-white/10 px-4 py-2 rounded-lg transition-all font-medium border border-white/30"
+                  className="text-white hover:bg-white/10 px-4 py-2 rounded-lg transition-all text-sm font-medium border border-white/30"
                 >
                   Iniciar Sesión
                 </button>
                 <button
                   onClick={() => openModal("register")}
-                  className="bg-white text-[#102D69] hover:bg-blue-50 px-5 py-2 rounded-lg transition-all font-bold shadow-lg hover:shadow-xl"
+                  className="bg-white text-[#102D69] hover:bg-blue-50 px-4 py-2 rounded-lg transition-all text-sm font-bold shadow"
                 >
                   Registrarse
                 </button>
@@ -75,28 +61,44 @@ export default function Navbar() {
               <>
                 {user.role === "admin" && (
                   <button
-                    onClick={() => handleNavigation("/admin")}
-                    className="text-white hover:bg-white/10 px-4 py-2 rounded-lg transition-all font-medium border border-white/30"
+                    onClick={() => handleNavigation("/panel/admin/")}
+                    className="text-white hover:bg-white/10 px-4 py-2 rounded-lg transition-all text-sm font-medium border border-white/30"
                   >
                     Panel Admin
+                  </button>
+                )}
+                {user.role === "psychologist" && (
+                  <button
+                    onClick={() => handleNavigation("/panel/psychologist/")}
+                    className="text-white hover:bg-white/10 px-4 py-2 rounded-lg transition-all text-sm font-medium border border-white/30"
+                  >
+                    Mi Panel
                   </button>
                 )}
                 {user.role === "user" && (
                   <button
                     onClick={() => handleNavigation("/panel/assignmentTest")}
-                    className="text-white hover:bg-white/10 px-4 py-2 rounded-lg transition-all font-medium border border-white/30"
+                    className="text-white hover:bg-white/10 px-4 py-2 rounded-lg transition-all text-sm font-medium border border-white/30"
                   >
                     Mis Pruebas
                   </button>
                 )}
+
+                <div className="h-6 w-px bg-white/20 mx-1" />
+
                 <div className="relative">
                   <button
                     onClick={() => setShowMenu(!showMenu)}
-                    className="text-white hover:bg-white/10 px-4 py-2 rounded-lg transition-all font-medium border border-white/30 flex items-center space-x-2"
+                    className="flex items-center gap-2 text-white hover:bg-white/10 pl-3 pr-2 py-2 rounded-lg transition-all text-sm font-medium border border-white/30"
                   >
-                    <span>{user.name?.trim() || user.email}</span>
+                    <div className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center text-xs font-bold uppercase">
+                      {(user.name?.trim() || user.email).charAt(0)}
+                    </div>
+                    <span className="max-w-[120px] truncate">
+                      {user.name?.trim() || user.email}
+                    </span>
                     <svg
-                      className="w-4 h-4"
+                      className={`w-4 h-4 transition-transform ${showMenu ? "rotate-180" : ""}`}
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -111,24 +113,33 @@ export default function Navbar() {
                   </button>
 
                   {showMenu && (
-                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl py-2 z-50">
+                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-xl py-1 z-50 border border-slate-100">
+                      <div className="px-4 py-2 border-b border-slate-100">
+                        <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide">
+                          Cuenta
+                        </p>
+                        <p className="text-sm font-medium text-slate-700 truncate mt-0.5">
+                          {user.email}
+                        </p>
+                      </div>
                       <button
                         onClick={() => {
                           setShowMenu(false);
                           openModal("changePassword");
                         }}
-                        className="w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors"
+                        className="w-full text-left px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
                       >
-                        Cambiar Contraseña
+                        Cambiar contraseña
                       </button>
+                      <div className="border-t border-slate-100 mt-1" />
                       <button
                         onClick={() => {
                           logout();
                           setShowMenu(false);
                         }}
-                        className="w-full text-left px-4 py-2 text-red-600 hover:bg-gray-100 transition-colors"
+                        className="w-full text-left px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors"
                       >
-                        Cerrar Sesión
+                        Cerrar sesión
                       </button>
                     </div>
                   )}

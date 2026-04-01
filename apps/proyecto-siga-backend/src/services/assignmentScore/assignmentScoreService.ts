@@ -1,6 +1,7 @@
 import { inject, injectable } from "tsyringe";
 import { IAssignmentScoreService } from "../../contracts/assignmentScore/IassignmentScoreService";
 import {
+  AttentionLevel,
   AssignmentScore,
   SectionScore,
 } from "@packages/common-types/assignmentScore.types";
@@ -10,6 +11,13 @@ import { Prisma } from "@prisma/client";
 import { BadRequest } from "../../utils/httpError";
 import { InterpretationFactory } from "../interpretation/InterpretationFactory";
 import { IAssignmentRepo } from "../../contracts/assignment/IassignmentRepo";
+
+const ATTENTION_LEVEL_WEIGHT: Record<AttentionLevel, number> = {
+  high: 3,
+  medium: 2,
+  low: 1,
+  none: 0,
+};
 
 @injectable()
 export class AssignmentScoreService implements IAssignmentScoreService {
@@ -38,7 +46,7 @@ export class AssignmentScoreService implements IAssignmentScoreService {
       throw BadRequest("Assignment score already exists for this assignment");
     }
     //Calculate score before creating assignment score record
-    const { sectionScores, totalScore } =
+    const { sectionScores, totalScore, attentionLevel } =
       await this.calculateAssignmentScore(assignmentId);
     //Create general interpretation
     const overallInterpretation = sectionScores
@@ -53,21 +61,26 @@ export class AssignmentScoreService implements IAssignmentScoreService {
       assignment: { connect: { assignmentId: assignmentId } },
       totalScore: new Prisma.Decimal(totalScore),
       percentile: null,
+      attentionLevel,
       interpretation: overallInterpretation,
       details: details,
     });
 
-    return assignmentScore;
+    return this.toAssignmentScoreDto(assignmentScore);
   }
 
   async getAssignmentScoreByAssignmentId(
     assignmentId: string,
   ): Promise<AssignmentScore | null> {
-    return this.assignmentScoreRepo.findByAssignmentId(assignmentId);
+    const assignmentScore =
+      await this.assignmentScoreRepo.findByAssignmentId(assignmentId);
+
+    return assignmentScore ? this.toAssignmentScoreDto(assignmentScore) : null;
   }
   private async calculateAssignmentScore(assignmentId: string): Promise<{
     sectionScores: SectionScore[];
     totalScore: number;
+    attentionLevel: AttentionLevel;
   }> {
     const testCode =
       await this.assignmentRepo.getTestCodeByAssignmentId(assignmentId);
@@ -97,6 +110,7 @@ export class AssignmentScoreService implements IAssignmentScoreService {
             sectionName,
             totalScore: 0,
             interpretation: "",
+            attentionLevel: "none",
           };
         }
 
@@ -119,9 +133,36 @@ export class AssignmentScoreService implements IAssignmentScoreService {
       (sum, section) => sum + section.totalScore,
       0,
     );
+    const attentionLevel = sectionScores.reduce<AttentionLevel>(
+      (highest, section) =>
+        ATTENTION_LEVEL_WEIGHT[section.attentionLevel] >
+        ATTENTION_LEVEL_WEIGHT[highest]
+          ? section.attentionLevel
+          : highest,
+      "none",
+    );
+
     return {
       sectionScores,
       totalScore,
+      attentionLevel,
+    };
+  }
+    private toAssignmentScoreDto(assignmentScore: {
+    assignmentId: string;
+    totalScore: { toNumber(): number };
+    percentile?: { toNumber(): number } | null;
+    attentionLevel: AttentionLevel;
+    interpretation?: string | null;
+    details?: Prisma.JsonValue | null;
+  }): AssignmentScore {
+    return {
+      assignmentId: assignmentScore.assignmentId,
+      totalScore: assignmentScore.totalScore.toNumber(),
+      percentile: assignmentScore.percentile?.toNumber() ?? null,
+      attentionLevel: assignmentScore.attentionLevel,
+      interpretation: assignmentScore.interpretation ?? null,
+      details: assignmentScore.details ?? undefined,
     };
   }
 }

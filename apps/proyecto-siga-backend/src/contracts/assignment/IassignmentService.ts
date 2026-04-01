@@ -7,4 +7,8 @@ export interface IAssignmentService {
     getAssignmentsWithTestsByUserId(userId:string): Promise<AssignmentWithTestsDataResponse[] | null>;
     assignInitialTestsToUser(userId:string, tx?:Prisma.TransactionClient): Promise<void>;
     markAssignmentAsCompleted(assignmentId:string): Promise<assignment | null>;
+    markAssignmentAsReviewed(
+      psychologistId: string,
+      assignmentId: string,
+    ): Promise<assignment | null>;
 }

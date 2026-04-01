@@ -1,10 +1,5 @@
 import { User } from "./user.types"
 
-export interface UserAuth extends User {
-  password: string
-}
-
-
 export type UserProfile = User
 
 export interface LoginResult {

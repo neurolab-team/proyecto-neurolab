@@ -1,4 +1,9 @@
-import { Answer,CreateAnswerInput, CreateManyAnswersInput, AnswerWithDetails } from "@packages/common-types/answer.types";
+import {
+  Answer,
+  CreateAnswerInput,
+  CreateManyAnswersInput,
+} from "@packages/common-types/answer.types";
+import { AnswerWithDetails } from "./answer.types";
 
 export interface IAnswerService {
 

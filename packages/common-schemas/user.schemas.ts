@@ -2,6 +2,7 @@ import { z } from "zod";
 
 const userTypes = ["itmStudent", "itmEmployee", "external"] as const;
 const staffRoles = ["psychologist", "admin"] as const;
+const appRoles = ["admin", "psychologist", "user"] as const;
 
 export const CreateUserDto = z.object({
   email: z
@@ -31,3 +32,10 @@ export const RegisterDto = z.object({
   password: z.string().min(6).optional(),
 });
 
+export const UpdateUserRoleDto = z.object({
+  role: z.enum(appRoles),
+});
+
+export const AssignPsychologistDto = z.object({
+  psychologistId: z.uuid().nullable(),
+});

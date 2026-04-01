@@ -1,13 +1,13 @@
-import { IAssignmentService } from "../../contracts/assignment/IassignmentService";
 import { inject, injectable } from "tsyringe";
-import { IAssignmentRepo } from "../../contracts/assignment/IassignmentRepo";
-import { ITestRepo } from "../../contracts/test/ItestRepo";
+import { assignment, Prisma } from "@prisma/client";
 import { TestDataResponse } from "@packages/common-schemas/test.schemas";
-import { NotFound } from "../../utils/httpError";
 import { AssignmentWithTestsDataResponse } from "@packages/common-types/assignment.types";
 import { QuestionOption } from "@packages/common-types/questionsOptions.types";
 import { Question } from "@packages/common-types/question.types";
-import { assignment, Prisma } from "@prisma/client";
+import { IAssignmentService } from "../../contracts/assignment/IassignmentService";
+import { IAssignmentRepo } from "../../contracts/assignment/IassignmentRepo";
+import { ITestRepo } from "../../contracts/test/ItestRepo";
+import { BadRequest, NotFound } from "../../utils/httpError";
 
 @injectable()
 export class AssignmentService implements IAssignmentService {
@@ -17,13 +17,36 @@ export class AssignmentService implements IAssignmentService {
     @inject("TestRepo")
     private readonly testRepo: ITestRepo,
   ) {}
+
   markAssignmentAsCompleted(assignmentId: string): Promise<assignment | null> {
     const updatedData: Prisma.assignmentUpdateInput = {
       status: "completed",
     };
 
-    const updated = this.assignmentRepo.updateAssignmentStatus(assignmentId, updatedData);
-    return updated;
+    return this.assignmentRepo.updateAssignmentStatus(assignmentId, updatedData);
+  }
+
+  async markAssignmentAsReviewed(
+    psychologistId: string,
+    assignmentId: string,
+  ): Promise<assignment | null> {
+    const assignment = await this.assignmentRepo.getPsychologistAssignmentById(
+      psychologistId,
+      assignmentId,
+    );
+
+    if (!assignment) {
+      throw NotFound("Asignacion no encontrada para este psicologo");
+    }
+
+    if (assignment.status !== "completed") {
+      throw BadRequest("Solo puedes revisar pruebas completadas");
+    }
+
+    return this.assignmentRepo.markAssignmentAsReviewed(
+      assignmentId,
+      assignment.reviewedAt || new Date(),
+    );
   }
 
   async assignInitialTestsToUser(
@@ -32,7 +55,7 @@ export class AssignmentService implements IAssignmentService {
   ): Promise<void> {
     const assignment: Prisma.assignmentCreateInput = {
       assignedBy: {
-        connect: { userId: userId }, 
+        connect: { userId: userId },
       },
       assignedTo: {
         connect: { userId: userId },
@@ -42,14 +65,17 @@ export class AssignmentService implements IAssignmentService {
       },
       status: "assigned",
     };
+
     const response = await this.assignmentRepo.assignInitialTestsToUser(
       assignment,
       tx,
     );
+
     if (!response) {
       throw new Error("Error al asignar el test inicial al usuario");
     }
   }
+
   async getAssignmentsWithTestsByUserId(
     userId: string,
   ): Promise<AssignmentWithTestsDataResponse[] | null> {
@@ -64,41 +90,39 @@ export class AssignmentService implements IAssignmentService {
   async getAssignmentById(
     assignmentId: string,
   ): Promise<TestDataResponse | null> {
-    try {
-      const assignment =
-        await this.assignmentRepo.getAssignmentForId(assignmentId);
-      if (!assignment) {
-        throw NotFound("Asignacion no encontrada");
-      }
-      if (assignment.status === "completed") {
-        throw NotFound("La asignacion ya fue completada");
-      }
-      const test = await this.testRepo.getTestWithQuestionsById(
-        assignment.testId,
-      );
-
-      if (!test) {
-        throw NotFound("Test no encontrado para la asignacion");
-      }
-      if (!test.questions) {
-        throw NotFound("El test no tiene preguntas asociadas");
-      }
-      const formattedData: TestDataResponse = {
-        title: test.title,
-        question: test.questions.map((q: Question) => ({
-          questionId: q.questionId,
-          code: q.code ?? null,
-          prompt: q.prompt ?? "",
-          questionOption: q.questionOption.map((opt: QuestionOption) => ({
-            questionOptionId: opt.questionOptionId,
-            label: opt.label,
-            value: opt.value ?? null,
-          })),
-        })),
-      };
-      return formattedData;
-    } catch (error) {
-      throw error;
+    const assignment = await this.assignmentRepo.getAssignmentForId(assignmentId);
+    if (!assignment) {
+      throw NotFound("Asignacion no encontrada");
     }
+
+    if (assignment.status === "completed") {
+      throw NotFound("La asignacion ya fue completada");
+    }
+
+    const test = await this.testRepo.getTestWithQuestionsById(assignment.testId);
+
+    if (!test) {
+      throw NotFound("Test no encontrado para la asignacion");
+    }
+
+    if (!test.questions) {
+      throw NotFound("El test no tiene preguntas asociadas");
+    }
+
+    const formattedData: TestDataResponse = {
+      title: test.title,
+      question: test.questions.map((q: Question) => ({
+        questionId: q.questionId,
+        code: q.code ?? null,
+        prompt: q.prompt ?? "",
+        questionOption: q.questionOption.map((opt: QuestionOption) => ({
+          questionOptionId: opt.questionOptionId,
+          label: opt.label,
+          value: opt.value ?? null,
+        })),
+      })),
+    };
+
+    return formattedData;
   }
 }

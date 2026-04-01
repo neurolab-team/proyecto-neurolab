@@ -1,5 +1,5 @@
 import { Prisma, answer } from "@prisma/client";
-import {AnswerWithDetails} from "@packages/common-types/answer.types";
+import { AnswerWithDetails } from "./answer.types";
 
 export interface IAnswerRepo {
   findById(id: string, tx?: Prisma.TransactionClient): Promise<answer | null>;
