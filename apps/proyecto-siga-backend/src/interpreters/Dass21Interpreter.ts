@@ -1,42 +1,40 @@
+import { AttentionLevel } from "@packages/common-types/assignmentScore.types";
 import { ITestInterpreter } from "../contracts/interpretation/ITestInterpreter";
 
-/**
- * Interpreter for DASS-21 (Depression, Anxiety, Stress Scale)
- * Provides interpretation logic for three sections: Depression, Anxiety, and Stress
- */
 export class Dass21Interpreter implements ITestInterpreter {
   readonly testCode = "DASS-21";
 
-  interpretSection(sectionName: string, score: number): string {
-    const normalizedSection = sectionName.toLowerCase();
+  private normalize(sectionName: string): string {
+    return sectionName.toLowerCase();
+  }
 
-    // Interpretación para Depresión
-    if (normalizedSection.includes("depresion")) {
-      if (score < 5) return "Normal";
-      if (score >= 5 && score <= 6) return "Depresion leve";
-      if (score >= 7 && score <= 10) return "Depresion moderada";
-      if (score >= 11 && score <= 13) return "Depresion severa";
-      return "Depresion extremadamente severa";
+  interpretSection(sectionName: string, score: number): { interpretation: string; attentionLevel: AttentionLevel } {
+    const s = this.normalize(sectionName);
+
+    if (s.includes("depresion")) {
+      if (score < 5)  return { interpretation: "Normal", attentionLevel: "none" };
+      if (score <= 6) return { interpretation: "Depresion leve", attentionLevel: "low" };
+      if (score <= 10) return { interpretation: "Depresion moderada", attentionLevel: "medium" };
+      if (score <= 13) return { interpretation: "Depresion severa", attentionLevel: "high" };
+      return { interpretation: "Depresion extremadamente severa", attentionLevel: "high" };
     }
 
-    // Interpretación para Ansiedad
-    if (normalizedSection.includes("ansiedad")) {
-      if (score < 4) return "Normal";
-      if (score === 4) return "Ansiedad leve";
-      if (score >= 5 && score <= 7) return "Ansiedad moderada";
-      if (score >= 8 && score <= 9) return "Ansiedad severa";
-      return "Ansiedad extremadamente severa";
+    if (s.includes("ansiedad")) {
+      if (score < 4)  return { interpretation: "Normal", attentionLevel: "none" };
+      if (score === 4) return { interpretation: "Ansiedad leve", attentionLevel: "low" };
+      if (score <= 7) return { interpretation: "Ansiedad moderada", attentionLevel: "medium" };
+      if (score <= 9) return { interpretation: "Ansiedad severa", attentionLevel: "high" };
+      return { interpretation: "Ansiedad extremadamente severa", attentionLevel: "high" };
     }
 
-    // Interpretación para Estrés
-    if (normalizedSection.includes("estres")) {
-      if (score < 8) return "Normal";
-      if (score >= 8 && score <= 9) return "Estrés leve";
-      if (score >= 10 && score <= 12) return "Estrés moderado";
-      if (score >= 13 && score <= 16) return "Estrés severo";
-      return "Estrés extremadamente severo";
+    if (s.includes("estres")) {
+      if (score < 8)  return { interpretation: "Normal", attentionLevel: "none" };
+      if (score <= 9) return { interpretation: "Estrés leve", attentionLevel: "low" };
+      if (score <= 12) return { interpretation: "Estrés moderado", attentionLevel: "medium" };
+      if (score <= 16) return { interpretation: "Estrés severo", attentionLevel: "high" };
+      return { interpretation: "Estrés extremadamente severo", attentionLevel: "high" };
     }
 
-    return "No interpretado";
+    return { interpretation: "No interpretado", attentionLevel: "none" };
   }
 }

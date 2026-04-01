@@ -121,13 +121,13 @@ export class AssignmentScoreService implements IAssignmentScoreService {
       {} as Record<string, SectionScore>,
     );
 
-    const sectionScores = Object.values(sectionScoresMap).map((section) => ({
-      ...section,
-      interpretation: interpreter.interpretSection(
-        section.sectionName,
-        section.totalScore,
-      ),
-    }));
+   const sectionScores = Object.values(sectionScoresMap).map((section) => {
+  const { interpretation, attentionLevel } = interpreter.interpretSection(
+    section.sectionName,
+    section.totalScore,
+  );
+  return { ...section, interpretation, attentionLevel };
+});
 
     const totalScore = sectionScores.reduce(
       (sum, section) => sum + section.totalScore,
