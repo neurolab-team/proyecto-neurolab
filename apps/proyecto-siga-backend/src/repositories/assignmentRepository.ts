@@ -364,7 +364,6 @@ export class AssignmentRepository implements IAssignmentRepo {
     });
   }
 
-<<<<<<< HEAD
   async getTestCodeByAssignmentId(
     assignmentId: string,
   ): Promise<string | null> {
@@ -373,7 +372,7 @@ export class AssignmentRepository implements IAssignmentRepo {
       select: { test: { select: { testCode: true } } },
     });
     return result?.test?.testCode ?? null;
-=======
+  }
   markAssignmentAsReviewed(
     assignmentId: string,
     reviewedAt: Date,
@@ -383,6 +382,5 @@ export class AssignmentRepository implements IAssignmentRepo {
       where: { assignmentId },
       data: { reviewedAt },
     });
->>>>>>> origin/main
   }
 }
