@@ -1,92 +1,47 @@
-import { useState, useEffect } from "react";
-import { useRouter } from "next/router";
-import { testService } from "../services/test/test";
-import { Question } from "@packages/common-types/question.types";
-import { assignmentScoreService } from "../services/assignmentScore/assignmentScore";
+import { useCallback } from "react";
+import { useTestData } from "./test/useTestData";
+import { useTestAnswers } from "./test/useTestAnswers";
+import { useTestNavigation } from "./test/useTestNavigation";
+import { useTestSubmit } from "./test/useTestSubmit";
 
-export const useTest = (assigmentId: string) => {
+export const useTest = (assignmentId: string) => {
+  const { questions, title, testCode, isLoading, error } =
+    useTestData(assignmentId);
 
-  const [questions, setQuestions] = useState<Question[]>([]);
-  const [title, setTitle] = useState("");
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [answers, setAnswers] = useState<Record<string, string>>({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { answers, selectAnswer, getSelectedValue } = useTestAnswers();
+  const navigation = useTestNavigation(questions);
 
-  const router = useRouter();
-  useEffect(() => {
-    if (assigmentId) {
-      setIsLoading(true);
-      testService
-        .getTestForAssignment(assigmentId as string)
-        .then((data) => {
-          setQuestions(data.question);
-          setTitle(data.title);
-        })
-        .catch((err) => setError("No se pudo cargar el test."))
-        .finally(() => setIsLoading(false));    }
-  }, [assigmentId]);
-
-  const submitTest = async () => {
-    setIsSubmitting(true);
-    try {
-      await testService.submitTestAnswers(assigmentId as string, answers);      
-      await assignmentScoreService.submitAssignmentScore(assigmentId as string);      
-      router.push("/test/completed");
-      
-    } catch (err: any) {
-      const errorMessage = err.response?.data?.message || "Hubo un error al enviar tus respuestas. Por favor, intenta de nuevo.";
-      // Mostrar el mensaje de error al usuario
-      alert(errorMessage); //cambiarlo por un modal o toast      
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const selectAnswer = (questionId: string, value: string) => {
-    setAnswers((prev) => ({
-      ...prev,
-      [questionId]: value,
-    }));
-  };
-
-  const goToNext = () => {
-    if (currentQuestionIndex < questions.length - 1) {
-      setCurrentQuestionIndex((prev) => prev + 1);
-    } else {
-      submitTest();
-    }
-  };
-
-  const goToBack = () => {
-    if (currentQuestionIndex > 0) {
-      setCurrentQuestionIndex((prev) => prev - 1);
-    }
-  };
-  const currentQuestion = questions[currentQuestionIndex];
-  const totalQuestions = questions.length;
-
-  const selectedValue = currentQuestion
-    ? answers[currentQuestion.questionId] || null
+  const selectedValue = navigation.currentQuestion
+    ? getSelectedValue(navigation.currentQuestion.questionId)
     : null;
-  const isFirstPage = currentQuestionIndex === 0;
-  const isLastPage = currentQuestionIndex === totalQuestions - 1;
+
+  const { submitTest, isSubmitting, submitError } =
+    useTestSubmit(assignmentId);
+
+  const handleNext = useCallback(() => {
+    if (selectedValue === null) return;
+    if (navigation.isLastPage) {
+      submitTest(answers);
+    } else {
+      navigation.goToNext();
+    }
+  }, [navigation, submitTest, answers, selectedValue]);
 
   return {
     isLoading: isLoading || isSubmitting,
-    error,
+    error: error ?? submitError,
     title,
-    currentQuestion,
+    testCode,
+    currentQuestion: navigation.currentQuestion,
     selectedValue,
-    currentQuestionNumber: currentQuestionIndex + 1,
-    totalQuestions,
-    isFirstPage,
-    isLastPage,
+    currentQuestionNumber: navigation.currentQuestionNumber,
+    totalQuestions: navigation.totalQuestions,
+    isFirstPage: navigation.isFirstPage,
+    isLastPage: navigation.isLastPage,
     actions: {
       selectAnswer,
-      goToNext,
-      goToBack,
+      goToNext: handleNext,
+      goToBack: navigation.goToBack,
     },
   };
 };

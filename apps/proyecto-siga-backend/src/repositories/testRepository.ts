@@ -9,9 +9,12 @@ export class TestRepository implements ITestRepo {
   ): Promise<TestWithQuestions | null> {
     const testData = await prisma.test.findUnique({
       where: { testId: testId },
-      include: {
+      select: {
+        testId: true,
+        title: true,
+        testCode: true,
         questions: {
-          orderBy: { code: "desc" }, 
+          orderBy: { code: "desc" },
           include: {
             questionOption: {
               orderBy: { value: "asc" },
@@ -19,7 +22,6 @@ export class TestRepository implements ITestRepo {
           },
         },
       },
-      
     });
     return testData as TestWithQuestions | null;
   }

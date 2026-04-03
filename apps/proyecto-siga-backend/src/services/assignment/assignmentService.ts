@@ -110,11 +110,13 @@ export class AssignmentService implements IAssignmentService {
     }
 
     const formattedData: TestDataResponse = {
+      testCode: test.testCode ?? "UNKNOWN",
       title: test.title,
       question: test.questions.map((q: Question) => ({
         questionId: q.questionId,
         code: q.code ?? null,
         prompt: q.prompt ?? "",
+        questionType: (q as any).type ?? "single_choice",
         questionOption: q.questionOption.map((opt: QuestionOption) => ({
           questionOptionId: opt.questionOptionId,
           label: opt.label,

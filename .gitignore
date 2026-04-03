@@ -56,3 +56,6 @@ apps/proyecto-siga-frontend/.env.local
 packages/docs/swagger-output.json
 .amazonq/
 .vscode/
+.opencode/
+openspec/
+.kiro/

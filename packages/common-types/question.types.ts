@@ -4,6 +4,7 @@ export interface Question {
     questionId: string;
     code?: string;
     prompt?: string;
+    questionType?: string;
     questionOption: QuestionOption[];
 }
 

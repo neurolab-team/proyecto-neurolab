@@ -183,6 +183,7 @@ async function main() {
           testSectionId: sectionMap[q.sectionCode as "D" | "A" | "S"],
           code: q.code,
           prompt: q.prompt,
+          type: "likert",
 
           // Anidamos la creación de las 4 opciones para ESTA pregunta
           questionOption: {

@@ -1,8 +1,9 @@
 import { useRouter } from "next/router";
 import { useTest } from "../../hooks/useTest";
-import { QuestionCard } from "../../components/test/QuestionCard";
+import { QuestionRendererFactory } from "../../components/test/renderers/QuestionRendererFactory";
 import { TestProgress } from "../../components/test/TestProgress";
 import { TestNavigation } from "../../components/test/TestNavigation";
+import { getTestConfig } from "../../components/test/config/testConfigRegistry";
 import { motion, AnimatePresence } from 'framer-motion';
 import { fadeSlideUp } from '../../libs/animation'; 
 import Navbar from "../../components/Navbar";
@@ -15,6 +16,7 @@ export default function TestPage() {
   const {
     isLoading,
     error,
+    testCode,
     currentQuestion,
     selectedValue,
     currentQuestionNumber,
@@ -24,10 +26,14 @@ export default function TestPage() {
     actions,
   } = useTest(assignmentId as string);
 
-  if (!router.isReady || isLoading) { // Estilizar esta pantalla de carga también
+  const testConfig = getTestConfig(testCode || 'DEFAULT');
+
+  if (!router.isReady || isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gradient-from via-gradient-via to-gradient-to">
-        <div className="text-primary-dark text-xl font-semibold">
+      <div className="min-h-screen flex items-center justify-center"
+        style={{ background: `linear-gradient(to bottom right, ${testConfig.colors.gradientFrom}, ${testConfig.colors.gradientVia}, ${testConfig.colors.gradientTo})` }}
+      >
+        <div className="text-xl font-semibold" style={{ color: testConfig.colors.primaryDark }}>
           Cargando...
         </div>
       </div>
@@ -35,17 +41,19 @@ export default function TestPage() {
   }
 
   if (error) {
-    return <div>Error: {error}</div>; // Estilizar esta página de error también
+    return <div>Error: {error}</div>;
   }
 
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
-      <main className="flex-1 bg-gradient-to-br from-gradient-from via-gradient-via to-gradient-to py-16 sm:py-24">
+      <main
+        className="flex-1 py-16 sm:py-24"
+        style={{ background: `linear-gradient(to bottom right, ${testConfig.colors.gradientFrom}, ${testConfig.colors.gradientVia}, ${testConfig.colors.gradientTo})` }}
+      >
         <div className="container mx-auto max-w-2xl p-4">
-          
           {!currentQuestion ? (
-            <div className="text-center text-primary-dark text-xl font-semibold">
+            <div className="text-center text-xl font-semibold" style={{ color: testConfig.colors.primaryDark }}>
               No se encontraron preguntas para este test.
             </div>
           ) : (
@@ -53,6 +61,7 @@ export default function TestPage() {
               <TestProgress
                 current={currentQuestionNumber}
                 total={totalQuestions}
+                testConfig={testConfig}
               />
             
               <div className="mt-8">
@@ -64,11 +73,12 @@ export default function TestPage() {
                     animate="animate"
                     exit="exit"
                   >
-                    <QuestionCard
+                    <QuestionRendererFactory
                       question={currentQuestion}
                       current={currentQuestionNumber}
                       selectedValue={selectedValue}
                       onOptionSelect={actions.selectAnswer}
+                      testConfig={testConfig}
                     />
                   </motion.div>
                 </AnimatePresence>
@@ -80,10 +90,10 @@ export default function TestPage() {
                 isFirst={isFirstPage}
                 isLast={isLastPage}
                 isAnswered={selectedValue !== null}
+                testConfig={testConfig}
               />
             </>
           )}
-
         </div>
       </main>
       <Footer />

@@ -231,6 +231,7 @@ async function main() {
           testSectionId: sectionMap[q.sectionCode as "A" | "D"],
           code: q.code,
           prompt: q.prompt,
+          type: "single_choice",
 
           questionOption: {
             createMany: {

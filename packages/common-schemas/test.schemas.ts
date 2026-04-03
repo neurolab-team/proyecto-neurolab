@@ -10,10 +10,12 @@ export const testQuestionDtoSchema = z.object({
   questionId: z.uuid(),
   code: z.string().nullable(),
   prompt: z.string(),
+  questionType: z.string(),
   questionOption: z.array(testOptionDtoSchema),
 });
 
 export const testDataDtoSchema = z.object({
+  testCode: z.string(),
   title: z.string(),
   question: z.array(testQuestionDtoSchema),
 });
