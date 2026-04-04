@@ -1,4 +1,5 @@
-import { auth, asAdminOrPsychologist, asAdmin } from "../middleware/auth";
+import { asAdminOrPsychologist, asAdmin, asPsychologist } from "../middleware/auth";
+import { auth } from "../middleware/auth";
 import container from "../container/index";
 import { CommonDtos } from "../shared/validators";
 import { Router } from "express";
@@ -8,21 +9,52 @@ import { IUserService } from "../contracts/user/IuserService";
 import { z } from "zod";
 import { NotFound } from "../utils/httpError";
 import { created } from "../utils/jsonResponse";
-import { CreateUserDto, RegisterDto } from "@packages/common-schemas/user.schemas";
+import {
+  AssignPsychologistDto,
+  CreateUserDto,
+  RegisterDto,
+  UpdateUserRoleDto,
+} from "@packages/common-schemas/user.schemas";
 import { userResponse } from "@packages/common-types/user.types";
 // Private Routes
 export const UsersController = Router();
 const userService = container.resolve<IUserService>("UserService");
 
-UsersController.use(auth, asAdminOrPsychologist);
+UsersController.use(auth);
 
 
 
 // Private Routes
 
 UsersController.get(
+  "/psychologist/students",
+  asPsychologist,
+  wrap(async (req: any, res) => {
+    const students = await userService.getPsychologistStudents(req.user!.userId);
+    return ok(res, students, "Listado de estudiantes asignados");
+  })
+);
+
+UsersController.get(
+  "/psychologist/students/:id",
+  asPsychologist,
+  wrap(async (req: any, res) => {
+    const { id } = CommonDtos.IdParam.parse(req.params);
+    const student = await userService.getPsychologistStudentById(
+      req.user!.userId,
+      id,
+    );
+
+    if (!student) {
+      throw NotFound("Estudiante no encontrado");
+    }
+
+    return ok(res, student, "Detalle del estudiante asignado");
+  })
+);
+
+UsersController.get(
   "/",
-  auth,
   asAdmin,
   wrap(async (req: any, res) => {
     const users = await userService.getUsers();
@@ -32,7 +64,6 @@ UsersController.get(
 
 UsersController.get(
   "/:id",
-  auth,
   asAdminOrPsychologist,
   wrap(async (req: any, res) => {
     const { id } = CommonDtos.IdParam.parse(req.params);
@@ -52,9 +83,32 @@ UsersController.get(
   })
 );
 
+UsersController.patch(
+  "/:id/role",
+  asAdmin,
+  wrap(async (req: any, res) => {
+    const { id } = CommonDtos.IdParam.parse(req.params);
+    const input = UpdateUserRoleDto.parse(req.body);
+    const user = await userService.updateUserRole(id, input);
+
+    return ok(res, user, "Rol actualizado con exito");
+  })
+);
+
+UsersController.patch(
+  "/:id/psychologist",
+  asAdmin,
+  wrap(async (req: any, res) => {
+    const { id } = CommonDtos.IdParam.parse(req.params);
+    const input = AssignPsychologistDto.parse(req.body);
+    const user = await userService.assignPsychologistToUser(id, input);
+
+    return ok(res, user, "Psicologo asignado con exito");
+  })
+);
+
 UsersController.post(
   "/",
-  auth,
   asAdmin,
   wrap(async (req: any, res) => {
     const input = CreateUserDto.parse(req.body);
@@ -74,6 +128,9 @@ UsersController.post(
       role: user.role,
       isActive: user.isActive,
       gender: user.gender ?? "",
+      assignedPsychologistId: user.assignedPsychologistId ?? null,
+      assignedPsychologist: user.assignedPsychologist ?? null,
+      userId: user.userId,
     };
     return created(
       res,
@@ -85,7 +142,6 @@ UsersController.post(
 
 UsersController.patch(
   "/:id/deactivate",
-  auth,
   asAdminOrPsychologist,
   wrap(async (req: any, res) => {
     const { id } = CommonDtos.IdParam.parse(req.params);
@@ -96,7 +152,6 @@ UsersController.patch(
 
 UsersController.patch(
   "/:id/activate",
-  auth,
   asAdminOrPsychologist,
   wrap(async (req: any, res) => {
     const { id } = CommonDtos.IdParam.parse(req.params);
@@ -109,6 +164,7 @@ UsersController.patch(
 
 UsersController.get(
   "/check-email/:email",
+  asAdminOrPsychologist,
   wrap(async (req: any, res) => {
     const email = z.string().parse(req.params.email);
     const { excludeId } = z

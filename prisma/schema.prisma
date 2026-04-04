@@ -34,28 +34,41 @@ enum assignmentStatus {
   expired
 }
 
+enum assignmentAttentionLevel {
+  high
+  medium
+  low
+  none
+}
+
 model user {
-  userId        String    @id @default(uuid()) @db.Uuid
-  userNumber    String    @unique
-  email         String    @unique
-  password      String?
-  name          String
-  gender        String?
-  birthDate     DateTime?
-  userType      userType  @default(external)
-  tokenVersion  Int       @default(0) // mirar si se puede eliminar
-  role          userRole
-  isActive      Boolean   @default(false)
-  lastLogin     DateTime?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  verifiedEmail Boolean   @default(false)
+  userId                 String    @id @default(uuid()) @db.Uuid
+  userNumber             String    @unique
+  email                  String    @unique
+  password               String?
+  name                   String
+  gender                 String?
+  birthDate              DateTime?
+  userType               userType  @default(external)
+  tokenVersion           Int       @default(0) // mirar si se puede eliminar
+  role                   userRole
+  isActive               Boolean   @default(false)
+  lastLogin              DateTime?
+  createdAt              DateTime  @default(now())
+  updatedAt              DateTime  @updatedAt
+  verifiedEmail          Boolean   @default(false)
+  assignedPsychologistId String?   @db.Uuid
+  assignedPsychologistAt DateTime?
+  followUpAt             DateTime?
 
   // relations
-  createdTests  test[]       @relation("testCreatedBy")
-  assignmentsTo assignment[] @relation("assignedTo")
-  assignmentsBy assignment[] @relation("assignedBy")
+  assignedPsychologist user?        @relation("psychologistAssignments", fields: [assignedPsychologistId], references: [userId])
+  assignedStudents     user[]       @relation("psychologistAssignments")
+  createdTests         test[]       @relation("testCreatedBy")
+  assignmentsTo        assignment[] @relation("assignedTo")
+  assignmentsBy        assignment[] @relation("assignedBy")
 
+  @@index([assignedPsychologistId])
   @@map("user")
 }
 
@@ -131,6 +144,7 @@ model assignment {
   dueAt       DateTime?
   startedAt   DateTime?
   completedAt DateTime?
+  reviewedAt  DateTime?
   createdAt   DateTime  @default(now())
 
   assignedBy user             @relation("assignedBy", fields: [assignedById], references: [userId])
@@ -163,8 +177,10 @@ model assignmentScore {
 
   totalScore     Decimal  @db.Decimal(12, 4)
   percentile     Decimal? @db.Decimal(6, 3)
+  attentionLevel assignmentAttentionLevel @default(none)
   interpretation String?
   details        Json?
 
+  @@index([attentionLevel])
   @@map("assignmentScores")
 }

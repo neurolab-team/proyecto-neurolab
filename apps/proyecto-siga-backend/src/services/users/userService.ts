@@ -1,15 +1,22 @@
 import { inject, injectable } from "tsyringe";
 import bcrypt from "bcrypt";
-import { IUserService } from "../../contracts/user/IuserService";
-import { User, CreateUserInput } from "@packages/common-types/user.types";
-import { generateSecurePassword } from "../../utils/sendEmail";
+import { Prisma } from "@prisma/client";
+import {
+  AssignPsychologistInput,
+  CreateUserInput,
+  UpdateUserRoleInput,
+  User,
+} from "@packages/common-types/user.types";
 import prisma from "@packages/libs/prisma";
+import { generateSecurePassword } from "../../utils/sendEmail";
 import { BadRequest, NotFound } from "../../utils/httpError";
 import { IEmailVerificationService } from "../../contracts/mail/IemailVerificationService";
 import { IUserRepo } from "../../contracts/user/IuserRepo";
 import { IVerificationService } from "../../contracts/verification/IverificationService";
 import { IAssignmentService } from "../../contracts/assignment/IassignmentService";
-import { logger } from "../../utils/logger";
+import { IUserService } from "../../contracts/user/IuserService";
+import { PsychologistStudentsQueryService } from "../../modules/psychologist/psychologistStudentsQuery";
+import { mapUserRecordToUser } from "../../modules/users/user.mapper";
 
 @injectable()
 export class UserService implements IUserService {
@@ -21,7 +28,9 @@ export class UserService implements IUserService {
     @inject("VerificationService")
     private readonly verificationService: IVerificationService,
     @inject("AssignmentService")
-    private readonly assignmentService: IAssignmentService
+    private readonly assignmentService: IAssignmentService,
+    @inject("PsychologistStudentsQueryService")
+    private readonly psychologistStudentsQueryService: PsychologistStudentsQueryService,
   ) {}
 
   private async HashPassword(password: string): Promise<string> {
@@ -31,11 +40,26 @@ export class UserService implements IUserService {
   }
 
   async getUsers(): Promise<User[]> {
-    return this.userRepo.findMany() as Promise<User[]>;
+    const users = await this.userRepo.findManyWithPsychologist();
+    return users.map((user) => mapUserRecordToUser(user));
   }
 
   async getUserById(id: string): Promise<User | null> {
-    return this.userRepo.findById(id) as Promise<User | null>;
+    const user = await this.userRepo.findById(id);
+    return user ? mapUserRecordToUser(user) : null;
+  }
+
+  async getPsychologistStudents(psychologistId: string) {
+    return this.psychologistStudentsQueryService.getPsychologistStudents(
+      psychologistId,
+    );
+  }
+
+  async getPsychologistStudentById(psychologistId: string, studentId: string) {
+    return this.psychologistStudentsQueryService.getPsychologistStudentById(
+      psychologistId,
+      studentId,
+    );
   }
 
   async checkEmailAvailable(
@@ -49,31 +73,28 @@ export class UserService implements IUserService {
   }
 
   async createUser(input: CreateUserInput): Promise<User> {
-    return prisma.$transaction(async (tx) => {
-      const isEmailAvailable = await this.checkEmailAvailable(input.email);
-      if (!isEmailAvailable) {
-        throw BadRequest("El email ya está registrado");
-      }
+    const email = input.email.toLowerCase();
 
-      const email = input.email.toLowerCase();
+    if (
+      input.userType === "itmStudent" &&
+      !email.endsWith("@correo.itm.edu.co")
+    ) {
+      throw BadRequest("Los estudiantes deben usar correo @correo.itm.edu.co");
+    }
 
-      if (
-        input.userType === "itmStudent" &&
-        !email.endsWith("@correo.itm.edu.co")
-      ) {
-        throw BadRequest(
-          "Los estudiantes deben usar correo @correo.itm.edu.co",
-        );
-      }
-      if (input.userType === "itmEmployee" && !email.endsWith("@itm.edu.co")) {
-        throw BadRequest("Los empleados deben usar correo @itm.edu.co");
-      }
-      const hashedPassword = await this.HashPassword(input.password!);
+    if (input.userType === "itmEmployee" && !email.endsWith("@itm.edu.co")) {
+      throw BadRequest("Los empleados deben usar correo @itm.edu.co");
+    }
 
-      const user = await this.userRepo.create(
+    const hashedPassword = await this.HashPassword(input.password!);
+    const verificationToken =
+      await this.verificationService.createVerificationToken(email);
+
+    const user = await prisma.$transaction(async (tx) => {
+      const createdUser = await this.userRepo.create(
         {
           userNumber: input.userNumber,
-          email: input.email.toLowerCase(),
+          email,
           name: input.name ?? "",
           role: input.role,
           userType: input.userType,
@@ -87,36 +108,32 @@ export class UserService implements IUserService {
         tx,
       );
 
-      const verificationToken =
-        await this.verificationService.createVerificationToken(user.email);
-      const verificationUrl = `${process.env.APP_FRONTEND_URL}/verify-email?token=${verificationToken}`;
-      await this.emailVerificationService.sendVerificationEmailUser(
-        user.email,
-        user.name || "Usuario",
-        verificationUrl,
+      await this.assignmentService.assignInitialTestsToUser(
+        createdUser.userId,
+        tx,
       );
 
-      await this.assignmentService.assignInitialTestsToUser(user.userId, tx);
-      
-
-      return user as User;
+      return createdUser;
     });
+
+    const verificationUrl = `${process.env.APP_FRONTEND_URL}/verify-email?token=${verificationToken}`;
+
+    await this.emailVerificationService.sendVerificationEmailUser(
+      user.email,
+      user.name || "Usuario",
+      verificationUrl,
+    );
+
+    return mapUserRecordToUser(user);
   }
 
   async createUserByAdmin(input: CreateUserInput): Promise<User> {
-    return prisma.$transaction(async (tx) => {
-      const temporaryPassword = await generateSecurePassword();
-      const hashedPassword = await this.HashPassword(temporaryPassword);
-      console.log(`Temporary password: ${temporaryPassword}`); //Solo para testeo
+    const temporaryPassword = await generateSecurePassword();
+    const hashedPassword = await this.HashPassword(temporaryPassword);
+    console.log(`Temporary password: ${temporaryPassword}`);
 
-        const sensitiveData = {
-          username: input.email,
-          password: temporaryPassword,
-        };
-        
-      logger.info({ data: sensitiveData }, `Temporary password generated for ${input.email}`);
-
-      const user = await this.userRepo.create(
+    const user = await prisma.$transaction(async (tx) => {
+      const createdUser = await this.userRepo.create(
         {
           userNumber: input.userNumber,
           email: input.email.toLowerCase(),
@@ -133,45 +150,108 @@ export class UserService implements IUserService {
         tx,
       );
 
-      await this.emailVerificationService.sendVerificationEmailStaff(
-        user.email,
-        user.name || (user.role == "admin" ? "Administrador" : "Psicólogo"),
-        temporaryPassword,
-        `${process.env.APP_FRONTEND_URL}`,
-      );
+      return createdUser;
+    });
 
-      return user as User;
+    await this.emailVerificationService.sendVerificationEmailStaff(
+      user.email,
+      user.name || (user.role === "admin" ? "Administrador" : "Psicólogo"),
+      temporaryPassword,
+      `${process.env.APP_FRONTEND_URL}`,
+    );
+
+    return mapUserRecordToUser(user);
+  }
+
+  async updateUserRole(id: string, input: UpdateUserRoleInput): Promise<User> {
+    return prisma.$transaction(async (tx) => {
+      const user = await this.userRepo.findById(id, tx);
+      if (!user) {
+        throw NotFound("Usuario no encontrado");
+      }
+
+      if (user.role === input.role) {
+        return mapUserRecordToUser(user);
+      }
+
+      if (user.role === "psychologist" && input.role !== "psychologist") {
+        const assignedStudentsCount = await this.userRepo.count(
+          {
+            assignedPsychologistId: id,
+          },
+          tx,
+        );
+
+        if (assignedStudentsCount > 0) {
+          throw BadRequest(
+            "No puedes cambiar el rol de un psicologo que tiene estudiantes asignados.",
+          );
+        }
+      }
+
+      const updateData: Prisma.userUpdateInput = {
+        role: input.role,
+        assignedPsychologistAt:
+          input.role === "user" ? user.assignedPsychologistAt : null,
+      };
+
+      if (input.role !== "user") {
+        updateData.assignedPsychologist = { disconnect: true };
+      }
+
+      const updatedUser = await this.userRepo.update(id, updateData, tx);
+      return mapUserRecordToUser(updatedUser);
     });
   }
 
-  // async updateUser(id: string, input: UpdateUserInput): Promise<User> { //not implemented yet
-  //   return prisma.$transaction(async (tx) => {
-  //     const existingUser = await this.userRepo.findById(id, tx);
-  //     if (!existingUser) {
-  //       throw NotFound("Usuario no encontrado");
-  //     }
-  //     if (input.email && input.email !== existingUser.email) {
-  //       const isEmailAvailable = await this.checkEmailAvailable(
-  //         input.email,
-  //         id
-  //       );
-  //       if (!isEmailAvailable) {
-  //         throw BadRequest("El email ya está registrado");
-  //       }
-  //     }
-  //     const updatedUser = await this.userRepo.update(
-  //       id,
-  //       {
-  //         email: input.email?.toLowerCase() ?? existingUser.email,
-  //         name: input.name ?? existingUser.name,
-  //         role: input.role ?? existingUser.role,
-  //       },
-  //       tx
-  //     );
+  async assignPsychologistToUser(
+    id: string,
+    input: AssignPsychologistInput,
+  ): Promise<User> {
+    return prisma.$transaction(async (tx) => {
+      const user = await this.userRepo.findById(id, tx);
+      if (!user) {
+        throw NotFound("Usuario no encontrado");
+      }
 
-  //     return updatedUser as User;
-  //   });
-  // }
+      if (user.role !== "user") {
+        throw BadRequest(
+          "Solo se puede asignar psicologo a usuarios con rol de estudiante o usuario final.",
+        );
+      }
+
+      if (input.psychologistId) {
+        const psychologist = await this.userRepo.findById(
+          input.psychologistId,
+          tx,
+        );
+
+        if (!psychologist) {
+          throw NotFound("Psicologo no encontrado");
+        }
+
+        if (psychologist.role !== "psychologist") {
+          throw BadRequest(
+            "El usuario seleccionado no tiene rol de psicologo.",
+          );
+        }
+      }
+
+      const updateData: Prisma.userUpdateInput = {
+        assignedPsychologistAt: input.psychologistId ? new Date() : null,
+        assignedPsychologist: input.psychologistId
+          ? {
+              connect: { userId: input.psychologistId },
+            }
+          : {
+              disconnect: true,
+            },
+      };
+
+      const updatedUser = await this.userRepo.update(id, updateData, tx);
+      return mapUserRecordToUser(updatedUser);
+    });
+  }
 
   async deactivateUser(id: string): Promise<void> {
     await prisma.$transaction(async (tx) => {
@@ -184,26 +264,7 @@ export class UserService implements IUserService {
         throw BadRequest("El usuario ya está desactivado");
       }
 
-      await this.userRepo.update(
-        id,
-        {
-          isActive: false,
-          tokenVersion: { increment: 1 },
-        },
-        tx,
-      );
-
-      try {
-        // await this.refreshTokenRepo.updateMany(
-        //   { userId: id },
-        //   { revokedAt: new Date() },
-        //   tx
-        // );
-      } catch (error) {
-        throw BadRequest("Error al revocar tokens de sesión", {
-          details: error,
-        });
-      }
+      await this.userRepo.update(id, { isActive: false }, tx);
     });
   }
 
@@ -233,142 +294,8 @@ export class UserService implements IUserService {
     });
   }
 
-  // async requestPasswordReset(email: string): Promise<void> {
-  //   const user = await this.userRepo.findByEmail(email.toLowerCase());
-
-  //   if (!user) {
-  //     throw NotFound("Usuario no encontrado");
-  //   }
-
-  //   if (!user.isActive) {
-  //     throw BadRequest(
-  //       "La cuenta no está activada. Solicita reenviar el email de activación."
-  //     );
-  //   }
-
-  //   await prisma.$transaction(async (tx) => {
-  //     await this.passwordResetTokenRepo.deleteMany({ userId: user.userId }, tx);
-
-  //     const resetToken = jwt.sign(
-  //       { userId: user.userId, type: "password_reset" },
-  //       process.env.JWT_SECRET!,
-  //       { expiresIn: "1h" }
-  //     );
-
-  //     await this.passwordResetTokenRepo.create(
-  //       {
-  //         token: resetToken,
-  //         user: { connect: { id: user.userId } },
-  //         expiresAt: new Date(Date.now() + 60 * 60 * 1000),
-  //       },
-  //       tx
-  //     );
-
-  //     await this.emailService.sendPasswordResetEmail({
-  //       email: user.email,
-  //       name: user.name || "Usuario",
-  //       resetToken,
-  //     });
-  //   });
-  // }
-
-  // async resetPassword(token: string, newPassword: string): Promise<void> {
-  //   await prisma.$transaction(async (tx) => {
-  //     const resetToken = await this.passwordResetTokenRepo.findByToken(
-  //       token,
-  //       { user: true },
-  //       tx
-  //     );
-
-  //     if (!resetToken) {
-  //       throw BadRequest("Token de restablecimiento inválido");
-  //     }
-
-  //     if (resetToken.expiresAt < new Date()) {
-  //       throw BadRequest("Token de restablecimiento expirado");
-  //     }
-
-  //     const passwordHash = await this.validateAndHashPassword(
-  //       newPassword,
-  //       resetToken.user.email
-  //     );
-
-  //     await this.userRepo.update(
-  //       resetToken.userId,
-  //       {
-  //         password: passwordHash,
-  //         tokenVersion: { increment: 1 },
-  //       },
-  //       tx
-  //     );
-
-  //     await this.passwordResetTokenRepo.delete(resetToken.id, tx);
-
-  //     try {
-  //       await this.refreshTokenRepo.updateMany(
-  //         { userId: resetToken.userId },
-  //         { revokedAt: new Date() },
-  //         tx
-  //       );
-  //     } catch (error) {
-  //       throw BadRequest("Error al revocar tokens de sesión", { details: error });
-  //     }
-  //   });
-  // }
-
-  // async resendActivation(email: string): Promise<void> {
-  //   const user = await this.userRepo.findByEmail(email.toLowerCase());
-
-  //   if (!user) {
-  //     throw NotFound("Usuario no encontrado");
-  //   }
-
-  //   if (user.isActive) {
-  //     throw BadRequest("La cuenta ya está activada");
-  //   }
-
-  //   await prisma.$transaction(async (tx) => {
-  //     await this.emailVerificationTokenRepo.deleteMany(
-  //       { userId: user.userId },
-  //       tx
-  //     );
-
-  //     const temporaryPassword =
-  //       this.verificationService.generateSecurePassword();
-  //     const passwordHash = await this.validateAndHashPassword(
-  //       temporaryPassword,
-  //       user.email
-  //     );
-
-  //     await this.userRepo.update(user.userId, { password: passwordHash }, tx);
-
-  //     const verificationToken = jwt.sign(
-  //       { userId: user.userId, type: "email_verification" },
-  //       process.env.JWT_SECRET!,
-  //       { expiresIn: "24h" }
-  //     );
-
-  //     await this.emailVerificationTokenRepo.create(
-  //       {
-  //         token: verificationToken,
-  //         user: { connect: { id: user.userId } },
-  //         expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
-  //       },
-  //       tx
-  //     );
-
-  //     await this.emailService.sendVerificationEmail({
-  //       email: user.email,
-  //       name: user.name || "Usuario",
-  //       temporaryPassword,
-  //       verificationToken,
-  //     });
-  //   });
-  // }
-
   async checkUnverifiedAccount(email: string): Promise<boolean> {
     const user = await this.userRepo.findByEmail(email.toLowerCase());
     return user ? !user.isActive : false;
   }
 }
-//TODO: Implementar transacciones en el envio de los correos

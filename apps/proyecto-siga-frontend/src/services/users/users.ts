@@ -1,43 +1,70 @@
-import axios from "axios";
-import { CreateUserInput, User } from "@packages/common-types/user.types";
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL;
-
-interface RegisterResponse {
-  message: string;
-  data: User;
-}
-
+import {
+  AssignPsychologistInput,
+  CreateUserInput,
+  UpdateUserRoleInput,
+  User,
+} from "@packages/common-types/user.types";
+import apiClient from "../../api/interceptors/axiosConfig";
+import { BaseResponse } from "@packages/common-types/baseResponse.types";
+import { userResponse } from "@packages/common-types/user.types";
+import { RegisterResponse } from "@packages/common-types/auth.types";
+import {
+  PsychologistStudentProfile,
+  PsychologistStudentSummary,
+} from "@packages/common-types/psychologist.types";
 
 type PublicRegisterInput = Omit<CreateUserInput, 'role'>;
 
 export const usersService = {
+
+  getAll: async (): Promise<BaseResponse<User[]>> => {
+    const response = await apiClient.get<BaseResponse<User[]>>(`/api/users`);
+    return response.data;
+  },
+
+  create: async (data: CreateUserInput):Promise<BaseResponse<userResponse>> => {
+    const response = await apiClient.post<BaseResponse<userResponse>>(`/api/users`, data);
+    return response.data;
+  },
+
+  register: async (data: PublicRegisterInput): Promise<BaseResponse<RegisterResponse>> => {
+    const response = await apiClient.post<BaseResponse<RegisterResponse>>(`/api/public/users/register`, data);
+    return response.data;
+  },
+
   
-  getAll: async (token: string) => {
-    const response = await axios.get(`${API_URL}/api/users`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    return response.data;
-  },
-
-  create: async (token: string, data: CreateUserInput) => {
-    const response = await axios.post(`${API_URL}/api/users`, data, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    return response.data;
-  },
-
-  register: async (data: PublicRegisterInput): Promise<RegisterResponse> => {
-    const response = await axios.post(`${API_URL}/api/public/users/register`, data);
-    return response.data;
-  },
-
-  updateRole: async (token: string, userId: string, role: string) => {
-    const response = await axios.patch(
-      `${API_URL}/api/users/${userId}/role`,
+  updateRole: async (userId: string, role: UpdateUserRoleInput["role"]) => {
+    const response = await apiClient.patch<BaseResponse<User>>(
+      `/api/users/${userId}/role`,
       { role },
-      { headers: { Authorization: `Bearer ${token}` } }
     );
     return response.data;
+  },
+
+  assignPsychologist: async (
+    userId: string,
+    input: AssignPsychologistInput,
+  ) => {
+    const response = await apiClient.patch<BaseResponse<User>>(
+      `/api/users/${userId}/psychologist`,
+      input,
+    );
+    return response.data;
+  },
+
+  getPsychologistStudents: async (): Promise<PsychologistStudentSummary[]> => {
+    const response = await apiClient.get<
+      BaseResponse<PsychologistStudentSummary[]>
+    >(`/api/users/psychologist/students`);
+    return response.data.data;
+  },
+
+  getPsychologistStudentById: async (
+    studentId: string,
+  ): Promise<PsychologistStudentProfile> => {
+    const response = await apiClient.get<
+      BaseResponse<PsychologistStudentProfile>
+    >(`/api/users/psychologist/students/${studentId}`);
+    return response.data.data;
   },
 };

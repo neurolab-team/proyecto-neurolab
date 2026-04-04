@@ -1,6 +1,16 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
+    "rootDir": "../../",
+    "baseUrl": ".",
+    "paths": {
+      "@/*": [
+        "src/*"
+      ],
+      "@packages/*": [
+        "../../packages/*"
+      ]
+    },
     "jsx": "preserve",
     "noEmit": true,
     "emitDeclarationOnly": false,
@@ -22,19 +32,12 @@
         "name": "next"
       }
     ],
-    "paths": {
-      "@/*": [
-        "./src/*"
-      ],
-      "@packages/*": [
-        "../../packages/*" 
-      ]
-    },
     "outDir": "dist",
     "tsBuildInfoFile": "dist/tsconfig.tsbuildinfo",
     "isolatedModules": true
   },
   "include": [
+    "../../packages/**/*.ts",
     "src/**/*.ts",
     "src/**/*.tsx",
     "src/**/*.js",

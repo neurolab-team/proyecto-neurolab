@@ -1,26 +1,15 @@
 import { User } from "./user.types"
 
-export interface UserAuth extends User {
-  password: string
-  tokenVersion: number
-}
-
-
-export interface UserProfile {
-  userId: string
-  userNumber: string
-  email: string
-  name: string
-  role: string
-  gender?: string | ''
-  createdAt: Date
-}
+export type UserProfile = User
 
 export interface LoginResult {
-  token: string
   user: User
 }
 
+export type LoginData = {
+  sessionId: string;
+  user: User;
+};
 
 export interface LoginCredentials {
   email: string
@@ -30,5 +19,9 @@ export interface LoginCredentials {
 export interface ChangePasswordData {
   currentPassword: string
   newPassword: string
-  accessToken: string
+}
+
+export interface RegisterResponse {
+  userId: string
+  email: string
 }

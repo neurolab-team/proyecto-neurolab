@@ -4,11 +4,9 @@ import {
   Answer,
   CreateAnswerInput,
   CreateManyAnswersInput,
-  AnswerWithDetails,
 } from "@packages/common-types/answer.types";
-//import prisma from "@packages/libs/prisma";
-//import { BadRequest, NotFound } from "../../utils/httpError";
 import { IAnswerRepo } from "../../contracts/answer/IanswerRepo";
+import { AnswerWithDetails } from "../../contracts/answer/answer.types";
 
 @injectable()
 export class AnswerService implements IAnswerService {

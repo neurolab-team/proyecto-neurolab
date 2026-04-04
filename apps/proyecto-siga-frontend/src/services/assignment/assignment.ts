@@ -1,49 +1,45 @@
-import axios from "axios";
+import apiClient from "../../api/interceptors/axiosConfig";
 import { TestDataResponse } from "@packages/common-schemas/test.schemas";
-const API_URL = process.env.NEXT_PUBLIC_API_URL;
+import { AssignmentWithTestsDataResponse } from "@packages/common-types/assignment.types";
+import { BaseResponse } from "@packages/common-types/baseResponse.types";
+import {
+  PsychologistDashboardStats,
+  PsychologistDashboardFeed,
+} from "@packages/common-types/psychologist.types";
 
 export const assignmentService = {
-  getAllTests: async (accessToken: string,userId:string): Promise<any> => {
-    const response = axios.get(`${API_URL}/api/assignments/by-user/${userId}/tests`, {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
-    });
-    return response.then((res) => res.data.data);
+  getAllTests: async (
+    userId: string,
+  ): Promise<AssignmentWithTestsDataResponse[]> => {
+    const response = await apiClient.get<
+      BaseResponse<AssignmentWithTestsDataResponse[]>
+    >(`/api/assignments/by-user/${userId}/tests`);
+    return response.data.data;
   },
-  getTestForAssignment: async (assignmentId: string): Promise<TestDataResponse[] | null> => {
-    const response = await axios.get(
-      `${API_URL}/api/assignments/${assignmentId}/test`,
-      {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-        },
-      }, //no es buena practica pero es temporal
+  getTestForAssignment: async (
+    assignmentId: string,
+  ): Promise<TestDataResponse> => {
+    const response = await apiClient.get<BaseResponse<TestDataResponse>>(
+      `/api/assignments/${assignmentId}/test`,
     );
     return response.data.data;
   },
-  submitTestAnswers: async (
-    assignmentId: string,
-    answers: Record<string, string>,
-  ): Promise<any> => {
-    const answersArray = Object.keys(answers).map((questionId) => {
-      const questionOptionId = answers[questionId];
-      return {
-        questionId: questionId,
-        questionOptionId: questionOptionId,
-      };
-    });
-    const response = axios.post(
-      `${API_URL}/api/answers/many`,
-      { assignmentId: assignmentId, answers: answersArray },
-      {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-        },
-      },
+  getDashboardStats: async (): Promise<PsychologistDashboardStats> => {
+    const response = await apiClient.get<BaseResponse<PsychologistDashboardStats>>(
+      `/api/assignments/psychologist/dashboard/stats`,
     );
-    return response.then((res) => res.data.data);
+    return response.data.data;
+  },
+  getDashboardFeed: async (): Promise<PsychologistDashboardFeed> => {
+    const response = await apiClient.get<BaseResponse<PsychologistDashboardFeed>>(
+      `/api/assignments/psychologist/dashboard/feed`,
+    );
+    return response.data.data;
+  },
+  markAssignmentAsReviewed: async (assignmentId: string) => {
+    const response = await apiClient.patch<BaseResponse<null>>(
+      `/api/assignments/${assignmentId}/review`,
+    );
+    return response.data;
   },
 };
-//TODO: Reemplazar la manera como se envian los bearer tokens
-//

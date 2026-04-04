@@ -1,7 +1,6 @@
 import { inject, injectable } from "tsyringe";
 import bcrypt from "bcrypt";
 import {
-  UserAuth,
   LoginCredentials,
   LoginResult,
   UserProfile,
@@ -12,23 +11,28 @@ import { Unauthorized, BadRequest } from "../../utils/httpError";
 import { checkPassword } from "../../security/passwordPolicy";
 import { User } from "@packages/common-types/user.types";
 
+type AuthUserRecord = User & {
+  password: string | null;
+};
+
 @injectable()
 export class AuthService implements IAuthService {
   constructor(
     @inject("UserRepo") private readonly userRepo: IUserRepo,
   ) {}
+
   private async HashPassword(password: string): Promise<string> {
     const rounds = Number(process.env.BCRYPT_SALT_ROUNDS);
     const saltRounds = Number.isFinite(rounds) && rounds > 0 ? rounds : 10;
     return bcrypt.hash(password, saltRounds);
   }
+
   async login(email: string, password: string): Promise<LoginResult> {
     const credentials: LoginCredentials = { email, password };
 
     password = await this.HashPassword(password);
     const user = await this.validateCredentials(credentials);
     return {
-      token: "",
       user: {
         userId: user.userId,
         userNumber: user.userNumber,
@@ -42,6 +46,17 @@ export class AuthService implements IAuthService {
         verifiedEmail: user.verifiedEmail ,        
       },
     };
+  }
+
+  async updateLastLogin(
+    userId: string,
+    loginAt: Date = new Date(),
+  ): Promise<UserProfile> {
+    const user = await this.userRepo.update(userId, {
+      lastLogin: loginAt,
+    });
+
+    return this.mapToUserProfile(user);
   }
 
   async validateCredentials(credentials: LoginCredentials): Promise<User> {
@@ -72,8 +87,24 @@ export class AuthService implements IAuthService {
     };
   }
 
-  async getUserById(userId: string): Promise<UserAuth | null> {
-    return this.userRepo.findById(userId) as Promise<UserAuth | null>;
+  async getUserById(userId: string): Promise<AuthUserRecord | null> {
+    const user = await this.userRepo.findById(userId);
+    if (!user) return null;
+
+    return {
+      userId: user.userId,
+      userNumber: user.userNumber,
+      email: user.email,
+      name: user.name || "",
+      role: user.role,
+      userType: user.userType,
+      gender: user.gender || "",
+      birthDate: user.birthDate || undefined,
+      lastLogin: user.lastLogin || undefined,
+      verifiedEmail: user.verifiedEmail,
+      isActive: user.isActive,
+      password: user.password,
+    };
   }
 
   async getUserProfile(userId: string): Promise<UserProfile> {
@@ -81,15 +112,7 @@ export class AuthService implements IAuthService {
     if (!user) {
       throw Unauthorized("Usuario no encontrado");
     }
-    return {
-      userId: user.userId,
-      userNumber: user.userNumber,
-      email: user.email,
-      name: user.name,
-      role: user.role,
-      gender: user.gender || "",
-      createdAt: user.createdAt,
-    };
+    return this.mapToUserProfile(user);
   }
 
   async changePassword(
@@ -105,7 +128,7 @@ export class AuthService implements IAuthService {
 
     const isValidPassword = await bcrypt.compare(
       currentPassword,
-      user.password
+      user.password || ""
     );
     if (!isValidPassword) {
       throw Unauthorized("Contraseña actual incorrecta");
@@ -125,22 +148,35 @@ export class AuthService implements IAuthService {
 
     await this.userRepo.update(user.userId, {
       password: newPasswordHash,
-      tokenVersion: { increment: 1 },
     });
   }
 
-  async validateToken(userId: string, tokenVersion: number): Promise<boolean> {
-    try {
-      const user = await this.userRepo.findById(userId);
-
-      if (!user || !user.isActive) {
-        return false;
-      }
-
-      return user.tokenVersion === tokenVersion;
-    } catch (error) {
-      return false;
-    }
+  private mapToUserProfile(user: {
+    userId: string;
+    userNumber: string;
+    email: string;
+    name: string | null;
+    role: User["role"];
+    userType: User["userType"];
+    gender: string | null;
+    birthDate: Date | null;
+    lastLogin: Date | null;
+    verifiedEmail: boolean;
+    isActive: boolean;
+  }): UserProfile {
+    return {
+      userId: user.userId,
+      userNumber: user.userNumber,
+      email: user.email,
+      name: user.name || "",
+      role: user.role,
+      userType: user.userType,
+      gender: user.gender || "",
+      birthDate: user.birthDate || undefined,
+      lastLogin: user.lastLogin || undefined,
+      verifiedEmail: user.verifiedEmail,
+      isActive: user.isActive,
+    };
   }
 }
 //TODO:

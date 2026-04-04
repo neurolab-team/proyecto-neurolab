@@ -1,11 +1,11 @@
 import { Request, Response, NextFunction } from "express";
-import jwt from "jsonwebtoken";
-// import prisma from '@packages/libs/prisma'
-import { Forbidden, ServerError, Unauthorized } from "../utils/httpError";
-import { container } from "tsyringe";
-import { TokenCacheService } from "../services/token/tokenCacheService";
-
-export type AppRole = "admin" | "psychologist" | "user";
+import {
+  AppRole,
+  SessionAuthResult,
+} from "@packages/common-types/session.types";
+import { Forbidden, Unauthorized } from "../utils/httpError";
+import container from "../container";
+import { SessionService } from "../services/session/sessionService";
 
 export interface AuthedUser {
   userId: string;
@@ -15,40 +15,40 @@ export interface AuthedUser {
 
 export interface AuthedRequest extends Request {
   user?: AuthedUser;
+  sessionId?: string;
   headers: Request["headers"];
   body: any;
+}
+
+export type AuthResult = SessionAuthResult;
+
+export function applyAuthResult(req: AuthedRequest, authResult: AuthResult): void {
+  req.user = {
+    userId: authResult.userId,
+    role: authResult.role,
+    email: authResult.email,
+  };
+  req.sessionId = authResult.sessionId;
 }
 
 export async function auth(
   req: AuthedRequest,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) {
-  const h = req.headers.authorization || "";
-  const token = h.startsWith("Bearer ") ? h.slice(7) : null;
-  if (!token) return next(Unauthorized());
-
   try {
-    const jwtSecret = process.env.JWT_SECRET;
-    if (!jwtSecret) {
-      return next(ServerError("jwt clave no está configurado"));
-    }
-    const payload: any = jwt.verify(token, jwtSecret);
+    const sessionService = container.resolve(SessionService);
+    const sessionId = sessionService.getSessionIdFromRequest(req);
 
-    if (!payload.sub || !payload.role || !payload.email) {
-      return next(Unauthorized("Token inválido"));
+    if (!sessionId) {
+      throw Unauthorized("Sesión no encontrada");
     }
 
-    req.user = { userId: payload.sub, role: payload.role, email: payload.email };
-
-    const tokenCacheService =
-      container.resolve<TokenCacheService>("TokenCacheService");
-    await tokenCacheService.storeAccessToken(req.user.userId, token);
-    next();
+    const authResult = await sessionService.authenticate(sessionId);
+    applyAuthResult(req, authResult);
+    return next();
   } catch (error) {
-    return next(
-      ServerError("Errror inesperado verificando token", { detail: error })
-    );
+    return next(error);
   }
 }
 
@@ -63,4 +63,5 @@ export const checkRole = (allowedRoles: AppRole[]) => {
 
 export const asUser = checkRole(["user"]);
 export const asAdmin = checkRole(["admin"]);
+export const asPsychologist = checkRole(["psychologist"]);
 export const asAdminOrPsychologist = checkRole(["admin", "psychologist"]);

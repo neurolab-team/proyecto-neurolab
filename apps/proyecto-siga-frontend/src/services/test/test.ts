@@ -1,23 +1,21 @@
-import axios from "axios";
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL;
+import { TestDataResponse } from "@packages/common-schemas/test.schemas";
+import apiClient from "../../api/interceptors/axiosConfig";
+import { Answer } from "@packages/common-types/answer.types";
+import { BaseResponse } from "@packages/common-types/baseResponse.types";
 
 export const testService = {
-  getTestForAssignment: async (assignmentId: string): Promise<any> => {
-    const response = axios.get(
-      `${API_URL}/api/assignments/${assignmentId}/test`,
-      {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-        },
-      }, //no es buena practica pero es temporal
+  getTestForAssignment: async (
+    assignmentId: string,
+  ): Promise<TestDataResponse> => {
+    const response = await apiClient.get<BaseResponse<TestDataResponse>>(
+      `/api/assignments/${assignmentId}/test`,
     );
-    return response.then((res) => res.data.data);
+    return response.data.data;
   },
   submitTestAnswers: async (
     assignmentId: string,
     answers: Record<string, string>,
-  ): Promise<any> => {
+  ): Promise<Answer[]> => {
     const answersArray = Object.keys(answers).map((questionId) => {
       const questionOptionId = answers[questionId];
       return {
@@ -25,17 +23,13 @@ export const testService = {
         questionOptionId: questionOptionId,
       };
     });
-    const response = axios.post(
-      `${API_URL}/api/answers/many`,
-      { assignmentId: assignmentId, answers: answersArray },
+    const response = await apiClient.post<BaseResponse<Answer[]>>(
+      `/api/answers/many`,
       {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
-        },
+        assignmentId: assignmentId,
+        answers: answersArray,
       },
     );
-    return response.then((res) => res.data.data);
+    return response.data.data;
   },
 };
-//TODO: Reemplazar la manera como se envian los bearer tokens
-//

@@ -1,99 +1,85 @@
-import axios from "axios";
 import { useRouter } from "next/router";
-import { ReactNode, useEffect, useState } from "react";
+import { ReactNode, useCallback, useEffect, useMemo, useState } from "react";
 import { AuthContext } from "../context/authContext";
 import { User } from "@packages/common-types/user.types";
+import { authService } from "../services/auth/auth";
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [accessToken, setAccessToken] = useState<string | null>(null);
-  const [refreshToken, setRefreshToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
 
+  const refreshUser = useCallback(async (): Promise<User | null> => {
+    try {
+      const authUser = await authService.me();
+      setUser(authUser);
+      return authUser;
+    } catch {
+      setUser(null);
+      return null;
+    }
+  }, []);
+
   useEffect(() => {
+    let isMounted = true;
+
     const checkAuth = async () => {
-      const token = localStorage.getItem("accessToken");
-      const refresh = localStorage.getItem("refreshToken");
-      
-      if (!token) {
-        setIsLoading(false);
-        setUser(null);
-        setAccessToken(null);
-        setRefreshToken(null);
-        return;
-      }
-
-      // Set tokens immediately from localStorage
-      setAccessToken(token);
-      setRefreshToken(refresh);
-
       try {
-        const { data } = await axios.get(
-          `${process.env.NEXT_PUBLIC_API_URL}/api/auth/me`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          },
-        );
-
-        const userData: User = data.data;
-
-        if (
-          !userData.isActive ||
-          !userData.verifiedEmail ||
-          !userData.lastLogin
-        ) {
-          setUser(null);
-          localStorage.setItem("user", JSON.stringify(userData));
-        } else {
-          setUser(userData);
-          localStorage.setItem("user", JSON.stringify(userData));
+        const data = await authService.me();
+        if (isMounted) {
+          setUser(data);
         }
       } catch {
-        setUser(null);
-        setAccessToken(null);
-        setRefreshToken(null);
-        localStorage.removeItem("accessToken");
-        localStorage.removeItem("refreshToken");
-        localStorage.removeItem("user");
+        if (isMounted) {
+          setUser(null);
+        }
       } finally {
-        setIsLoading(false);
+        if (isMounted) {
+          setIsLoading(false);
+        }
       }
     };
 
     checkAuth();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
-  const login = (newAccessToken: string, newRefreshToken: string, user: User) => {
-    localStorage.setItem("accessToken", newAccessToken);
-    localStorage.setItem("refreshToken", newRefreshToken);
-    localStorage.setItem("user", JSON.stringify(user));
-    setAccessToken(newAccessToken);
-    setRefreshToken(newRefreshToken);
-    setUser(user);
+  const login = async (email: string, password: string): Promise<void> => {
+    setIsLoading(true);
+
+    try {
+      const userData = await authService.login({ email, password });
+      setUser(userData);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const logout = () => {
-    setUser(null);
-    setAccessToken(null);
-    setRefreshToken(null);
-    localStorage.removeItem("accessToken");
-    localStorage.removeItem("refreshToken");
-    localStorage.removeItem("user");
-
-    router.push("/");
+  const logout = async (): Promise<void> => {
+    try {
+      await authService.logout();
+    } catch {
+      // aunque falle el backend, limpiamos el estado local
+    } finally {
+      setUser(null);
+      router.push("/");
+    }
   };
 
-  const value = {
-    user,
-    accessToken,
-    refreshToken,
-    isLoading,
-    login,
-    logout,
-  };
+  const value = useMemo(
+    () => ({
+      user,
+      isLoading,
+      isAuthenticated: !!user,
+      login,
+      logout,
+      refreshUser,
+    }),
+    [user, isLoading, refreshUser],
+  );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

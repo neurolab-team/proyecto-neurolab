@@ -53,3 +53,6 @@ out
 
 generated/
 apps/proyecto-siga-frontend/.env.local
+packages/docs/swagger-output.json
+.amazonq/
+.vscode/

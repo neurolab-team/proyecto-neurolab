@@ -1,52 +1,26 @@
-import axios, { AxiosError } from "axios";
-import { useMutation } from "@tanstack/react-query";
+import { BaseResponse } from "@packages/common-types/baseResponse.types";
+import type { User } from "@packages/common-types/user.types";
+import apiClient from "../../api/interceptors/axiosConfig";
 
-import {
-  LoginCredentials,
-  LoginResult,
-  ChangePasswordData,
-} from "@packages/common-types/auth.types";
+export const authService = {
+  async login(payload: any): Promise<User> {
+    const response = await apiClient.post<BaseResponse<User>>(
+      "/api/auth/login",
+      payload,
+    );
+    return response.data.data;
+  },
 
-const login = async (data: LoginCredentials): Promise<LoginResult> => {
-  const response = await axios.post(
-    `${process.env.NEXT_PUBLIC_API_URL}/api/auth/login`,
-    data,
-  );
-  return response.data;
+  async me(): Promise<User> {
+    const response = await apiClient.get<BaseResponse<User>>("/api/auth/me");
+    return response.data.data;
+  },
+
+  async logout(): Promise<void> {
+    await apiClient.post("/api/auth/logout");
+  },
+
+  async changePassword(payload: any): Promise<void> {
+    await apiClient.put("/api/auth/change-password", payload);
+  },
 };
-
-const changePassword = async ({
-  currentPassword,
-  newPassword,
-  accessToken,
-}: ChangePasswordData) => {
-  const response = await axios.post(
-    `${process.env.NEXT_PUBLIC_API_URL}/api/auth/change-password`,
-    { currentPassword, newPassword },
-    {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
-    },
-  );
-  return response.data;
-};
-
-export const useLoginMutation = () => {
-  return useMutation<LoginResult, AxiosError<{ message: string }>, LoginCredentials>(
-    {
-      mutationFn: login,
-    },
-  );
-};
-
-export const useChangePasswordMutation = () => {
-  return useMutation<
-    unknown,
-    AxiosError<{ message: string }>,
-    ChangePasswordData
-  >({
-    mutationFn: changePassword,
-  });
-};
-//TODO: Implementar refresh token y logout, y meterlo desde una clase

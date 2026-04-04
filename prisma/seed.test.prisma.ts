@@ -119,18 +119,13 @@ async function main() {
   await prisma.$transaction(async (tx) => {
     console.log(`[1/5] Limpiando datos antiguos del test ${TEST_ID}...`);
     await tx.questionOption.deleteMany({
-      where: { question: { test: { testCode: TEST_CODE } } },
-    });
+      where: { question: { test: { testCode: TEST_CODE } } }, });
     await tx.question.deleteMany({ where: { test: { testCode: TEST_CODE } } });
     await tx.testSection.deleteMany({
-      where: { test: { testCode: TEST_CODE } },
-    });
+      where: { test: { testCode: TEST_CODE } },});
     await tx.test.deleteMany({
       where: {
-        OR: [{ testId: TEST_ID }, { testCode: TEST_CODE }],
-      },
-    });
-    1;
+        OR: [{ testId: TEST_ID }, { testCode: TEST_CODE }],},});
 
     // 2. CREAR EL TEST
     console.log(`[2/5] Creando test: ${TEST_TITLE}`);
