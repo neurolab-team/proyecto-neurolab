@@ -26,8 +26,8 @@ export const logger = pino({
   
   // Serializers personalizados
   serializers: {
-    email: (value) => maskEmail(value),
-    user: (user) => ({
+    email: (value: string) => maskEmail(value),
+    user: (user: { id: string; username: string; email?: string; role: string; lastLogin: Date }) => ({
       id: user.id,
       username: user.username,
       email: user.email ? maskEmail(user.email) : undefined,
