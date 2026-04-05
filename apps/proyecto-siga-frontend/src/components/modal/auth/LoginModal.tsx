@@ -119,7 +119,7 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
                 setModalView("login");
                 onClose();
               }}
-              className="bg-gradient-to-r from-[#102D69] to-[#00A0B7] text-white px-6 py-3 rounded-lg font-bold hover:shadow-lg transition-all"
+              className="bg-gradient-to-r from-[#001d4e] via-[#102D69] to-[#2a4d8f] text-white px-6 py-3 rounded-lg font-bold hover:shadow-lg transition-all"
             >
               Entendido
             </button>
@@ -171,7 +171,7 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
                       message: "La contraseña debe tener al menos 6 caracteres",
                     },
                   })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00A0B7] focus:border-transparent"
+                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-opacity-50 focus:ring-[#2a4d8f] focus:border-[#2a4d8f] transition-all appearance-none bg-white text-gray-700 font-medium"
                 />
                 {errors.password && (
                   <p className="text-red-500 text-xs mt-1">
@@ -192,7 +192,7 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
                       value === watch("password") ||
                       "Las contraseñas no coinciden",
                   })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00A0B7] focus:border-transparent"
+                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-opacity-50 focus:ring-[#2a4d8f] focus:border-[#2a4d8f] transition-all appearance-none bg-white text-gray-700 font-medium"
                 />
                 {errors.confirmPassword && (
                   <p className="text-red-500 text-xs mt-1">
@@ -206,7 +206,7 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
               <button
                 type="submit"
                 disabled={changePasswordMutation.isPending}
-                className="w-full bg-gradient-to-r from-[#102D69] to-[#00A0B7] text-white py-3 rounded-lg font-bold hover:shadow-lg transition-all disabled:opacity-50"
+                className="w-full bg-gradient-to-r from-[#001d4e] via-[#102D69] to-[#2a4d8f] text-white py-3 rounded-lg font-bold hover:shadow-lg transition-all disabled:opacity-50"
               >
                 {changePasswordMutation.isPending
                   ? "Cambiando..."
@@ -246,7 +246,7 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
               <span className="font-semibold">support@neurolab.itm.com</span>
             </p>
             <button
-              className="w-full bg-gradient-to-r from-[#102D69] to-[#00A0B7] text-white py-3 
+              className="w-full bg-gradient-to-r from-[#001d4e] via-[#102D69] to-[#2a4d8f] text-white py-3 
             rounded-lg font-bold hover:shadow-lg transition-all disabled:opacity-50
             mb-3"
             >
@@ -256,7 +256,7 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
               onClick={() => {
                 onClose();
               }}
-              className="bg-gradient-to-r from-[#102D69] to-[#00A0B7] text-white px-6 py-3 rounded-lg font-bold hover:shadow-lg transition-all"
+              className="bg-gradient-to-r from-[#001d4e] via-[#102D69] to-[#2a4d8f] text-white px-6 py-3 rounded-lg font-bold hover:shadow-lg transition-all"
             >
               Cerrar
             </button>
@@ -280,7 +280,7 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
                   {...register("email", {
                     required: "Correo electrónico requerido",
                   })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00A0B7] focus:border-transparent"
+                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-opacity-50 focus:ring-[#2a4d8f] focus:border-[#2a4d8f] transition-all appearance-none bg-white text-gray-700 font-medium"
                 />
                 {errors.email && (
                   <p className="text-red-500 text-xs mt-1">
@@ -298,7 +298,7 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
                   {...register("password", {
                     required: "Contraseña requerida",
                   })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00A0B7] focus:border-transparent"
+                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-opacity-50 focus:ring-[#2a4d8f] focus:border-[#2a4d8f] transition-all appearance-none bg-white text-gray-700 font-medium"
                 />
                 {errors.password && (
                   <p className="text-red-500 text-xs mt-1">
@@ -312,7 +312,7 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
               <button
                 type="submit"
                 disabled={loginMutation.isPending}
-                className="w-full bg-gradient-to-r from-[#102D69] to-[#00A0B7] text-white py-3 rounded-lg font-bold hover:shadow-lg transition-all disabled:opacity-50"
+                className="w-full bg-gradient-to-r from-[#001d4e] via-[#102D69] to-[#2a4d8f] text-white py-3 rounded-lg font-bold hover:shadow-lg transition-all disabled:opacity-50"
               >
                 {loginMutation.isPending
                   ? "Iniciando sesión..."
