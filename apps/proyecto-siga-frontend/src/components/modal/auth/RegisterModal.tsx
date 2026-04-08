@@ -94,7 +94,7 @@ export default function RegisterModal({
       panelClassName="bg-white rounded-3xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto relative"
       closeButtonClassName="absolute top-4 right-4 text-white hover:text-gray-200 z-10"
     >
-      <div className="bg-gradient-to-r from-[#102D69] to-[#00A0B7] text-white p-8 text-center relative">
+      <div className="bg-gradient-to-r from-[#001d4e] via-[#102D69] to-[#2a4d8f] text-white p-8 text-center relative">
         <div className="w-20 h-20 bg-white rounded-full mx-auto mb-4 flex items-center justify-center">
           <svg
             className="w-12 h-12 text-[#102D69]"
@@ -111,7 +111,7 @@ export default function RegisterModal({
           </svg>
         </div>
         <h1 className="text-3xl font-bold mb-2">Registro de Usuario</h1>
-        <p className="text-blue-100">Sistema de Evaluación Psicológica - ITM</p>
+        <p className="text-blue-100">Sistema de Autoevaluación - ITM</p>
       </div>
 
       <div className="p-8">
@@ -121,7 +121,7 @@ export default function RegisterModal({
               Tipo de usuario *
             </label>
             <select
-              className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#00A0B7] focus:border-[#00A0B7] transition-all appearance-none bg-white cursor-pointer text-gray-700 font-medium"
+              className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-opacity-50 focus:ring-[#2a4d8f] focus:border-[#2a4d8f] transition-all appearance-none bg-white cursor-pointer text-gray-700 font-medium"
               {...register("userType", {
                 required: "Este campo es obligatorio",
               })}
@@ -140,7 +140,7 @@ export default function RegisterModal({
                 Rol del usuario *
               </label>
               <select
-                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#00A0B7] focus:border-[#00A0B7] transition-all appearance-none bg-white cursor-pointer text-gray-700 font-medium"
+                className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-opacity-50 focus:ring-[#2a4d8f] focus:border-[#2a4d8f] transition-all appearance-none bg-white cursor-pointer text-gray-700 font-medium"
                 {...register("role", {
                   required: isAdminMode ? "Este campo es obligatorio" : false,
                 })}
@@ -174,7 +174,7 @@ export default function RegisterModal({
                   return emailError || true;
                 },
               })}
-              className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#00A0B7] focus:border-[#00A0B7] transition-all"
+              className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-opacity-50 focus:ring-[#2a4d8f] focus:border-[#2a4d8f] transition-all"
               placeholder={`correo@${userType === "itmStudent" ?
                  "correo.itm.edu.co" : userType === "itmEmployee" 
                  ? "itm.edu.co" : "ejemplo.com"}`}
@@ -195,7 +195,7 @@ export default function RegisterModal({
               {...register("name", {
                 required: "Este campo es obligatorio",
               })}
-              className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#00A0B7] focus:border-[#00A0B7] transition-all"
+              className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-opacity-50 focus:ring-[#2a4d8f] focus:border-[#2a4d8f] transition-all"
               placeholder="Ingresa tu nombre completo"
             />
             {errors.name && (
@@ -213,7 +213,7 @@ export default function RegisterModal({
                 {...register("userNumber", {
                   required: "Este campo es obligatorio",
                 })}
-                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#00A0B7] focus:border-[#00A0B7] transition-all"
+                className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-opacity-50 focus:ring-[#2a4d8f] focus:border-[#2a4d8f] transition-all"
                 placeholder="123456789"
               />
               {errors.userNumber && (
@@ -237,7 +237,7 @@ export default function RegisterModal({
                         ? "Este campo es obligatorio"
                         : false,
                     })}
-                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#00A0B7] focus:border-[#00A0B7] transition-all"
+                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-opacity-50 focus:ring-[#2a4d8f] focus:border-[#2a4d8f] transition-all"
                     placeholder="********"
                   />
                   {errors.password && (
@@ -258,7 +258,7 @@ export default function RegisterModal({
                     {...register("birthDate", {
                       required: "Este campo es obligatorio",
                     })}
-                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#00A0B7] focus:border-[#00A0B7] transition-all"
+                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-opacity-50 focus:ring-[#2a4d8f] focus:border-[#2a4d8f] transition-all"
                   />
                   {errors.birthDate && (
                     <p className="text-red-500 text-sm mt-1">
@@ -276,7 +276,7 @@ export default function RegisterModal({
                 {...register("gender", {
                   required: "Este campo es obligatorio",
                 })}
-                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#00A0B7] focus:border-[#00A0B7] transition-all appearance-none bg-white cursor-pointer text-gray-700 font-medium"
+                className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-opacity-50 focus:ring-[#2a4d8f] focus:border-[#2a4d8f] transition-all appearance-none bg-white cursor-pointer text-gray-700 font-medium"
               >
                 <option value="">Seleccionar</option>
                 <option value="M">Masculino</option>
@@ -316,7 +316,7 @@ export default function RegisterModal({
           <button
             type="submit"
             disabled={signupMutation.isPending}
-            className="w-full bg-gradient-to-r from-[#102D69] to-[#00A0B7] text-white py-4 rounded-xl font-bold text-lg hover:shadow-2xl transform hover:scale-105 transition-all duration-300 flex items-center justify-center space-x-2"
+            className="w-full bg-gradient-to-r from-[#001d4e] via-[#102D69] to-[#2a4d8f] text-white py-4 rounded-xl font-bold text-lg hover:shadow-2xl transform hover:scale-105 transition-all duration-300 flex items-center justify-center space-x-2"
           >
             <span>
               {signupMutation.isPending ? "Cargando..." : "Registrarse"}

@@ -1,31 +1,78 @@
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
+import Carousel from "../components/Carousel";
 
 export default function HomePage() {
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
-      <main className="flex-1 bg-gradient-to-br from-indigo-100 via-purple-100 to-blue-100">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-          <div className="text-center">
-            <h1 className="text-5xl font-bold mb-6 text-[#102D69]">
-              Sistema de Evaluación Psicológica
-            </h1>
-            <p className="text-2xl text-[#00A0B7] mb-12">
-              Instituto Tecnológico Metropolitano
-            </p>
+      <main className="flex-1 bg-[#F8FAFC]">
 
-            <div className="max-w-3xl mx-auto mb-16">
-              <p className="text-lg text-gray-600 leading-relaxed">
-                Plataforma integral para la gestión y aplicación de evaluaciones
-                psicológicas, diseñada para facilitar el proceso de evaluación y
-                seguimiento de estudiantes y usuarios.
+        <div className="max-w-7xl mx-auto px-6 py-20">
+          {/*Seccion 1*/}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+            <div className="text-center md:text-left">
+              <h1 className="text-5xl font-bold mb-6 text-[#001d4e] leading-tight">
+                Sistema de Autoevaluación
+              </h1>
+ 
+              <p className="text-lg text-gray-600 mb-8">
+                Plataforma digital diseñada para la aplicación, gestión y análisis de pruebas psicológicas,
+                facilitando el seguimiento y evaluación de usuarios de manera eficiente.
               </p>
+
+              <div className="flex gap-4 mt-10">
+
+                {/* BOTÓN PRINCIPAL */}
+                <a
+                  href="#carrusel"
+                  className="text-white bg-[#001d4e] px-5 py-2 rounded-md text-sm font-medium transition hover:bg-[#002a6e]"
+                >
+                  Explorar
+                </a>
+
+                {/* BOTÓN SECUNDARIO */}
+                <a
+                  href="#features"
+                  className="text-[#001d4e] px-5 py-2 text-sm font-medium transition hover:underline"
+                >
+                  Características
+                </a>
+
+                {/* BOTÓN SECUNDARIO */}
+                <a
+                  href="#info"
+                  className="text-[#001d4e] px-5 py-2 text-sm font-medium transition hover:underline"
+                >
+                  Información
+                </a>
+
+              </div>
+
+            </div>
+
+            <div className="flex justify-end">
+              <div className="w-full max-w-md h-[300px] bg-gray-200 rounded-2xl flex items-center justify-center text-gray-400">
+                Imagen aquí
+              </div>
             </div>
           </div>
+        </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-20">
-            <div className="bg-gradient-to-br from-[#102D69] to-[#00A0B7] rounded-2xl p-8 text-white shadow-xl">
+        {/*Seccion 2*/}
+        <section id="carrusel" className="bg-[#EFF1F2] py-20">
+          <div className="max-w-7xl mx-auto px-6">
+            <div className="w-full">
+              {/*Carrusel */}
+              <Carousel />
+            </div>
+          </div>
+        </section>
+
+        {/*Seccion 3*/}
+        <div className="max-w-7xl mx-auto px-6 py-20">
+          <div id="features" className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="bg-gradient-to-br from-[#001d4e] to-[#2a4d8f] rounded-2xl p-8 text-white shadow-xl">
               <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mb-4 mx-auto">
                 <svg
                   className="w-8 h-8"
@@ -50,7 +97,7 @@ export default function HomePage() {
               </p>
             </div>
 
-            <div className="bg-gradient-to-br from-[#102D69] to-[#00A0B7] rounded-2xl p-8 text-white shadow-xl">
+            <div className="bg-gradient-to-br from-[#001d4e] to-[#2a4d8f] rounded-2xl p-8 text-white shadow-xl">
               <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mb-4 mx-auto">
                 <svg
                   className="w-8 h-8"
@@ -72,7 +119,7 @@ export default function HomePage() {
               </p>
             </div>
 
-            <div className="bg-gradient-to-br from-[#102D69] to-[#00A0B7] rounded-2xl p-8 text-white shadow-xl">
+            <div className="bg-gradient-to-br from-[#001d4e] to-[#2a4d8f] rounded-2xl p-8 text-white shadow-xl">
               <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mb-4 mx-auto">
                 <svg
                   className="w-8 h-8"
@@ -95,6 +142,35 @@ export default function HomePage() {
             </div>
           </div>
         </div>
+
+        {/*Seccion 4*/}
+        <section id="info" className="bg-[#EFF1F2] py-20">
+          <div className="max-w-7xl mx-auto px-6">
+            <div className="grid grid-cols-2 gap-12 items-center">
+              <div className="flex justify-center">
+                <div className="w-full max-w-md h-[320px] bg-gray-200 rounded-2xl flex items-center justify-center text-gray-400">
+                  Imagen aquí
+                </div>
+              </div>
+              <div className="text-left">
+                <h2 className="text-3xl font-bold text-[#001d4e] mb-4">
+                  Información
+                </h2>
+                <p className="text-gray-600 leading-relaxed text-sm">
+                  Nuestra plataforma permite gestionar evaluaciones psicológicas de manera
+                  eficiente, brindando herramientas para el seguimiento y análisis de resultados.
+                  <br /><br />
+                  Está diseñada para instituciones educativas y profesionales de la salud mental,
+                  facilitando procesos organizados, seguros y confiables.
+                  <br /><br />
+                  Además, ofrece reportes claros y visuales que apoyan la toma de decisiones,
+                  mejorando la experiencia tanto para evaluadores como para usuarios.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+        
       </main>
 
       <Footer />
