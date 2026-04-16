@@ -1,6 +1,7 @@
 import { useRouter } from "next/router";
 import { useTest } from "../../hooks/useTest";
 import { QuestionRendererFactory } from "../../components/test/renderers/QuestionRendererFactory";
+import { GroupedBlockRenderer } from "../../components/test/renderers/GroupedBlockRenderer";
 import { TestProgress } from "../../components/test/TestProgress";
 import { TestNavigation } from "../../components/test/TestNavigation";
 import { getTestConfig } from "../../components/test/config/testConfigRegistry";
@@ -17,12 +18,13 @@ export default function TestPage() {
     isLoading,
     error,
     testCode,
-    currentQuestion,
+    currentPage,
     selectedValue,
     currentQuestionNumber,
     totalQuestions,
     isFirstPage,
     isLastPage,
+    isPageAnswered,
     actions,
   } = useTest(assignmentId as string);
 
@@ -52,7 +54,7 @@ export default function TestPage() {
         style={{ background: `linear-gradient(to bottom right, ${testConfig.colors.gradientFrom}, ${testConfig.colors.gradientVia}, ${testConfig.colors.gradientTo})` }}
       >
         <div className="container mx-auto max-w-2xl p-4">
-          {!currentQuestion ? (
+          {!currentPage ? (
             <div className="text-center text-xl font-semibold" style={{ color: testConfig.colors.primaryDark }}>
               No se encontraron preguntas para este test.
             </div>
@@ -67,19 +69,30 @@ export default function TestPage() {
               <div className="mt-8">
                 <AnimatePresence mode="wait">
                   <motion.div
-                    key={currentQuestion.questionId}                    
+                    key={currentPage.type === "single" ? currentPage.question.questionId : currentPage.questions[0].questionId}
                     variants={fadeSlideUp}  
                     initial="initial"
                     animate="animate"
                     exit="exit"
                   >
-                    <QuestionRendererFactory
-                      question={currentQuestion}
-                      current={currentQuestionNumber}
-                      selectedValue={selectedValue}
-                      onOptionSelect={actions.selectAnswer}
-                      testConfig={testConfig}
-                    />
+                    {currentPage.type === "single" ? (
+                      <QuestionRendererFactory
+                        question={currentPage.question}
+                        current={currentQuestionNumber}
+                        selectedValue={selectedValue}
+                        onOptionSelect={actions.selectAnswer}
+                        testConfig={testConfig}
+                      />
+                    ) : (
+                      <GroupedBlockRenderer
+                        questions={currentPage.questions}
+                        groupHeader={currentPage.groupHeader}
+                        current={currentQuestionNumber}
+                        getSelectedValue={actions.getSelectedValue}
+                        onOptionSelect={actions.selectAnswer}
+                        testConfig={testConfig}
+                      />
+                    )}
                   </motion.div>
                 </AnimatePresence>
               </div>
@@ -89,7 +102,7 @@ export default function TestPage() {
                 onNext={actions.goToNext}
                 isFirst={isFirstPage}
                 isLast={isLastPage}
-                isAnswered={selectedValue !== null}
+                isAnswered={isPageAnswered}
                 testConfig={testConfig}
               />
             </>

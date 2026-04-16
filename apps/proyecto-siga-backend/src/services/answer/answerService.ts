@@ -41,7 +41,8 @@ export class AnswerService implements IAnswerService {
         option: {
           connect: { questionOptionId: input.questionOptionId }
         }
-      })
+      }),
+      ...(input.textValue !== undefined && { textValue: input.textValue }),
     });
     return answer as Answer;
   }
@@ -52,6 +53,7 @@ export class AnswerService implements IAnswerService {
     assignmentId: input.assignmentId,
     questionId: answerData.questionId,
     questionOptionId: answerData.questionOptionId,
+    textValue: answerData.textValue,
   }));
   // Bulk insert using answerRepo.createMany (assumed to exist)
   const createdAnswers = await this.answerRepo.createMany(answersData);

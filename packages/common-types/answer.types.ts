@@ -8,7 +8,8 @@ export interface Answer {
 export interface CreateAnswerInput {
   assignmentId: string, 
   questionId:string,
-  questionOptionId:string,
+  questionOptionId?:string,
+  textValue?:string,
 }
 
 export interface UpdateAnswerInput {
@@ -18,7 +19,8 @@ export interface UpdateAnswerInput {
 
 export interface CreateAnswer{
   questionId:string,
-  questionOptionId:string,
+  questionOptionId?:string,
+  textValue?:string,
 }
 
 export interface CreateManyAnswersInput {

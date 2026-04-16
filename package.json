@@ -7,10 +7,12 @@
     "ui": "npx nx run proyecto-siga-frontend:dev --port=3000",
     "api-docs": "tsx packages/docs/swagger.ts",
     "seed:test": "ts-node-dev --respawn --transpile-only prisma/seed.test.prisma.ts",
-    "seed:test:had": "ts-node-dev --respawn --transpile-only prisma/seed.test.had.prisma.ts"
+    "seed:test:had": "ts-node-dev --respawn --transpile-only prisma/seed.test.had.prisma.ts",
+    "seed:test:psqi": "ts-node-dev --respawn --transpile-only prisma/seed.test.psqi.prisma.ts"
   },
   "private": true,
   "dependencies": {
+    "@headlessui/react": "^2.2.10",
     "@prisma/client": "^6.16.3",
     "@react-email/components": "^0.5.7",
     "@react-email/render": "^1.4.0",

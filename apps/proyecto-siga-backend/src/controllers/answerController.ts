@@ -5,7 +5,6 @@ import { Router } from "express";
 import { wrap } from "../middleware/async";
 import { ok } from "../utils/jsonResponse";
 import { IAnswerService } from "../contracts/answer/IanswerService";
-//import { z } from "zod";
 import { NotFound } from "../utils/httpError";
 import { created } from "../utils/jsonResponse";
 import {
@@ -68,7 +67,8 @@ AnswersController.post(
     const answer = await answerService.createAnswer({
       assignmentId: input.assignmentId,
       questionId: input.questionId,
-      questionOptionId: input.questionOptionId
+      questionOptionId: input.questionOptionId,
+      textValue: input.textValue,
     });
     return created(res, answer, "Respuesta guardada correctamente");
   }),
@@ -83,6 +83,7 @@ AnswersController.post(
       answers: input.answers.map((answer) => ({
         questionId: answer.questionId,
         questionOptionId: answer.questionOptionId,
+        textValue: answer.textValue,
       })),
     };
 

@@ -2,12 +2,16 @@ import { inject, injectable } from "tsyringe";
 import { assignment, Prisma } from "@prisma/client";
 import { TestDataResponse } from "@packages/common-schemas/test.schemas";
 import { AssignmentWithTestsDataResponse } from "@packages/common-types/assignment.types";
-import { QuestionOption } from "@packages/common-types/questionsOptions.types";
-import { Question } from "@packages/common-types/question.types";
+import { PrismaQuestion } from "@packages/common-types/test.types";
 import { IAssignmentService } from "../../contracts/assignment/IassignmentService";
 import { IAssignmentRepo } from "../../contracts/assignment/IassignmentRepo";
 import { ITestRepo } from "../../contracts/test/ItestRepo";
 import { BadRequest, NotFound } from "../../utils/httpError";
+
+const questionCodeCollator = new Intl.Collator("es", {
+  numeric: true,
+  sensitivity: "base",
+});
 
 @injectable()
 export class AssignmentService implements IAssignmentService {
@@ -109,15 +113,29 @@ export class AssignmentService implements IAssignmentService {
       throw NotFound("El test no tiene preguntas asociadas");
     }
 
+    const orderedQuestions = [...test.questions].sort((a: PrismaQuestion, b: PrismaQuestion) => {
+      const codeA = a.code?.trim();
+      const codeB = b.code?.trim();
+
+      if (!codeA && !codeB) return 0;
+      if (!codeA) return 1;
+      if (!codeB) return -1;
+
+      return questionCodeCollator.compare(codeA, codeB);
+    });
+
     const formattedData: TestDataResponse = {
       testCode: test.testCode ?? "UNKNOWN",
       title: test.title,
-      question: test.questions.map((q: Question) => ({
+      question: orderedQuestions.map((q) => ({
         questionId: q.questionId,
         code: q.code ?? null,
         prompt: q.prompt ?? "",
-        questionType: (q as any).type ?? "single_choice",
-        questionOption: q.questionOption.map((opt: QuestionOption) => ({
+        questionType: q.type ?? "single_choice",
+        required: q.required,
+        condition: q.condition ?? null,
+        metadata: q.metadata ?? null,
+        questionOption: q.questionOption.map((opt) => ({
           questionOptionId: opt.questionOptionId,
           label: opt.label,
           value: opt.value ?? null,

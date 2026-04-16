@@ -1,11 +1,12 @@
 import { TestConfig } from '../config/testConfig.types';
+import { QuestionType } from '@packages/common-types/question.types';
 
 export interface QuestionRendererProps {
   question: {
     questionId: string;
     code?: string | null;
     prompt?: string;
-    questionType?: string;
+    questionType?: QuestionType;
     questionOption: {
       questionOptionId: string;
       label: string;

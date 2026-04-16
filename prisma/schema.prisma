@@ -25,6 +25,7 @@ enum questionType {
   likert
   open_text
   numeric
+  time_input
 }
 
 enum assignmentStatus {
@@ -109,6 +110,7 @@ model question {
   prompt        String
   required      Boolean @default(true)
   metadata      Json?
+  condition     Json?
 
   section        testSection?     @relation(fields: [testSectionId], references: [testSectionId])
   test           test             @relation(fields: [testId], references: [testId], onDelete: Cascade)
@@ -162,6 +164,7 @@ model answer {
   assignmentId     String   @db.Uuid
   questionId       String   @db.Uuid
   questionOptionId String?  @db.Uuid
+  textValue        String?
 
   question   question        @relation(fields: [questionId], references: [questionId])
   option     questionOption? @relation(fields: [questionOptionId], references: [questionOptionId])

@@ -10,7 +10,10 @@ export const testQuestionDtoSchema = z.object({
   questionId: z.uuid(),
   code: z.string().nullable(),
   prompt: z.string(),
-  questionType: z.string(),
+  questionType: z.enum(['single_choice', 'multiple_choice', 'likert', 'open_text', 'numeric', 'time_input']),
+  required: z.boolean(),
+  condition: z.any().nullable().optional(),
+  metadata: z.any().nullable().optional(),
   questionOption: z.array(testOptionDtoSchema),
 });
 
