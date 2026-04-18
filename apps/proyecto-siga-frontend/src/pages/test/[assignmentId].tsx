@@ -1,6 +1,6 @@
 import { useRouter } from "next/router";
 import { useTest } from "../../hooks/useTest";
-import { QuestionRendererFactory } from "../../components/test/renderers/QuestionRendererFactory";
+import { QuestionRendererFactory } from "../../components/test/QuestionRendererFactory";
 import { GroupedBlockRenderer } from "../../components/test/renderers/GroupedBlockRenderer";
 import { TestProgress } from "../../components/test/TestProgress";
 import { TestNavigation } from "../../components/test/TestNavigation";

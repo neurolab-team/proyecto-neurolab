@@ -1,4 +1,3 @@
-import { Question } from "./question.types";
 import { QuestionType } from "./question.types";
 
 export interface PrismaQuestion {

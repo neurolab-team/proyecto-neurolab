@@ -8,10 +8,10 @@ const TEST_DESC =
   "Instrumento que evalúa la calidad y los patrones de sueño durante el último mes, identificando áreas de dificultad en 7 componentes.";
 
 const FREQ_OPTIONS = [
-  { label: "Ninguna vez en el último mes", scoreValue: null },
-  { label: "Menos de una vez a la semana", scoreValue: null },
-  { label: "Una o dos veces a la semana", scoreValue: null },
-  { label: "Tres o más veces a la semana", scoreValue: null },
+  { label: "Ninguna vez en el último mes", scoreValue: 0 },
+  { label: "Menos de una vez a la semana", scoreValue: 1 },
+  { label: "Una o dos veces a la semana", scoreValue: 2 },
+  { label: "Tres o más veces a la semana", scoreValue: 3 },
 ];
 
 type QuestionData = {
@@ -45,10 +45,10 @@ const questionsData: QuestionData[] = [
     type: "single_choice",
     sectionCode: "habitos_sueno",
     options: [
-      { label: "Menos de 15 minutos", scoreValue: null },
-      { label: "Entre 16 y 30 minutos", scoreValue: null },
-      { label: "Entre 31 y 60 minutos", scoreValue: null },
-      { label: "Más de 60 minutos", scoreValue: null },
+      { label: "Menos de 15 minutos", scoreValue: 0 },
+      { label: "Entre 16 y 30 minutos", scoreValue: 1 },
+      { label: "Entre 31 y 60 minutos", scoreValue: 2 },
+      { label: "Más de 60 minutos", scoreValue: 3 },
     ],
   },
   {
@@ -157,7 +157,7 @@ const questionsData: QuestionData[] = [
     metadata: { group: "PSQI-SLEEP-PROBLEMS" },
   },
   {
-    code: "PSQI-6.11",
+    code: "PSQI-6.10",
     prompt: "Otras razones (descripción)",
     type: "open_text",
     sectionCode: "problemas_sueno",
@@ -171,10 +171,10 @@ const questionsData: QuestionData[] = [
     type: "single_choice",
     sectionCode: "calidad_sueno",
     options: [
-      { label: "Muy buena", scoreValue: null },
-      { label: "Bastante buena", scoreValue: null },
-      { label: "Bastante mala", scoreValue: null },
-      { label: "Muy mala", scoreValue: null },
+      { label: "Muy buena", scoreValue: 0 },
+      { label: "Bastante buena", scoreValue: 1 },
+      { label: "Bastante mala", scoreValue: 2 },
+      { label: "Muy mala", scoreValue: 3 },
     ],
   },
   // — Medicación —
@@ -199,10 +199,10 @@ const questionsData: QuestionData[] = [
     type: "single_choice",
     sectionCode: "disfuncion_diurna",
     options: [
-      { label: "Nada problemático", scoreValue: null },
-      { label: "Sólo ligeramente problemático", scoreValue: null },
-      { label: "Moderadamente problemático", scoreValue: null },
-      { label: "Muy problemático", scoreValue: null },
+      { label: "Nada problemático", scoreValue: 0 },
+      { label: "Sólo ligeramente problemático", scoreValue: 1 },
+      { label: "Moderadamente problemático", scoreValue: 2 },
+      { label: "Muy problemático", scoreValue: 3 },
     ],
   },
   // — Entorno —

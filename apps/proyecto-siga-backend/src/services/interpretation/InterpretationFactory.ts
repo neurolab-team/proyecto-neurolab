@@ -2,6 +2,7 @@ import { injectable } from "tsyringe";
 import { ITestInterpreter } from "../../contracts/interpretation/ITestInterpreter";
 import { Dass21Interpreter } from "../../interpreters/Dass21Interpreter";
 import { HadInterpreter } from "../../interpreters/HADIntrpreter";
+import { PsqiInterpreter } from "../../interpreters/PsqiInterpreter";
 
 @injectable()
 export class InterpretationFactory {
@@ -18,6 +19,7 @@ export class InterpretationFactory {
   private registerDefaultInterpreters(): void {
     this.register("DASS-21", new Dass21Interpreter());
     this.register("HAD", new HadInterpreter());
+    this.register("PSQI", new PsqiInterpreter());
     // Register more interpreters here as they are created:
     // this.register("PHQ-9", new Phq9Interpreter());
   }

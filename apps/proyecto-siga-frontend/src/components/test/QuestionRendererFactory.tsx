@@ -1,11 +1,11 @@
 import { ComponentType } from 'react';
-import { QuestionRendererProps } from './rendererProps.types';
-import { SingleChoiceRenderer } from './SingleChoiceRenderer';
-import { LikertRenderer } from './LikertRenderer';
-import { OpenTextRenderer } from './OpenTextRenderer';
-import { MultipleChoiceRenderer } from './MultipleChoiceRenderer';
-import { NumericRenderer } from './NumericRenderer';
-import { TimeInputRenderer } from './TimeInputRenderer';
+import { QuestionRendererProps } from './renderers/rendererProps.types';
+import { SingleChoiceRenderer } from './renderers/SingleChoiceRenderer';
+import { LikertRenderer } from './renderers/LikertRenderer';
+import { OpenTextRenderer } from './renderers/OpenTextRenderer';
+import { MultipleChoiceRenderer } from './renderers/MultipleChoiceRenderer';
+import { NumericRenderer } from './renderers/NumericRenderer';
+import { TimeInputRenderer } from './renderers/TimeInputRenderer';
 import { QuestionType } from '@packages/common-types/question.types';
 
 const rendererMap: Record<QuestionType, ComponentType<QuestionRendererProps>> = {

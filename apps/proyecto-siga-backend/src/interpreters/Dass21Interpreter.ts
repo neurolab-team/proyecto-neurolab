@@ -1,7 +1,7 @@
 import { AttentionLevel } from "@packages/common-types/assignmentScore.types";
-import { ITestInterpreter } from "../contracts/interpretation/ITestInterpreter";
+import { ISectionInterpreter } from "../contracts/interpretation/ITestInterpreter";
 
-export class Dass21Interpreter implements ITestInterpreter {
+export class Dass21Interpreter implements ISectionInterpreter {
   readonly testCode = "DASS-21";
 
   private normalize(sectionName: string): string {

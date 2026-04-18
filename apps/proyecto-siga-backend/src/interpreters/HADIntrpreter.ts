@@ -1,7 +1,7 @@
 import { AttentionLevel } from "@packages/common-types/assignmentScore.types";
-import { ITestInterpreter } from "../contracts/interpretation/ITestInterpreter";
+import { ISectionInterpreter } from "../contracts/interpretation/ITestInterpreter";
 
-export class HadInterpreter implements ITestInterpreter {
+export class HadInterpreter implements ISectionInterpreter {
   readonly testCode = "HAD";
 
   interpretSection(sectionName: string, score: number): { interpretation: string; attentionLevel: AttentionLevel } {

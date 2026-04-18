@@ -10,6 +10,7 @@ import { IAnswerRepo } from "../../contracts/answer/IanswerRepo";
 import { Prisma } from "@prisma/client";
 import { BadRequest } from "../../utils/httpError";
 import { InterpretationFactory } from "../interpretation/InterpretationFactory";
+import { isRawAnswerInterpreter } from "../../contracts/interpretation/ITestInterpreter";
 import { IAssignmentRepo } from "../../contracts/assignment/IassignmentRepo";
 
 const ATTENTION_LEVEL_WEIGHT: Record<AttentionLevel, number> = {
@@ -99,7 +100,12 @@ export class AssignmentScoreService implements IAssignmentScoreService {
     const answers =
       await this.answerRepo.findByAssignmentTestWithDetails(assignmentId);
 
-    // Agrupar por sección y sumar scoreValue
+    // If the interpreter handles its own scoring (e.g. PSQI), delegate entirely
+    if (isRawAnswerInterpreter(interpreter)) {
+      return interpreter.calculateFromAnswers(answers);
+    }
+
+    // Default: sum scoreValues grouped by section
     const sectionScoresMap = answers.reduce(
       (acc, answer) => {
         const sectionName = answer.question?.section?.name || "Sin sección";

@@ -30,23 +30,6 @@ export class AnswerRepository implements IAnswerRepo {
       skipDuplicates: false,
     });
   }
-  // async findByAssignmentTestWithDetails(
-  //   assigmentId: string,
-  //   tx = prisma,
-  // ): Promise<answer[]> {
-  //   return tx.answer.findMany({
-  //     where: { assignmentId: assigmentId },
-  //     include: {
-  //       question: {
-  //         include: {
-  //           section: true,
-
-  //         },
-  //       },
-  //       option: true,
-  //     },
-  //   });
-  // }
   async findByAssignmentTestWithDetails(
     assignmentId: string,
     tx = prisma,
@@ -54,8 +37,10 @@ export class AnswerRepository implements IAnswerRepo {
     return tx.answer.findMany({
       where: { assignmentId },
       select: {
+        textValue: true,
         question: {
           select: {
+            code: true,
             section: {
               select: {
                 name: true,
