@@ -6,7 +6,7 @@ import {
   CreateManyAnswersInput,
 } from "@packages/common-types/answer.types";
 import { IAnswerRepo } from "../../contracts/answer/IanswerRepo";
-import { AnswerWithDetails } from "../../contracts/answer/answer.types";
+import { AnswerWithDetails, DetailedAnswer } from "../../contracts/answer/answer.types";
 
 @injectable()
 export class AnswerService implements IAnswerService {
@@ -67,5 +67,9 @@ export class AnswerService implements IAnswerService {
     return this.answerRepo.findByAssignmentTestWithDetails(
       assignmentId,
     ) as Promise<AnswerWithDetails[]>;
+  }
+
+  getDetailedAnswers(assignmentId: string): Promise<DetailedAnswer[]> {
+    return this.answerRepo.findDetailedByAssignment(assignmentId);
   }
 }

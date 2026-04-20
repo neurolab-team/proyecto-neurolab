@@ -1,7 +1,7 @@
 import { Prisma, answer } from "@prisma/client";
 import prisma from "@packages/libs/prisma";
 import { IAnswerRepo } from "../contracts/answer/IanswerRepo";
-import { AnswerWithDetails } from "../contracts/answer/answer.types";
+import { AnswerWithDetails, DetailedAnswer } from "../contracts/answer/answer.types";
 
 export class AnswerRepository implements IAnswerRepo {
   async findById(id: string, tx = prisma): Promise<answer | null> {
@@ -60,6 +60,31 @@ export class AnswerRepository implements IAnswerRepo {
             name: "asc",
           },
         },
+      },
+    });
+  }
+
+  async findDetailedByAssignment(
+    assignmentId: string,
+    tx = prisma,
+  ): Promise<DetailedAnswer[]> {
+    return tx.answer.findMany({
+      where: { assignmentId },
+      select: {
+        textValue: true,
+        question: {
+          select: {
+            prompt: true,
+            code: true,
+            section: { select: { name: true } },
+          },
+        },
+        option: {
+          select: { label: true },
+        },
+      },
+      orderBy: {
+        question: { section: { name: "asc" } },
       },
     });
   }

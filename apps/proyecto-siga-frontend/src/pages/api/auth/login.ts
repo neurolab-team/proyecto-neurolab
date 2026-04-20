@@ -1,10 +1,9 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import axios, { AxiosError } from "axios";
 import { setSessionCookie } from "../../../libs/server/sessionCookie";
-import { BaseResponse } from "@packages/common-types/baseResponse.types";
-import { User } from "@packages/common-types/user.types";
-import { LoginCredentials } from "@packages/common-types/auth.types";
-import { LoginData } from "@packages/common-types/auth.types";
+import type { BaseResponse } from "@packages/common-types/baseResponse.types";
+import type { User } from "@packages/common-types/user.types";
+import type { LoginCredentials, LoginData } from "@packages/common-types/auth.types";
 
 export default async function handler(
   req: NextApiRequest,

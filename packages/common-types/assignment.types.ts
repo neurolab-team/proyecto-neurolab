@@ -2,6 +2,7 @@ export type Assignment = {
     testId: string;
     status: string;
     assignmentId: string;
+    assignedToId: string;
 }
 export type AssignmentWithTestsDataResponse = {
     assignmentId: string;

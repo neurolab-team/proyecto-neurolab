@@ -3,7 +3,6 @@ import { useForm } from "react-hook-form";
 import { useMutation } from "@tanstack/react-query";
 import { useAuth } from "../../../hooks/useAuth";
 import { authService } from "../../../services/auth/auth";
-import { User } from "@packages/common-types/user.types";
 import ModalShell from "../core/ModalShell";
 import FormErrorBanner from "../../FormErrorBanner";
 import { getApiErrorMessage } from "../../../libs/getApiErrorMessage";
@@ -22,7 +21,6 @@ type ModalView = "login" | "firstLogin" | "inactive" | "emailVerification";
 
 export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
   const auth = useAuth();
-  const [user, setUser] = useState<User | null>(null);
   const [modalView, setModalView] = useState<ModalView>("login");
   const [loginPassword, setLoginPassword] = useState("");
 
@@ -41,8 +39,6 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
       });
     },
     onSuccess: async (loggedUser) => {
-      setUser(loggedUser);
-
       if (!loggedUser.isActive) {
         setModalView("inactive");
       } else if (!loggedUser.verifiedEmail) {

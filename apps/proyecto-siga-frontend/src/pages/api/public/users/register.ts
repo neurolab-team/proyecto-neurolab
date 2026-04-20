@@ -1,8 +1,8 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import axios, { AxiosError } from "axios";
-import { BaseResponse } from "@packages/common-types/baseResponse.types";
-import { RegisterResponse } from "@packages/common-types/auth.types";
-import { CreateUserInput } from "@packages/common-types/user.types";
+import type { BaseResponse } from "@packages/common-types/baseResponse.types";
+import type { RegisterResponse } from "@packages/common-types/auth.types";
+import type { CreateUserInput } from "@packages/common-types/user.types";
 
 export default async function handler(
   req: NextApiRequest,

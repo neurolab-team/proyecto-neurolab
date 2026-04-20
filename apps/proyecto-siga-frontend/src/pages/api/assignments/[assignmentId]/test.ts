@@ -4,8 +4,8 @@ import {
   clearSessionCookie,
   getSessionIdFromCookie,
 } from "@/libs/server/sessionCookie";
-import { BaseResponse } from "@packages/common-types/baseResponse.types";
-import { TestDataResponse } from "@packages/common-schemas/test.schemas";
+import type { BaseResponse } from "@packages/common-types/baseResponse.types";
+import type { TestDataResponse } from "@packages/common-schemas/test.schemas";
 
 export default async function handler(
   req: NextApiRequest,

@@ -13,12 +13,21 @@ type AppPropsWithAuth = AppProps & {
     auth?: boolean | string | string[];
   };
 };
-function CustomApp({ Component, pageProps }: AppPropsWithAuth) {
+function CustomApp({ Component, pageProps, router }: AppPropsWithAuth) {
   const authConfig = Component.auth;
+  const isErrorRoute =
+    router.pathname === "/_error" ||
+    router.pathname === "/404" ||
+    router.pathname === "/500";
+
+  if (isErrorRoute) {
+    return <Component {...pageProps} />;
+  }
+
   return (
     <>
       <Head>
-        <title>Welcome to proyecto-siga-frontend!</title>
+        <title>Bienvenido A Neurolab</title>
       </Head>
       <main className="app">
         <QueryClientProviderWrapper>

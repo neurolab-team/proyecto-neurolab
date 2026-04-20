@@ -7,7 +7,8 @@
     ],
     "rootDir": "../../",
     "resolveJsonModule": true,
-    "composite": false,
+    "composite": true,
+    "declaration": true,
     "declarationMap": false,
     "emitDeclarationOnly": false,
     "tsBuildInfoFile": "out-tsc/proyecto-siga-backend/tsconfig.app.tsbuildinfo"

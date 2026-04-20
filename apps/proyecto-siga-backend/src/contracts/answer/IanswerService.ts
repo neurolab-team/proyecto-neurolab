@@ -3,7 +3,7 @@ import {
   CreateAnswerInput,
   CreateManyAnswersInput,
 } from "@packages/common-types/answer.types";
-import { AnswerWithDetails } from "./answer.types";
+import { AnswerWithDetails, DetailedAnswer } from "./answer.types";
 
 export interface IAnswerService {
 
@@ -13,6 +13,5 @@ export interface IAnswerService {
     createAnswer(input: CreateAnswerInput): Promise<Answer>;
     createManyAnswers(input: CreateManyAnswersInput): Promise<Answer[]>;
     getAnswersByAssignmentTestWithDetails(assignmentId: string): Promise<AnswerWithDetails[]>;
-    //updateAnswer(id: string, input: UpdateAnswerInput): Promise<Answer>;
-    //deleteAnswer(id: string): Promise<void>;
+    getDetailedAnswers(assignmentId: string): Promise<DetailedAnswer[]>;
 }

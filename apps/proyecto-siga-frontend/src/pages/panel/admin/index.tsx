@@ -257,4 +257,5 @@ const AdminPanel = () => {
 };
 
 AdminPanel.auth = "admin";
+
 export default AdminPanel;

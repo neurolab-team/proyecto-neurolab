@@ -1,4 +1,4 @@
-import { useRouter } from "next/router";
+import { useRouter } from "next/compat/router";
 import { useState } from "react";
 import { useAuth } from "../hooks/useAuth";
 import { useModal } from "../hooks/useModal";
@@ -10,7 +10,14 @@ export default function Navbar() {
   const [showMenu, setShowMenu] = useState(false);
 
   const handleNavigation = (path: string) => {
-    router.push(path);
+    if (router) {
+      router.push(path);
+      return;
+    }
+
+    if (typeof window !== "undefined") {
+      window.location.assign(path);
+    }
   };
 
   const navSkeleton = (

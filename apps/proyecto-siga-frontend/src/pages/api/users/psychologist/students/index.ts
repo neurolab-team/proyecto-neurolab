@@ -4,8 +4,8 @@ import {
   clearSessionCookie,
   getSessionIdFromCookie,
 } from "@/libs/server/sessionCookie";
-import { BaseResponse } from "@packages/common-types/baseResponse.types";
-import { PsychologistStudentSummary } from "@packages/common-types/psychologist.types";
+import type { BaseResponse } from "@packages/common-types/baseResponse.types";
+import type { PsychologistStudentSummary } from "@packages/common-types/psychologist.types";
 
 export default async function handler(
   req: NextApiRequest,

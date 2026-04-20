@@ -1,5 +1,3 @@
-"use client";
-
 import { useState } from "react";
 import Link from "next/link";
 import Navbar from "../../components/Navbar";
@@ -163,12 +161,11 @@ const AssignmentTestPanel = () => {
                             </Link>
                           )}
                           {test.status === "completed" && (
-                            <button
-                              className="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg font-bold transition-all cursor-not-allowed"
-                              disabled
-                            >
-                              Ver Resultados
-                            </button>
+                            <Link href={`/test/results/${test.assignmentId}`} passHref>
+                              <button className="bg-gradient-to-r from-[#102D69] to-[#00A0B7] text-white px-4 py-2 rounded-lg font-bold hover:shadow-md transition-all duration-300">
+                                Ver Resultados
+                              </button>
+                            </Link>
                           )}
                           {test.status === "expired" && (
                             <span className="text-red-500 font-medium text-sm">
@@ -203,4 +200,5 @@ const AssignmentTestPanel = () => {
 };
 
 AssignmentTestPanel.auth = "user";
+
 export default AssignmentTestPanel;

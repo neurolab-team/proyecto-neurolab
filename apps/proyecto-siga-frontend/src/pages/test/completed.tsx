@@ -1,6 +1,4 @@
-"use client";
-
-import { useRouter } from "next/router";
+import { useRouter } from "next/compat/router";
 import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
 import { motion } from "framer-motion";
@@ -59,13 +57,31 @@ const TestCompletedPage = () => {
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <button
-              onClick={() => router.push("/panel/assignmentTest")}
+              onClick={() => {
+                if (router) {
+                  router.push("/panel/assignmentTest");
+                  return;
+                }
+
+                if (typeof window !== "undefined") {
+                  window.location.assign("/panel/assignmentTest");
+                }
+              }}
               className="px-8 py-3 bg-primary text-white rounded-lg font-semibold hover:bg-primary-dark transition-colors shadow-md"
             >
               Ver Mis Tests
             </button>
             <button
-              onClick={() => router.push("/")}
+              onClick={() => {
+                if (router) {
+                  router.push("/");
+                  return;
+                }
+
+                if (typeof window !== "undefined") {
+                  window.location.assign("/");
+                }
+              }}
               className="px-8 py-3 bg-gray-200 text-gray-700 rounded-lg font-semibold hover:bg-gray-300 transition-colors"
             >
               Ir al Inicio
@@ -78,5 +94,7 @@ const TestCompletedPage = () => {
     </div>
   );
 };
+
+TestCompletedPage.auth = "user";
 
 export default TestCompletedPage;

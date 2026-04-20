@@ -1,8 +1,12 @@
-import { useRouter } from "next/router";
+import { useRouter } from "next/compat/router";
 import { useAuth } from "../../hooks/useAuth";
 import { useEffect, useState } from "react";
 
-type AuthStatus = "checking" | "authorized" | "unauthorized";
+type AuthStatus =
+  | "checking"
+  | "authorized"
+  | "unauthenticated"
+  | "forbidden";
 
 export default function AuthGuard({
   children,
@@ -23,7 +27,7 @@ export default function AuthGuard({
     }
 
     if (!isLoading && !user) {
-      setAuthStatus("unauthorized");
+      setAuthStatus("unauthenticated");
       return;
     }
 
@@ -39,24 +43,39 @@ export default function AuthGuard({
         isAuthorized = auth.includes(userRole);
       }
 
-      setAuthStatus(isAuthorized ? "authorized" : "unauthorized");
+      setAuthStatus(isAuthorized ? "authorized" : "forbidden");
     }
-  }, [user, isLoading, router, auth]);
+  }, [user, isLoading, auth]);
 
   useEffect(() => {
-    if (authStatus === "unauthorized") {
+    if (authStatus === "unauthenticated") {
+      if (router) {
+        router.replace("/");
+      } else if (typeof window !== "undefined") {
+        window.location.assign("/");
+      }
+      return;
+    }
+
+    if (authStatus === "forbidden") {
       const timer = setTimeout(() => {
-        router.push("/");
+        if (router) {
+          router.push("/");
+        } else if (typeof window !== "undefined") {
+          window.location.assign("/");
+        }
       }, 3000);
       return () => clearTimeout(timer);
     }
+
+    return undefined;
   }, [authStatus, router]);
 
   if (authStatus === "authorized") {
     return <>{children}</>;
   }
 
-  if (authStatus === "unauthorized") {
+  if (authStatus === "forbidden") {
     return <AccessDeniedScreen />;
   }
 

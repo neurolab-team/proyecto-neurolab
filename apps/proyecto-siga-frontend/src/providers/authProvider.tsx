@@ -1,4 +1,3 @@
-import { useRouter } from "next/router";
 import { ReactNode, useCallback, useEffect, useMemo, useState } from "react";
 import { AuthContext } from "../context/authContext";
 import { User } from "@packages/common-types/user.types";
@@ -7,7 +6,6 @@ import { authService } from "../services/auth/auth";
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const router = useRouter();
 
   const refreshUser = useCallback(async (): Promise<User | null> => {
     try {
@@ -65,7 +63,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       // aunque falle el backend, limpiamos el estado local
     } finally {
       setUser(null);
-      router.push("/");
+      if (typeof window !== "undefined") {
+        window.location.assign("/");
+      }
     }
   };
 

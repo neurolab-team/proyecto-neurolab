@@ -1,5 +1,5 @@
 import { Prisma, answer } from "@prisma/client";
-import { AnswerWithDetails } from "./answer.types";
+import { AnswerWithDetails, DetailedAnswer } from "./answer.types";
 
 export interface IAnswerRepo {
   findById(id: string, tx?: Prisma.TransactionClient): Promise<answer | null>;
@@ -22,9 +22,8 @@ export interface IAnswerRepo {
     tx?: Prisma.TransactionClient,
   ): Promise<AnswerWithDetails[]>;
 
-  // delete(id: string, tx?: Prisma.TransactionClient): Promise<void>;
-  // count(
-  //     where:Prisma.answerWhereInput,
-  //     tx?: Prisma.TransactionClient
-  // ): Promise<number>;
+  findDetailedByAssignment(
+    assignmentId: string,
+    tx?: Prisma.TransactionClient,
+  ): Promise<DetailedAnswer[]>;
 }

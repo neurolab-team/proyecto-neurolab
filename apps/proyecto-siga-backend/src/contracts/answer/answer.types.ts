@@ -12,3 +12,15 @@ export interface AnswerWithDetails {
     } | null;
   } | null;
 }
+
+export interface DetailedAnswer {
+  textValue?: string | null;
+  question: {
+    prompt: string;
+    code?: string | null;
+    section: { name: string | null } | null;
+  } | null;
+  option: {
+    label: string;
+  } | null;
+}

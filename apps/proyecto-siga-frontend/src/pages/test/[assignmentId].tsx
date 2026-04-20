@@ -1,4 +1,4 @@
-import { useRouter } from "next/router";
+import { useRouter } from "next/compat/router";
 import { useTest } from "../../hooks/useTest";
 import { QuestionRendererFactory } from "../../components/test/QuestionRendererFactory";
 import { GroupedBlockRenderer } from "../../components/test/renderers/GroupedBlockRenderer";
@@ -12,7 +12,7 @@ import Footer from "../../components/Footer";
 
 export default function TestPage() {
   const router = useRouter();
-  const { assignmentId } = router.query;
+  const assignmentId = router?.query.assignmentId;
 
   const {
     isLoading,
@@ -30,7 +30,7 @@ export default function TestPage() {
 
   const testConfig = getTestConfig(testCode || 'DEFAULT');
 
-  if (!router.isReady || isLoading) {
+  if (!router?.isReady || isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center"
         style={{ background: `linear-gradient(to bottom right, ${testConfig.colors.gradientFrom}, ${testConfig.colors.gradientVia}, ${testConfig.colors.gradientTo})` }}
@@ -113,3 +113,5 @@ export default function TestPage() {
     </div>
   );
 }
+
+TestPage.auth = "user";

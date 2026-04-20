@@ -4,8 +4,8 @@ import {
   clearSessionCookie,
   getSessionIdFromCookie,
 } from "@/libs/server/sessionCookie";
-import { BaseResponse } from "@packages/common-types/baseResponse.types";
-import { AssignmentWithTestsDataResponse } from "@packages/common-types/assignment.types";
+import type { BaseResponse } from "@packages/common-types/baseResponse.types";
+import type { AssignmentWithTestsDataResponse } from "@packages/common-types/assignment.types";
 
 export default async function handler(
   req: NextApiRequest,

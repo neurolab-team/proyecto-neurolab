@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useRouter } from "next/router";
+import { useRouter } from "next/compat/router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { format, formatDistanceToNow } from "date-fns";
 import { es } from "date-fns/locale";
@@ -108,11 +108,11 @@ export default function PsychologistStudentsPage() {
   });
 
   useEffect(() => {
-    if (!router.isReady) return;
+    if (!router?.isReady) return;
     const nextPriority =
       typeof router.query.priority === "string" ? router.query.priority : "all";
     setPriorityFilter(nextPriority);
-  }, [router.isReady, router.query.priority]);
+  }, [router?.isReady, router?.query.priority]);
 
   const filteredStudents = students.filter((student) => {
     const normalizedSearch = search.trim().toLowerCase();
@@ -138,12 +138,12 @@ export default function PsychologistStudentsPage() {
   });
 
   const selectedStudentId =
-    typeof router.query.studentId === "string"
+    typeof router?.query.studentId === "string"
       ? router.query.studentId
       : filteredStudents[0]?.studentId || null;
 
   useEffect(() => {
-    if (!router.isReady || filteredStudents.length === 0) return;
+    if (!router?.isReady || filteredStudents.length === 0) return;
     const currentStudentId =
       typeof router.query.studentId === "string" ? router.query.studentId : null;
     const existsInFiltered = filteredStudents.some(
@@ -195,6 +195,8 @@ export default function PsychologistStudentsPage() {
   });
 
   const handleSelectStudent = (studentId: string) => {
+    if (!router) return;
+
     router.replace(
       {
         pathname: router.pathname,
@@ -517,6 +519,7 @@ function AssignmentCard({
   isReviewing: boolean;
   onReview: () => void;
 }) {
+  const router = useRouter();
   const attentionClass =
     assignment.attentionLevel === "high"
       ? "bg-rose-100 text-rose-700"
@@ -556,14 +559,33 @@ function AssignmentCard({
           </div>
         </div>
 
-        {assignment.status === "completed" && !assignment.reviewedAt && (
-          <button
-            onClick={onReview}
-            disabled={isReviewing}
-            className="rounded-xl bg-[#102D69] px-4 py-2 text-sm font-semibold text-white transition-all hover:bg-[#0D4A8C] disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            {isReviewing ? "Guardando..." : "Marcar revisada"}
-          </button>
+        {assignment.status === "completed" && (
+          <div className="flex gap-2">
+            <button
+              onClick={() => {
+                if (router) {
+                  router.push(`/test/results/${assignment.assignmentId}`);
+                  return;
+                }
+
+                if (typeof window !== "undefined") {
+                  window.location.assign(`/test/results/${assignment.assignmentId}`);
+                }
+              }}
+              className="rounded-xl bg-[#00A0B7] px-4 py-2 text-sm font-semibold text-white transition-all hover:bg-[#008a9e]"
+            >
+              Ver Resultados
+            </button>
+            {!assignment.reviewedAt && (
+              <button
+                onClick={onReview}
+                disabled={isReviewing}
+                className="rounded-xl bg-[#102D69] px-4 py-2 text-sm font-semibold text-white transition-all hover:bg-[#0D4A8C] disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {isReviewing ? "Guardando..." : "Marcar revisada"}
+              </button>
+            )}
+          </div>
         )}
       </div>
 

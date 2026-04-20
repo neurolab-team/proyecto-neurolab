@@ -356,6 +356,7 @@ export class AssignmentRepository implements IAssignmentRepo {
       select: {
         assignmentId: true,
         testId: true,
+        assignedToId: true,
         status: true,
       },
       where: {

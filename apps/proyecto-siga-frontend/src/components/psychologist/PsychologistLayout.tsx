@@ -1,4 +1,4 @@
-import { useRouter } from "next/router";
+import { useRouter } from "next/compat/router";
 import Navbar from "../Navbar";
 import Footer from "../Footer";
 
@@ -32,11 +32,22 @@ export default function PsychologistLayout({ children }: { children: React.React
           </div>
           <nav className="px-3 py-4 space-y-1">
             {navItems.map((item) => {
-              const isActive = router.pathname === item.href;
+              const isActive = router?.pathname === item.href;
               return (
                 <button
                   key={item.href}
-                  onClick={() => !item.disabled && router.push(item.href)}
+                  onClick={() => {
+                    if (item.disabled) return;
+
+                    if (router) {
+                      router.push(item.href);
+                      return;
+                    }
+
+                    if (typeof window !== "undefined") {
+                      window.location.assign(item.href);
+                    }
+                  }}
                   disabled={item.disabled}
                   className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all
                     ${isActive ? "bg-[#102D69] text-white" : ""}
