@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo, useRef } from "react";
 import { Question } from "@packages/common-types/question.types";
 
 type NavPage = { type: "single"; question: Question } | { type: "group"; questions: Question[]; groupHeader: string };
@@ -66,8 +66,12 @@ function getConditionKeys(questions: Question[]): string[] {
 export const useTestNavigation = (
   questions: Question[],
   answers: Record<string, string> = {},
+  initialIndex = 0,
+  onIndexChange?: (index: number) => void,
 ) => {
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const [currentIndex, setCurrentIndex] = useState(initialIndex);
+  const onIndexChangeRef = useRef(onIndexChange);
+  onIndexChangeRef.current = onIndexChange;
 
   // Only recompute pages when condition-relevant answers change
   const conditionKeys = useMemo(() => getConditionKeys(questions), [questions]);
@@ -85,13 +89,21 @@ export const useTestNavigation = (
 
   const goToNext = useCallback(() => {
     if (currentIndex < totalPages - 1) {
-      setCurrentIndex((prev) => prev + 1);
+      setCurrentIndex((prev) => {
+        const next = prev + 1;
+        onIndexChangeRef.current?.(next);
+        return next;
+      });
     }
   }, [currentIndex, totalPages]);
 
   const goToBack = useCallback(() => {
     if (currentIndex > 0) {
-      setCurrentIndex((prev) => prev - 1);
+      setCurrentIndex((prev) => {
+        const next = prev - 1;
+        onIndexChangeRef.current?.(next);
+        return next;
+      });
     }
   }, [currentIndex]);
 

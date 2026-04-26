@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
 import { useAssignedTests } from "../../hooks/useAssignedTests";
+import { createLocalStorageProgress } from "../../hooks/test/testProgressStorage";
 
 type AssignedTest = {
   testId: string;
@@ -16,6 +17,21 @@ type AssignedTest = {
 const AssignmentTestPanel = () => {
   const [testTitleFilter, setTestTitleFilter] = useState("");
   const { tests, isLoading, isError } = useAssignedTests();
+  const [savedIds, setSavedIds] = useState<Set<string>>(new Set());
+
+  useEffect(() => {
+    const ids = new Set<string>();
+    for (const t of tests) {
+      const saved = createLocalStorageProgress(t.assignmentId).load();
+      if (saved && Object.keys(saved.answers).length > 0) {
+        ids.add(t.assignmentId);
+      }
+    }
+    setSavedIds(ids);
+  }, [tests]);
+
+  const hasProgress = (assignmentId: string) => savedIds.has(assignmentId);
+
   const filteredTests = tests.filter((test: AssignedTest) =>
     (test.title || "").toLowerCase().includes(testTitleFilter.toLowerCase()),
   );
@@ -155,7 +171,7 @@ const AssignmentTestPanel = () => {
                             <Link href={`/test/${test.assignmentId}`} passHref>
                               <button className="bg-gradient-to-r from-[#102D69] to-[#00A0B7] text-white px-4 py-2 rounded-lg font-bold hover:shadow-md transition-all duration-300">
                                 {test.status === "assigned"
-                                  ? "Comenzar Prueba"
+                                  ? (hasProgress(test.assignmentId) ? "Continuar Prueba" : "Comenzar Prueba")
                                   : "Continuar Prueba"}
                               </button>
                             </Link>

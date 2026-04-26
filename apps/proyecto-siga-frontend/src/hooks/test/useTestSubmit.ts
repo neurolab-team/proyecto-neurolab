@@ -4,7 +4,10 @@ import { testService } from "../../services/test/test";
 import { assignmentScoreService } from "../../services/assignmentScore/assignmentScore";
 import { Question } from "@packages/common-types/question.types";
 
-export const useTestSubmit = (assignmentId: string) => {
+export const useTestSubmit = (
+  assignmentId: string,
+  onSuccess?: () => void,
+) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const router = useRouter();
@@ -17,6 +20,7 @@ export const useTestSubmit = (assignmentId: string) => {
       try {
         await testService.submitTestAnswers(assignmentId, answers, questions);
         await assignmentScoreService.submitAssignmentScore(assignmentId);
+        onSuccess?.();
         router.push("/test/completed");
       } catch (err: any) {
         const message =
@@ -27,7 +31,7 @@ export const useTestSubmit = (assignmentId: string) => {
         setIsSubmitting(false);
       }
     },
-    [assignmentId, router]
+    [assignmentId, router, onSuccess]
   );
 
   return { submitTest, isSubmitting, submitError };

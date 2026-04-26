@@ -1,19 +1,39 @@
-import { useCallback } from "react";
+import { useCallback, useMemo, useRef } from "react";
 import { useTestData } from "./test/useTestData";
 import { useTestAnswers } from "./test/useTestAnswers";
 import { useTestNavigation } from "./test/useTestNavigation";
 import { useTestSubmit } from "./test/useTestSubmit";
+import { createLocalStorageProgress } from "./test/testProgressStorage";
 
 export const useTest = (assignmentId: string) => {
+  const storage = useMemo(
+    () => assignmentId ? createLocalStorageProgress(assignmentId) : null,
+    [assignmentId],
+  );
+
+  const saved = useMemo(() => storage?.load() ?? null, [storage]);
+  const currentIndexRef = useRef(saved?.currentIndex ?? 0);
+
   const { questions, title, testCode, isLoading, error } =
     useTestData(assignmentId);
 
-  const { answers, selectAnswer, getSelectedValue } = useTestAnswers();
-  const navigation = useTestNavigation(questions, answers);
+  const { answers, selectAnswer, getSelectedValue } = useTestAnswers(
+    saved?.answers ?? {},
+    (next) => storage?.save({ answers: next, currentIndex: currentIndexRef.current }),
+  );
+
+  const navigation = useTestNavigation(
+    questions,
+    answers,
+    saved?.currentIndex ?? 0,
+    (index) => {
+      currentIndexRef.current = index;
+      storage?.save({ answers, currentIndex: index });
+    },
+  );
 
   const { currentPage } = navigation;
 
-  // For single pages, check if answered. For groups, check all required answered.
   const isPageAnswered = (() => {
     if (!currentPage) return false;
     if (currentPage.type === "single") {
@@ -32,8 +52,10 @@ export const useTest = (assignmentId: string) => {
     ? getSelectedValue(navigation.currentQuestion.questionId)
     : null;
 
-  const { submitTest, isSubmitting, submitError } =
-    useTestSubmit(assignmentId);
+  const { submitTest, isSubmitting, submitError } = useTestSubmit(
+    assignmentId,
+    () => storage?.clear(),
+  );
 
   const handleNext = useCallback(() => {
     if (!isPageAnswered) return;
