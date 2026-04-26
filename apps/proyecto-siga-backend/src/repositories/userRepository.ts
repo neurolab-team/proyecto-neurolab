@@ -62,6 +62,24 @@ export class UserRepository implements IUserRepo {
               },
             },
             score: true,
+            answers: {
+              select: {
+                textValue: true,
+                question: {
+                  select: {
+                    code: true,
+                    prompt: true,
+                  },
+                },
+                option: {
+                  select: {
+                    label: true,
+                    value: true,
+                    scoreValue: true,
+                  },
+                },
+              },
+            },
           },
           orderBy: { createdAt: 'desc' },
         },
@@ -95,6 +113,24 @@ export class UserRepository implements IUserRepo {
               },
             },
             score: true,
+            answers: {
+              select: {
+                textValue: true,
+                question: {
+                  select: {
+                    code: true,
+                    prompt: true,
+                  },
+                },
+                option: {
+                  select: {
+                    label: true,
+                    value: true,
+                    scoreValue: true,
+                  },
+                },
+              },
+            },
           },
           orderBy: { createdAt: 'desc' },
         },

@@ -5,6 +5,8 @@ import {
   User,
 } from "@packages/common-types/user.types"
 import {
+  PsychologistStudentResultsFilters,
+  PsychologistStudentResultsResponse,
   PsychologistStudentProfile,
   PsychologistStudentSummary,
 } from "@packages/common-types/psychologist.types";
@@ -21,6 +23,10 @@ export interface IUserService {
     psychologistId: string,
     studentId: string,
   ): Promise<PsychologistStudentProfile | null>
+  getPsychologistStudentResults(
+    psychologistId: string,
+    filters: PsychologistStudentResultsFilters,
+  ): Promise<PsychologistStudentResultsResponse>
   deactivateUser(id: string): Promise<void>
   activateUser(id: string): Promise<void>
   checkEmailAvailable(email: string, excludeId?: string): Promise<boolean>

@@ -31,10 +31,28 @@ export type AssignedStudentRecord = Prisma.userGetPayload<{
           };
         };
         score: true;
+        answers: {
+          select: {
+            textValue: true;
+            question: {
+              select: {
+                code: true;
+                prompt: true;
+              };
+            };
+            option: {
+              select: {
+                label: true;
+                value: true;
+                scoreValue: true;
+              };
+            };
+          };
+        };
       };
     };
   };
-}>;
+}>; 
 
 export interface IUserRepo {
   findById(id: string, tx?: Prisma.TransactionClient): Promise<user | null>;

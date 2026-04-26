@@ -15,6 +15,12 @@ const navItems = [
     icon: "M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z",
     disabled: false,
   },
+  {
+    label: "Exportación",
+    href: "/panel/psychologist/exports",
+    icon: "M12 16v-8m0 8l-3-3m3 3l3-3M4 20h16",
+    disabled: false,
+  },
 ];
 
 export default function PsychologistLayout({ children }: { children: React.ReactNode }) {

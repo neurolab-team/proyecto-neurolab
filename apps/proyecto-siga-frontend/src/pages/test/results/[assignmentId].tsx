@@ -211,7 +211,7 @@ export default function TestResultsPage() {
           {isPsychologist && sections && sections.length > 0 && (
             <div className="bg-white rounded-xl shadow-md p-6 mb-6">
               <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4">
-                Detalle por Sección
+                Detalle por Componente
               </h2>
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">

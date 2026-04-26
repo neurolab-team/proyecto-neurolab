@@ -12,6 +12,7 @@ import { created } from "../utils/jsonResponse";
 import {
   AssignPsychologistDto,
   CreateUserDto,
+  PsychologistStudentResultsFiltersDto,
   RegisterDto,
   UpdateUserRoleDto,
 } from "@packages/common-schemas/user.schemas";
@@ -33,6 +34,19 @@ UsersController.get(
     const students = await userService.getPsychologistStudents(req.user!.userId);
     return ok(res, students, "Listado de estudiantes asignados");
   })
+);
+
+UsersController.get(
+  "/psychologist/students/results",
+  asPsychologist,
+  wrap(async (req: any, res) => {
+    const filters = PsychologistStudentResultsFiltersDto.parse(req.query);
+    const results = await userService.getPsychologistStudentResults(
+      req.user!.userId,
+      filters,
+    );
+    return ok(res, results, "Resultados de pruebas para exportacion");
+  }),
 );
 
 UsersController.get(

@@ -9,6 +9,8 @@ import { BaseResponse } from "@packages/common-types/baseResponse.types";
 import { userResponse } from "@packages/common-types/user.types";
 import { RegisterResponse } from "@packages/common-types/auth.types";
 import {
+  PsychologistStudentResultsFilters,
+  PsychologistStudentResultsResponse,
   PsychologistStudentProfile,
   PsychologistStudentSummary,
 } from "@packages/common-types/psychologist.types";
@@ -65,6 +67,23 @@ export const usersService = {
     const response = await apiClient.get<
       BaseResponse<PsychologistStudentProfile>
     >(`/api/users/psychologist/students/${studentId}`);
+    return response.data.data;
+  },
+
+  getPsychologistStudentResults: async (
+    filters: PsychologistStudentResultsFilters,
+  ): Promise<PsychologistStudentResultsResponse> => {
+    const params = new URLSearchParams();
+
+    Object.entries(filters).forEach(([key, value]) => {
+      if (value === undefined || value === null || value === "") return;
+      params.set(key, String(value));
+    });
+
+    const response = await apiClient.get<
+      BaseResponse<PsychologistStudentResultsResponse>
+    >(`/api/users/psychologist/students/results?${params.toString()}`);
+
     return response.data.data;
   },
 };

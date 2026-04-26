@@ -7,6 +7,10 @@ import {
   UpdateUserRoleInput,
   User,
 } from "@packages/common-types/user.types";
+import {
+  PsychologistStudentResultsFilters,
+  PsychologistStudentResultsResponse,
+} from "@packages/common-types/psychologist.types";
 import prisma from "@packages/libs/prisma";
 import { generateSecurePassword } from "../../utils/sendEmail";
 import { BadRequest, NotFound } from "../../utils/httpError";
@@ -59,6 +63,16 @@ export class UserService implements IUserService {
     return this.psychologistStudentsQueryService.getPsychologistStudentById(
       psychologistId,
       studentId,
+    );
+  }
+
+  async getPsychologistStudentResults(
+    psychologistId: string,
+    filters: PsychologistStudentResultsFilters,
+  ): Promise<PsychologistStudentResultsResponse> {
+    return this.psychologistStudentsQueryService.getPsychologistStudentResults(
+      psychologistId,
+      filters,
     );
   }
 
