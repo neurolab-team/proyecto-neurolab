@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/compat/router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Navbar from "../../../components/Navbar";
 import Footer from "../../../components/Footer";
@@ -9,8 +10,30 @@ import { User, UserRole } from "@packages/common-types/user.types";
 
 const AdminUsersPage = () => {
   const { user } = useAuth();
+  const router = useRouter();
   const [emailFilter, setEmailFilter] = useState("");
+  const [verificationFilter, setVerificationFilter] = useState<
+    "all" | "verified" | "pending"
+  >("all");
+  const [assignmentFilter, setAssignmentFilter] = useState<
+    "all" | "assigned" | "unassigned"
+  >("all");
   const queryClient = useQueryClient();
+
+  useEffect(() => {
+    if (!router?.isReady) return;
+    const queryFilter =
+      typeof router.query.assignment === "string"
+        ? router.query.assignment
+        : "all";
+
+    if (queryFilter === "assigned" || queryFilter === "unassigned") {
+      setAssignmentFilter(queryFilter);
+      return;
+    }
+
+    setAssignmentFilter("all");
+  }, [router?.isReady, router?.query.assignment]);
 
   const { data: usersData, isLoading: loadingUsers } = useQuery({
     queryKey: ["users"],
@@ -47,6 +70,23 @@ const AdminUsersPage = () => {
   const filteredUsers = users.filter((currentUser) =>
     currentUser.email.toLowerCase().includes(emailFilter.toLowerCase()),
   );
+
+  const finalFilteredUsers = filteredUsers.filter((currentUser) => {
+    if (verificationFilter === "verified") return currentUser.verifiedEmail;
+    if (verificationFilter === "pending") return !currentUser.verifiedEmail;
+    return true;
+  });
+
+  const assignmentFilteredUsers = finalFilteredUsers.filter((currentUser) => {
+    if (assignmentFilter === "all") return true;
+    if (currentUser.role !== "user") return false;
+
+    if (assignmentFilter === "assigned") {
+      return Boolean(currentUser.assignedPsychologistId);
+    }
+
+    return !currentUser.assignedPsychologistId;
+  });
 
   const getRoleBadgeColor = (role: string) => {
     switch (role) {
@@ -99,6 +139,44 @@ const AdminUsersPage = () => {
                 onChange={(event) => setEmailFilter(event.target.value)}
                 className="w-full rounded-xl border-2 border-gray-200 px-4 py-3 transition-all focus:border-[#00A0B7] focus:ring-2 focus:ring-[#00A0B7]"
               />
+
+              <div className="mt-4">
+                <label className="mb-2 block text-sm font-semibold text-slate-700">
+                  Estado de verificación de correo
+                </label>
+                <select
+                  value={verificationFilter}
+                  onChange={(event) =>
+                    setVerificationFilter(
+                      event.target.value as "all" | "verified" | "pending",
+                    )
+                  }
+                  className="w-full rounded-xl border-2 border-gray-200 px-4 py-3 transition-all focus:border-[#00A0B7] focus:ring-2 focus:ring-[#00A0B7]"
+                >
+                  <option value="all">Todos</option>
+                  <option value="verified">Verificados</option>
+                  <option value="pending">Pendientes</option>
+                </select>
+              </div>
+
+              <div className="mt-4">
+                <label className="mb-2 block text-sm font-semibold text-slate-700">
+                  Estado de asignación psicológica
+                </label>
+                <select
+                  value={assignmentFilter}
+                  onChange={(event) =>
+                    setAssignmentFilter(
+                      event.target.value as "all" | "assigned" | "unassigned",
+                    )
+                  }
+                  className="w-full rounded-xl border-2 border-gray-200 px-4 py-3 transition-all focus:border-[#00A0B7] focus:ring-2 focus:ring-[#00A0B7]"
+                >
+                  <option value="all">Todos</option>
+                  <option value="unassigned">Sin psicólogo</option>
+                  <option value="assigned">Con psicólogo</option>
+                </select>
+              </div>
             </div>
 
             {loadingUsers ? (
@@ -132,10 +210,13 @@ const AdminUsersPage = () => {
                       <th className="px-4 py-4 text-left font-semibold text-gray-700">
                         Estado
                       </th>
+                      <th className="px-4 py-4 text-left font-semibold text-gray-700">
+                        Correo
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
-                    {filteredUsers.map((currentUser) => (
+                    {assignmentFilteredUsers.map((currentUser) => (
                       <tr
                         key={currentUser.userId}
                         className="border-b border-gray-100 transition-colors hover:bg-gray-50"
@@ -157,23 +238,32 @@ const AdminUsersPage = () => {
                           </span>
                         </td>
                         <td className="px-4 py-4">
-                          <select
-                            value={currentUser.role}
-                            onChange={(event) =>
-                              updateRoleMutation.mutate({
-                                userId: currentUser.userId,
-                                role: event.target.value as UserRole,
-                              })
-                            }
-                            disabled={updateRoleMutation.isPending}
-                            className={`cursor-pointer rounded-lg border-0 px-3 py-1 text-sm font-semibold ${getRoleBadgeColor(
-                              currentUser.role,
-                            )}`}
-                          >
-                            <option value="user">Usuario</option>
-                            <option value="psychologist">Psicólogo</option>
-                            <option value="admin">Administrador</option>
-                          </select>
+                          {currentUser.role === "user" ? (
+                            <span
+                              className={`inline-flex rounded-lg px-3 py-1 text-sm font-semibold ${getRoleBadgeColor(
+                                currentUser.role,
+                              )}`}
+                            >
+                              Usuario
+                            </span>
+                          ) : (
+                            <select
+                              value={currentUser.role}
+                              onChange={(event) =>
+                                updateRoleMutation.mutate({
+                                  userId: currentUser.userId,
+                                  role: event.target.value as UserRole,
+                                })
+                              }
+                              disabled={updateRoleMutation.isPending}
+                              className={`cursor-pointer rounded-lg border-0 px-3 py-1 text-sm font-semibold ${getRoleBadgeColor(
+                                currentUser.role,
+                              )}`}
+                            >
+                              <option value="psychologist">Psicólogo</option>
+                              <option value="admin">Administrador</option>
+                            </select>
+                          )}
                         </td>
                         <td className="px-4 py-4">
                           {currentUser.role === "user" ? (
@@ -218,15 +308,26 @@ const AdminUsersPage = () => {
                             {currentUser.isActive ? "Activo" : "Inactivo"}
                           </span>
                         </td>
+                        <td className="px-4 py-4">
+                          <span
+                            className={`rounded-lg px-3 py-1 text-sm font-semibold ${
+                              currentUser.verifiedEmail
+                                ? "bg-emerald-100 text-emerald-800"
+                                : "bg-amber-100 text-amber-800"
+                            }`}
+                          >
+                            {currentUser.verifiedEmail ? "Verificado" : "Pendiente"}
+                          </span>
+                        </td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
 
-                {filteredUsers.length === 0 && (
+                {assignmentFilteredUsers.length === 0 && (
                   <div className="py-12 text-center">
                     <p className="text-gray-500">
-                      No se encontraron usuarios con ese correo
+                      No se encontraron usuarios con los filtros aplicados
                     </p>
                   </div>
                 )}
@@ -234,7 +335,7 @@ const AdminUsersPage = () => {
             )}
 
             <div className="mt-6 text-sm text-slate-600">
-              Total de usuarios: {filteredUsers.length}
+              Total de usuarios: {assignmentFilteredUsers.length}
             </div>
           </section>
         </div>

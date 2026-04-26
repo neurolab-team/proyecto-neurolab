@@ -1,5 +1,6 @@
 import { inject, injectable } from "tsyringe";
 import bcrypt from "bcrypt";
+import { randomUUID } from "crypto";
 import { Prisma } from "@prisma/client";
 import {
   AssignPsychologistInput,
@@ -188,6 +189,12 @@ export class UserService implements IUserService {
         return mapUserRecordToUser(user);
       }
 
+      if (user.role === "user" && input.role !== "user") {
+        throw BadRequest(
+          "No está permitido promover usuarios a roles administrativos o de psicología.",
+        );
+      }
+
       if (user.role === "psychologist" && input.role !== "psychologist") {
         const assignedStudentsCount = await this.userRepo.count(
           {
@@ -219,11 +226,12 @@ export class UserService implements IUserService {
   }
 
   async assignPsychologistToUser(
-    id: string,
+    actorUserId: string,
+    targetUserId: string,
     input: AssignPsychologistInput,
   ): Promise<User> {
     return prisma.$transaction(async (tx) => {
-      const user = await this.userRepo.findById(id, tx);
+      const user = await this.userRepo.findById(targetUserId, tx);
       if (!user) {
         throw NotFound("Usuario no encontrado");
       }
@@ -249,6 +257,14 @@ export class UserService implements IUserService {
             "El usuario seleccionado no tiene rol de psicologo.",
           );
         }
+
+        if (!psychologist.isActive) {
+          throw BadRequest("El psicologo seleccionado no está activo.");
+        }
+      }
+
+      if (input.psychologistId === user.assignedPsychologistId) {
+        return mapUserRecordToUser(user);
       }
 
       const updateData: Prisma.userUpdateInput = {
@@ -262,9 +278,66 @@ export class UserService implements IUserService {
             },
       };
 
-      const updatedUser = await this.userRepo.update(id, updateData, tx);
+      const updatedUser = await this.userRepo.update(targetUserId, updateData, tx);
+
+      const action = !input.psychologistId
+        ? "UNASSIGN_PSYCHOLOGIST"
+        : user.assignedPsychologistId
+          ? "REASSIGN_PSYCHOLOGIST"
+          : "ASSIGN_PSYCHOLOGIST";
+
+      const metadata = {
+        previousPsychologistId: user.assignedPsychologistId ?? null,
+        nextPsychologistId: input.psychologistId,
+        source: "admin_panel",
+      };
+      const auditLogId = randomUUID();
+
+      await tx.$executeRaw`
+        INSERT INTO "securityAuditLogs" (
+          "auditLogId",
+          "actorUserId",
+          "targetUserId",
+          "action",
+          "metadata",
+          "createdAt"
+        ) VALUES (
+          ${auditLogId},
+          ${actorUserId},
+          ${targetUserId},
+          ${action}::"securityAuditAction",
+          CAST(${JSON.stringify(metadata)} AS jsonb),
+          NOW()
+        )
+      `;
+
       return mapUserRecordToUser(updatedUser);
     });
+  }
+
+  private async assignPsychologistAutomatically(
+    userId: string,
+    tx: Prisma.TransactionClient,
+  ): Promise<void> {
+    const candidates = await this.userRepo.findActivePsychologistsWithStudentsCount(tx);
+    const selectedPsychologist = candidates[0];
+
+    if (!selectedPsychologist) {
+      return;
+    }
+
+    await this.userRepo.update(
+      userId,
+      {
+        assignedPsychologistAt: new Date(),
+        assignedPsychologist: {
+          connect: {
+            userId: selectedPsychologist.userId,
+          },
+        },
+      },
+      tx,
+    );
   }
 
   async deactivateUser(id: string): Promise<void> {
@@ -298,13 +371,31 @@ export class UserService implements IUserService {
   }
 
   async verifyEmail(token: string): Promise<void> {
-    const email =
-      await this.verificationService.consumeVerificationToken(token);
-    await prisma.user.update({
-      where: { email: email! },
-      data: {
-        verifiedEmail: true,
-      },
+    const email = await this.verificationService.consumeVerificationToken(token);
+
+    await prisma.$transaction(async (tx) => {
+      const user = await this.userRepo.findByEmail(email!, tx);
+
+      if (!user) {
+        throw NotFound("Usuario no encontrado para verificación");
+      }
+
+      await this.userRepo.update(
+        user.userId,
+        {
+          verifiedEmail: true,
+        },
+        tx,
+      );
+
+      const canAutoAssign = user.role === "user" && !user.assignedPsychologistId;
+      if (!canAutoAssign) {
+        return;
+      }
+
+      await this.assignPsychologistAutomatically(user.userId, tx);
+    }, {
+      isolationLevel: Prisma.TransactionIsolationLevel.Serializable,
     });
   }
 

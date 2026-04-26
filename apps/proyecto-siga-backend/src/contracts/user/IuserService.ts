@@ -17,7 +17,11 @@ export interface IUserService {
   createUser(input: CreateUserInput): Promise<User>
   createUserByAdmin(input: CreateUserInput): Promise<User>
   updateUserRole(id: string, input: UpdateUserRoleInput): Promise<User>
-  assignPsychologistToUser(id: string, input: AssignPsychologistInput): Promise<User>
+  assignPsychologistToUser(
+    actorUserId: string,
+    targetUserId: string,
+    input: AssignPsychologistInput,
+  ): Promise<User>
   getPsychologistStudents(psychologistId: string): Promise<PsychologistStudentSummary[]>
   getPsychologistStudentById(
     psychologistId: string,

@@ -42,6 +42,12 @@ enum assignmentAttentionLevel {
   none
 }
 
+enum securityAuditAction {
+  ASSIGN_PSYCHOLOGIST
+  REASSIGN_PSYCHOLOGIST
+  UNASSIGN_PSYCHOLOGIST
+}
+
 model user {
   userId                 String    @id @default(uuid()) @db.Uuid
   userNumber             String    @unique
@@ -68,6 +74,8 @@ model user {
   createdTests         test[]       @relation("testCreatedBy")
   assignmentsTo        assignment[] @relation("assignedTo")
   assignmentsBy        assignment[] @relation("assignedBy")
+  securityAuditAsActor securityAuditLog[] @relation("securityAuditActor")
+  securityAuditAsTarget securityAuditLog[] @relation("securityAuditTarget")
 
   @@index([assignedPsychologistId])
   @@map("user")
@@ -186,4 +194,21 @@ model assignmentScore {
 
   @@index([attentionLevel])
   @@map("assignmentScores")
+}
+
+model securityAuditLog {
+  auditLogId    String              @id @default(uuid()) @db.Uuid
+  actorUserId   String              @db.Uuid
+  targetUserId  String              @db.Uuid
+  action        securityAuditAction
+  metadata      Json?
+  createdAt     DateTime            @default(now())
+
+  actorUser  user @relation("securityAuditActor", fields: [actorUserId], references: [userId])
+  targetUser user @relation("securityAuditTarget", fields: [targetUserId], references: [userId])
+
+  @@index([actorUserId])
+  @@index([targetUserId])
+  @@index([action])
+  @@map("securityAuditLogs")
 }

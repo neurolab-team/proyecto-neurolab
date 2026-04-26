@@ -115,7 +115,11 @@ UsersController.patch(
   wrap(async (req: any, res) => {
     const { id } = CommonDtos.IdParam.parse(req.params);
     const input = AssignPsychologistDto.parse(req.body);
-    const user = await userService.assignPsychologistToUser(id, input);
+    const user = await userService.assignPsychologistToUser(
+      req.user!.userId,
+      id,
+      input,
+    );
 
     return ok(res, user, "Psicologo asignado con exito");
   })

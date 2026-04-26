@@ -99,12 +99,20 @@ export default function PsychologistStudentsPage() {
   const [userTypeFilter, setUserTypeFilter] = useState("all");
   const [caseStatusFilter, setCaseStatusFilter] = useState("all");
   const [priorityFilter, setPriorityFilter] = useState("all");
+  const [selectedTestId, setSelectedTestId] = useState("");
+  const [selectedStudentIds, setSelectedStudentIds] = useState<string[]>([]);
+  const [bulkDueAt, setBulkDueAt] = useState("");
 
   const { data: students = [], isLoading } = useQuery<
     PsychologistStudentSummary[]
   >({
     queryKey: ["psychologist-students"],
     queryFn: () => usersService.getPsychologistStudents(),
+  });
+
+  const { data: assignableTests = [] } = useQuery({
+    queryKey: ["psychologist-assignable-tests"],
+    queryFn: () => assignmentService.getPsychologistAssignableTests(),
   });
 
   useEffect(() => {
@@ -194,6 +202,40 @@ export default function PsychologistStudentsPage() {
     },
   });
 
+  const bulkAssignMutation = useMutation({
+    mutationFn: () =>
+      assignmentService.bulkAssignPsychologistTest({
+        testId: selectedTestId,
+        studentIds: selectedStudentIds,
+        dueAt: bulkDueAt || undefined,
+      }),
+    onSuccess: (result) => {
+      notify.success(
+        `Asignaciones creadas: ${result.createdCount}. Duplicadas omitidas: ${result.duplicateCount}.`,
+      );
+      if (result.unauthorizedCount > 0) {
+        notify.error(
+          `${result.unauthorizedCount} estudiantes no autorizados o inactivos fueron omitidos.`,
+        );
+      }
+      setSelectedStudentIds([]);
+      queryClient.invalidateQueries({ queryKey: ["psychologist-dashboard"] });
+      queryClient.invalidateQueries({ queryKey: ["psychologist-students"] });
+      if (selectedStudentId) {
+        queryClient.invalidateQueries({
+          queryKey: ["psychologist-student", selectedStudentId],
+        });
+      }
+    },
+    onError: (error) => {
+      const message = getApiErrorMessage(
+        error,
+        "No fue posible procesar la asignación masiva.",
+      );
+      notify.error(Array.isArray(message) ? message.join(", ") : message);
+    },
+  });
+
   const handleSelectStudent = (studentId: string) => {
     if (!router) return;
 
@@ -209,6 +251,29 @@ export default function PsychologistStudentsPage() {
       { shallow: true },
     );
   };
+
+  const handleToggleStudentSelection = (studentId: string) => {
+    setSelectedStudentIds((prev) =>
+      prev.includes(studentId)
+        ? prev.filter((id) => id !== studentId)
+        : [...prev, studentId],
+    );
+  };
+
+  const handleToggleAllVisibleStudents = () => {
+    const visibleIds = filteredStudents.map((student) => student.studentId);
+    const allSelected =
+      visibleIds.length > 0 && visibleIds.every((id) => selectedStudentIds.includes(id));
+
+    if (allSelected) {
+      setSelectedStudentIds((prev) => prev.filter((id) => !visibleIds.includes(id)));
+      return;
+    }
+
+    setSelectedStudentIds((prev) => [...new Set([...prev, ...visibleIds])]);
+  };
+
+  const canSubmitBulkAssign = selectedTestId && selectedStudentIds.length > 0;
 
   return (
     <PsychologistLayout>
@@ -274,6 +339,58 @@ export default function PsychologistStudentsPage() {
           </div>
         </section>
 
+        <section className="mt-8 rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+            <div>
+              <h2 className="text-2xl font-bold text-[#102D69]">Asignación masiva</h2>
+              <p className="mt-2 text-sm text-slate-600">
+                Selecciona una prueba y asígnala a múltiples estudiantes visibles en el listado.
+              </p>
+            </div>
+            <div className="rounded-xl bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700">
+              {selectedStudentIds.length} estudiante(s) seleccionado(s)
+            </div>
+          </div>
+
+          <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+            <select
+              value={selectedTestId}
+              onChange={(event) => setSelectedTestId(event.target.value)}
+              className="rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-[#00A0B7] focus:outline-none focus:ring-2 focus:ring-[#00A0B7]/20"
+            >
+              <option value="">Selecciona una prueba</option>
+              {assignableTests.map((test) => (
+                <option key={test.testId} value={test.testId}>
+                  {test.title}
+                </option>
+              ))}
+            </select>
+
+            <input
+              type="date"
+              value={bulkDueAt}
+              onChange={(event) => setBulkDueAt(event.target.value)}
+              className="rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-[#00A0B7] focus:outline-none focus:ring-2 focus:ring-[#00A0B7]/20"
+            />
+
+            <button
+              onClick={handleToggleAllVisibleStudents}
+              type="button"
+              className="rounded-xl border border-[#102D69] px-4 py-3 text-sm font-semibold text-[#102D69] transition-all hover:bg-[#102D69] hover:text-white"
+            >
+              Seleccionar visibles ({filteredStudents.length})
+            </button>
+
+            <button
+              onClick={() => bulkAssignMutation.mutate()}
+              disabled={!canSubmitBulkAssign || bulkAssignMutation.isPending}
+              className="rounded-xl bg-[#102D69] px-4 py-3 text-sm font-semibold text-white transition-all hover:bg-[#0D4A8C] disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {bulkAssignMutation.isPending ? "Asignando..." : "Asignar prueba"}
+            </button>
+          </div>
+        </section>
+
         <section className="mt-8 grid gap-6 xl:grid-cols-[360px_minmax(0,1fr)]">
           <div className="rounded-[2rem] bg-white p-4 shadow-sm">
             <div className="mb-4 flex items-center justify-between px-2">
@@ -308,6 +425,21 @@ export default function PsychologistStudentsPage() {
                           : "border-slate-200 hover:border-[#0D4A8C] hover:bg-slate-50"
                       }`}
                     >
+                      <div className="mb-3 flex items-center justify-between">
+                        <label
+                          className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-slate-500"
+                          onClick={(event) => event.stopPropagation()}
+                        >
+                          <input
+                            type="checkbox"
+                            checked={selectedStudentIds.includes(student.studentId)}
+                            onChange={() => handleToggleStudentSelection(student.studentId)}
+                            className="h-4 w-4 rounded border-slate-300 text-[#00A0B7] focus:ring-[#00A0B7]"
+                          />
+                          Seleccionar
+                        </label>
+                      </div>
+
                       <div className="flex items-start justify-between gap-3">
                         <div>
                           <p className="font-semibold text-slate-900">

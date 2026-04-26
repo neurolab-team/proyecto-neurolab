@@ -1,6 +1,11 @@
 import apiClient from "../../api/interceptors/axiosConfig";
 import { TestDataResponse } from "@packages/common-schemas/test.schemas";
-import { AssignmentWithTestsDataResponse } from "@packages/common-types/assignment.types";
+import {
+  AssignmentWithTestsDataResponse,
+  BulkAssignPsychologistTestInput,
+  BulkAssignPsychologistTestResult,
+  PsychologistAssignableTest,
+} from "@packages/common-types/assignment.types";
 import { BaseResponse } from "@packages/common-types/baseResponse.types";
 import {
   PsychologistDashboardStats,
@@ -33,6 +38,21 @@ export const assignmentService = {
   getDashboardFeed: async (): Promise<PsychologistDashboardFeed> => {
     const response = await apiClient.get<BaseResponse<PsychologistDashboardFeed>>(
       `/api/assignments/psychologist/dashboard/feed`,
+    );
+    return response.data.data;
+  },
+  getPsychologistAssignableTests: async (): Promise<PsychologistAssignableTest[]> => {
+    const response = await apiClient.get<BaseResponse<PsychologistAssignableTest[]>>(
+      `/api/assignments/psychologist/tests`,
+    );
+    return response.data.data;
+  },
+  bulkAssignPsychologistTest: async (
+    payload: BulkAssignPsychologistTestInput,
+  ): Promise<BulkAssignPsychologistTestResult> => {
+    const response = await apiClient.post<BaseResponse<BulkAssignPsychologistTestResult>>(
+      `/api/assignments/psychologist/bulk`,
+      payload,
     );
     return response.data.data;
   },

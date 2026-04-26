@@ -54,6 +54,12 @@ export type AssignedStudentRecord = Prisma.userGetPayload<{
   };
 }>; 
 
+export type PsychologistLoadRecord = {
+  userId: string;
+  createdAt: Date;
+  studentsCount: number;
+};
+
 export interface IUserRepo {
   findById(id: string, tx?: Prisma.TransactionClient): Promise<user | null>;
   findByEmail(
@@ -82,6 +88,9 @@ export interface IUserRepo {
     studentId: string,
     tx?: Prisma.TransactionClient
   ): Promise<AssignedStudentRecord | null>;
+  findActivePsychologistsWithStudentsCount(
+    tx?: Prisma.TransactionClient,
+  ): Promise<PsychologistLoadRecord[]>;
   delete(id: string, tx?: Prisma.TransactionClient): Promise<void>;
   count(
     where: Prisma.userWhereInput,

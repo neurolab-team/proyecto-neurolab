@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { useRouter } from "next/compat/router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import Navbar from "../../../components/Navbar";
 import Footer from "../../../components/Footer";
@@ -78,6 +79,7 @@ function QuickActionCard({
 }
 
 const AdminPanel = () => {
+  const router = useRouter();
   const { user } = useAuth();
   const { openModal } = useModal();
   const queryClient = useQueryClient();
@@ -230,9 +232,18 @@ const AdminPanel = () => {
               />
               <QuickActionCard
                 title="Asignar psicólogo"
-                description="Se habilitará cuando construyamos la pantalla dedicada de asignaciones."
-                ctaLabel="Próximo paso"
-                disabled
+                description="Lleva directo al listado de usuarios filtrado por estudiantes sin psicólogo para asignación rápida."
+                ctaLabel="Ir a asignaciones"
+                onClick={() => {
+                  if (router) {
+                    router.push("/panel/admin/users?assignment=unassigned");
+                    return;
+                  }
+
+                  if (typeof window !== "undefined") {
+                    window.location.assign("/panel/admin/users?assignment=unassigned");
+                  }
+                }}
               />
               <QuickActionCard
                 title="Ver usuarios sin asignar"

@@ -1,6 +1,6 @@
 import { Prisma, user } from '@prisma/client'
 import prisma from '@packages/libs/prisma'
-import { IUserRepo } from '../contracts/user/IuserRepo' 
+import { IUserRepo, PsychologistLoadRecord } from '../contracts/user/IuserRepo' 
 
 export class UserRepository implements IUserRepo {
   async findById(id: string, tx = prisma): Promise<user | null> {
@@ -136,6 +136,38 @@ export class UserRepository implements IUserRepo {
         },
       },
     })
+  }
+
+  async findActivePsychologistsWithStudentsCount(tx = prisma): Promise<PsychologistLoadRecord[]> {
+    const psychologists = await tx.user.findMany({
+      where: {
+        role: 'psychologist',
+        isActive: true,
+      },
+      select: {
+        userId: true,
+        createdAt: true,
+        _count: {
+          select: {
+            assignedStudents: true,
+          },
+        },
+      },
+      orderBy: [{ createdAt: 'asc' }],
+    })
+
+    return psychologists
+      .map((psychologist) => ({
+        userId: psychologist.userId,
+        createdAt: psychologist.createdAt,
+        studentsCount: psychologist._count.assignedStudents,
+      }))
+      .sort((left, right) => {
+        if (left.studentsCount !== right.studentsCount) {
+          return left.studentsCount - right.studentsCount
+        }
+        return left.createdAt.getTime() - right.createdAt.getTime()
+      })
   }
 
   async delete(id: string, tx = prisma): Promise<void> {

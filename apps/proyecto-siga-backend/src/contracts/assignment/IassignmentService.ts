@@ -1,5 +1,10 @@
 import { TestDataResponse } from "@packages/common-schemas/test.schemas";
-import { AssignmentWithTestsDataResponse } from "@packages/common-types/assignment.types";
+import {
+  AssignmentWithTestsDataResponse,
+  BulkAssignPsychologistTestInput,
+  BulkAssignPsychologistTestResult,
+  PsychologistAssignableTest,
+} from "@packages/common-types/assignment.types";
 import { assignment, Prisma } from "@prisma/client";
 
 export interface IAssignmentService {
@@ -11,4 +16,9 @@ export interface IAssignmentService {
       psychologistId: string,
       assignmentId: string,
     ): Promise<assignment | null>;
+    getPsychologistAssignableTests(): Promise<PsychologistAssignableTest[]>;
+    bulkAssignByPsychologist(
+      psychologistId: string,
+      input: BulkAssignPsychologistTestInput,
+    ): Promise<BulkAssignPsychologistTestResult>;
 }

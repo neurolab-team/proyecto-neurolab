@@ -6,6 +6,7 @@ import { PsychologistDashboardQueryService } from "../modules/psychologist/psych
 import { ok } from "../utils/jsonResponse";
 import { asPsychologist, asUser, auth, AuthedRequest } from "../middleware/auth";
 import { CommonDtos } from "../shared/validators";
+import { BulkAssignPsychologistTestDto } from "@packages/common-schemas/assignment.schemas";
 
 export const AssignmentController = Router();
 
@@ -29,6 +30,30 @@ AssignmentController.get(
   wrap(async (req: AuthedRequest, res) => {
     const feed = await dashboardQueryService.getDashboardFeed(req.user!.userId);
     return ok(res, feed, "Feed del dashboard");
+  }),
+);
+
+AssignmentController.get(
+  "/psychologist/tests",
+  auth,
+  asPsychologist,
+  wrap(async (_req: AuthedRequest, res) => {
+    const tests = await assignmentService.getPsychologistAssignableTests();
+    return ok(res, tests, "Listado de pruebas asignables");
+  }),
+);
+
+AssignmentController.post(
+  "/psychologist/bulk",
+  auth,
+  asPsychologist,
+  wrap(async (req: AuthedRequest, res) => {
+    const payload = BulkAssignPsychologistTestDto.parse(req.body);
+    const result = await assignmentService.bulkAssignByPsychologist(
+      req.user!.userId,
+      payload,
+    );
+    return ok(res, result, "Asignaciones masivas procesadas");
   }),
 );
 

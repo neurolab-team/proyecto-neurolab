@@ -1,12 +1,18 @@
 import { inject, injectable } from "tsyringe";
 import { assignment, Prisma } from "@prisma/client";
 import { TestDataResponse } from "@packages/common-schemas/test.schemas";
-import { AssignmentWithTestsDataResponse } from "@packages/common-types/assignment.types";
+import {
+  AssignmentWithTestsDataResponse,
+  BulkAssignPsychologistTestInput,
+  BulkAssignPsychologistTestResult,
+  PsychologistAssignableTest,
+} from "@packages/common-types/assignment.types";
 import { PrismaQuestion } from "@packages/common-types/test.types";
 import { IAssignmentService } from "../../contracts/assignment/IassignmentService";
 import { IAssignmentRepo } from "../../contracts/assignment/IassignmentRepo";
 import { ITestRepo } from "../../contracts/test/ItestRepo";
 import { BadRequest, NotFound } from "../../utils/httpError";
+import prisma from "@packages/libs/prisma";
 
 const questionCodeCollator = new Intl.Collator("es", {
   numeric: true,
@@ -89,6 +95,115 @@ export class AssignmentService implements IAssignmentService {
       throw NotFound("No se encontraron asignaciones para el usuario");
     }
     return assignments;
+  }
+
+  async getPsychologistAssignableTests(): Promise<PsychologistAssignableTest[]> {
+    return prisma.test.findMany({
+      select: {
+        testId: true,
+        title: true,
+      },
+      where: {
+        isPublished: true,
+      },
+      orderBy: {
+        title: "asc",
+      },
+    });
+  }
+
+  async bulkAssignByPsychologist(
+    psychologistId: string,
+    input: BulkAssignPsychologistTestInput,
+  ): Promise<BulkAssignPsychologistTestResult> {
+    const uniqueStudentIds = [...new Set(input.studentIds)];
+
+    if (uniqueStudentIds.length === 0) {
+      throw BadRequest("Debes seleccionar al menos un estudiante");
+    }
+
+    const testExists = await prisma.test.findUnique({
+      where: { testId: input.testId },
+      select: { testId: true },
+    });
+
+    if (!testExists) {
+      throw NotFound("Prueba no encontrada");
+    }
+
+    const assignedStudents = await prisma.user.findMany({
+      where: {
+        userId: { in: uniqueStudentIds },
+        role: "user",
+        isActive: true,
+        assignedPsychologistId: psychologistId,
+      },
+      select: { userId: true },
+    });
+
+    const authorizedStudentIds = assignedStudents.map((student) => student.userId);
+    const authorizedSet = new Set(authorizedStudentIds);
+    const unauthorizedStudentIds = uniqueStudentIds.filter(
+      (studentId) => !authorizedSet.has(studentId),
+    );
+
+    if (authorizedStudentIds.length === 0) {
+      return {
+        totalRequested: uniqueStudentIds.length,
+        createdCount: 0,
+        duplicateCount: 0,
+        unauthorizedCount: unauthorizedStudentIds.length,
+        createdStudentIds: [],
+        duplicateStudentIds: [],
+        unauthorizedStudentIds,
+      };
+    }
+
+    const existingActiveAssignments = await prisma.assignment.findMany({
+      where: {
+        assignedToId: { in: authorizedStudentIds },
+        testId: input.testId,
+        status: {
+          in: ["assigned", "in_progress"],
+        },
+      },
+      select: {
+        assignedToId: true,
+      },
+    });
+
+    const duplicateSet = new Set(
+      existingActiveAssignments.map((assignment) => assignment.assignedToId),
+    );
+
+    const duplicateStudentIds = authorizedStudentIds.filter((studentId) =>
+      duplicateSet.has(studentId),
+    );
+    const toCreateStudentIds = authorizedStudentIds.filter(
+      (studentId) => !duplicateSet.has(studentId),
+    );
+
+    if (toCreateStudentIds.length > 0) {
+      await prisma.assignment.createMany({
+        data: toCreateStudentIds.map((studentId) => ({
+          assignedById: psychologistId,
+          assignedToId: studentId,
+          testId: input.testId,
+          status: "assigned",
+          dueAt: input.dueAt ? new Date(input.dueAt) : null,
+        })),
+      });
+    }
+
+    return {
+      totalRequested: uniqueStudentIds.length,
+      createdCount: toCreateStudentIds.length,
+      duplicateCount: duplicateStudentIds.length,
+      unauthorizedCount: unauthorizedStudentIds.length,
+      createdStudentIds: toCreateStudentIds,
+      duplicateStudentIds,
+      unauthorizedStudentIds,
+    };
   }
 
   async getAssignmentById(
