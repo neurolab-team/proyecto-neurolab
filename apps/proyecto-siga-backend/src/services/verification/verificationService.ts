@@ -2,6 +2,7 @@ import { inject, injectable } from "tsyringe";
 import crypto from "crypto";
 import { TokenCacheService } from "../token/tokenCacheService";
 import { IVerificationService } from "../../contracts/verification/IverificationService";
+import { BadRequest } from "../../utils/httpError";
 
 
 
@@ -14,7 +15,7 @@ export class VerificationService implements IVerificationService {
   async consumeVerificationToken(token:string): Promise< void | string>  {
     const storedToken = await this.tokenCacheService.validateVerificationToken(token);
     if (!storedToken.valid) {
-      throw new Error("Invalid or expired verification token");
+      throw BadRequest("Token de verificación inválido o expirado");
     }
     return storedToken.email;
   }

@@ -42,6 +42,8 @@ export class AuthService implements IAuthService {
         userType: user.userType,
         gender: user.gender || "",
         isActive: user.isActive,
+        mustChangePassword: user.mustChangePassword,
+        passwordChangedAt: user.passwordChangedAt || undefined,
         lastLogin: user.lastLogin,
         verifiedEmail: user.verifiedEmail ,        
       },
@@ -73,6 +75,14 @@ export class AuthService implements IAuthService {
       throw Unauthorized("Credenciales inválidas");
     }
 
+    if (!user.verifiedEmail) {
+      throw Unauthorized("Debes verificar tu correo electrónico antes de iniciar sesión");
+    }
+
+    if (!user.isActive) {
+      throw Unauthorized("Tu cuenta está inactiva. Contacta al administrador");
+    }
+
     return {
       userId: user.userId,
       userNumber: user.userNumber,
@@ -82,6 +92,8 @@ export class AuthService implements IAuthService {
       userType: user.userType,
       isActive: user.isActive,
       gender: user.gender || "",
+      mustChangePassword: user.mustChangePassword,
+      passwordChangedAt: user.passwordChangedAt || undefined,
       verifiedEmail: user.verifiedEmail ,
       lastLogin: user.lastLogin || undefined,
     };
@@ -101,6 +113,8 @@ export class AuthService implements IAuthService {
       gender: user.gender || "",
       birthDate: user.birthDate || undefined,
       lastLogin: user.lastLogin || undefined,
+      passwordChangedAt: user.passwordChangedAt || undefined,
+      mustChangePassword: user.mustChangePassword,
       verifiedEmail: user.verifiedEmail,
       isActive: user.isActive,
       password: user.password,
@@ -148,6 +162,8 @@ export class AuthService implements IAuthService {
 
     await this.userRepo.update(user.userId, {
       password: newPasswordHash,
+      mustChangePassword: false,
+      passwordChangedAt: new Date(),
     });
   }
 
@@ -161,6 +177,8 @@ export class AuthService implements IAuthService {
     gender: string | null;
     birthDate: Date | null;
     lastLogin: Date | null;
+    passwordChangedAt?: Date | null;
+    mustChangePassword: boolean;
     verifiedEmail: boolean;
     isActive: boolean;
   }): UserProfile {
@@ -174,6 +192,8 @@ export class AuthService implements IAuthService {
       gender: user.gender || "",
       birthDate: user.birthDate || undefined,
       lastLogin: user.lastLogin || undefined,
+      passwordChangedAt: user.passwordChangedAt || undefined,
+      mustChangePassword: user.mustChangePassword,
       verifiedEmail: user.verifiedEmail,
       isActive: user.isActive,
     };

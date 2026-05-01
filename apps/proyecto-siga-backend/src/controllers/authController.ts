@@ -36,6 +36,8 @@ AuthController.post(
           name: user.name,
           isActive: user.isActive,
           lastLogin: user.lastLogin,
+          passwordChangedAt: user.passwordChangedAt,
+          mustChangePassword: user.mustChangePassword,
           verifiedEmail: user.verifiedEmail,
         },
       },

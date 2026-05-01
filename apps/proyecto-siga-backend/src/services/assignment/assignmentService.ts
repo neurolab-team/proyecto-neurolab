@@ -159,13 +159,10 @@ export class AssignmentService implements IAssignmentService {
       };
     }
 
-    const existingActiveAssignments = await prisma.assignment.findMany({
+    const existingAssignments = await prisma.assignment.findMany({
       where: {
         assignedToId: { in: authorizedStudentIds },
         testId: input.testId,
-        status: {
-          in: ["assigned", "in_progress"],
-        },
       },
       select: {
         assignedToId: true,
@@ -173,7 +170,7 @@ export class AssignmentService implements IAssignmentService {
     });
 
     const duplicateSet = new Set(
-      existingActiveAssignments.map((assignment) => assignment.assignedToId),
+      existingAssignments.map((assignment) => assignment.assignedToId),
     );
 
     const duplicateStudentIds = authorizedStudentIds.filter((studentId) =>

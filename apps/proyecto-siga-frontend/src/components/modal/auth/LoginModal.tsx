@@ -3,6 +3,7 @@ import { useForm } from "react-hook-form";
 import { useMutation } from "@tanstack/react-query";
 import { useAuth } from "../../../hooks/useAuth";
 import { authService } from "../../../services/auth/auth";
+import { usersService } from "../../../services/users/users";
 import ModalShell from "../core/ModalShell";
 import FormErrorBanner from "../../FormErrorBanner";
 import { getApiErrorMessage } from "../../../libs/getApiErrorMessage";
@@ -23,6 +24,8 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
   const auth = useAuth();
   const [modalView, setModalView] = useState<ModalView>("login");
   const [loginPassword, setLoginPassword] = useState("");
+  const [attemptedEmail, setAttemptedEmail] = useState("");
+  const [resendMessage, setResendMessage] = useState<string | null>(null);
 
   const {
     register,
@@ -43,7 +46,7 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
         setModalView("inactive");
       } else if (!loggedUser.verifiedEmail) {
         setModalView("emailVerification");
-      } else if (!loggedUser.lastLogin) {
+      } else if (loggedUser.mustChangePassword) {
         setModalView("firstLogin");
       } else {
         await auth.refreshUser();
@@ -54,8 +57,30 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
 
   const onSubmit = (data: FormData) => {
     setLoginPassword(data.password);
+    setAttemptedEmail(data.email);
+    setResendMessage(null);
     loginMutation.mutate(data);
   };
+
+  const resendVerificationMutation = useMutation({
+    mutationFn: async () => {
+      if (!attemptedEmail) return;
+      return usersService.resendVerificationEmail(attemptedEmail);
+    },
+    onSuccess: (response) => {
+      setResendMessage(
+        response?.message ||
+          "Si tu correo no está verificado, enviamos un nuevo enlace.",
+      );
+    },
+    onError: (error) => {
+      const rawMessage = getApiErrorMessage(
+        error,
+        "No fue posible reenviar el correo.",
+      );
+      setResendMessage(Array.isArray(rawMessage) ? rawMessage.join(", ") : rawMessage);
+    },
+  });
 
   const changePasswordMutation = useMutation({
     mutationFn: async (data: { currentPassword: string; newPassword: string }) => {
@@ -242,12 +267,19 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
               <span className="font-semibold">support@neurolab.itm.com</span>
             </p>
             <button
+              onClick={() => resendVerificationMutation.mutate()}
+              disabled={resendVerificationMutation.isPending || !attemptedEmail}
               className="w-full bg-gradient-to-r from-[#001d4e] via-[#102D69] to-[#2a4d8f] text-white py-3 
             rounded-lg font-bold hover:shadow-lg transition-all disabled:opacity-50
             mb-3"
             >
-              ¿Volver a enviar correo de verificación?
+              {resendVerificationMutation.isPending
+                ? "Reenviando..."
+                : "¿Volver a enviar correo de verificación?"}
             </button>
+            {resendMessage && (
+              <p className="mb-3 text-sm text-slate-600">{resendMessage}</p>
+            )}
             <button
               onClick={() => {
                 onClose();

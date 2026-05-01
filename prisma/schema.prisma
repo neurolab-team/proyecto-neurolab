@@ -42,12 +42,6 @@ enum assignmentAttentionLevel {
   none
 }
 
-enum securityAuditAction {
-  ASSIGN_PSYCHOLOGIST
-  REASSIGN_PSYCHOLOGIST
-  UNASSIGN_PSYCHOLOGIST
-}
-
 model user {
   userId                 String    @id @default(uuid()) @db.Uuid
   userNumber             String    @unique
@@ -57,10 +51,11 @@ model user {
   gender                 String?
   birthDate              DateTime?
   userType               userType  @default(external)
-  tokenVersion           Int       @default(0) // mirar si se puede eliminar
   role                   userRole
   isActive               Boolean   @default(false)
   lastLogin              DateTime?
+  passwordChangedAt      DateTime?
+  mustChangePassword     Boolean   @default(false)
   createdAt              DateTime  @default(now())
   updatedAt              DateTime  @updatedAt
   verifiedEmail          Boolean   @default(false)
@@ -74,9 +69,6 @@ model user {
   createdTests         test[]       @relation("testCreatedBy")
   assignmentsTo        assignment[] @relation("assignedTo")
   assignmentsBy        assignment[] @relation("assignedBy")
-  securityAuditAsActor securityAuditLog[] @relation("securityAuditActor")
-  securityAuditAsTarget securityAuditLog[] @relation("securityAuditTarget")
-
   @@index([assignedPsychologistId])
   @@map("user")
 }
@@ -164,6 +156,7 @@ model assignment {
   score      assignmentScore?
 
   @@index([assignedToId, status])
+  @@unique([assignedToId, testId])
   @@map("assignments")
 }
 
@@ -194,21 +187,4 @@ model assignmentScore {
 
   @@index([attentionLevel])
   @@map("assignmentScores")
-}
-
-model securityAuditLog {
-  auditLogId    String              @id @default(uuid()) @db.Uuid
-  actorUserId   String              @db.Uuid
-  targetUserId  String              @db.Uuid
-  action        securityAuditAction
-  metadata      Json?
-  createdAt     DateTime            @default(now())
-
-  actorUser  user @relation("securityAuditActor", fields: [actorUserId], references: [userId])
-  targetUser user @relation("securityAuditTarget", fields: [targetUserId], references: [userId])
-
-  @@index([actorUserId])
-  @@index([targetUserId])
-  @@index([action])
-  @@map("securityAuditLogs")
 }

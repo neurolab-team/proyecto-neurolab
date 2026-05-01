@@ -13,6 +13,7 @@ import {
   AssignPsychologistDto,
   CreateUserDto,
   PsychologistStudentResultsFiltersDto,
+  ResendVerificationDto,
   RegisterDto,
   UpdateUserRoleDto,
 } from "@packages/common-schemas/user.schemas";
@@ -235,6 +236,19 @@ PublicUsersController.post(
       "Email verificado exitosamente. Tu cuenta ha sido activada."
     );
   })
+);
+
+PublicUsersController.post(
+  "/resend-verification",
+  wrap(async (req: any, res) => {
+    const { email } = ResendVerificationDto.parse(req.body);
+    await userService.resendVerificationEmail(email);
+    return ok(
+      res,
+      null,
+      "Si el correo existe y no está verificado, se envió un nuevo enlace.",
+    );
+  }),
 );
 
 PublicUsersController.post(

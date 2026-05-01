@@ -34,6 +34,22 @@ export const usersService = {
     return response.data;
   },
 
+  verifyEmail: async (token: string): Promise<BaseResponse<null>> => {
+    const response = await apiClient.post<BaseResponse<null>>(
+      `/api/public/users/verify-email`,
+      { token },
+    );
+    return response.data;
+  },
+
+  resendVerificationEmail: async (email: string): Promise<BaseResponse<null>> => {
+    const response = await apiClient.post<BaseResponse<null>>(
+      `/api/public/users/resend-verification`,
+      { email },
+    );
+    return response.data;
+  },
+
   
   updateRole: async (userId: string, role: UpdateUserRoleInput["role"]) => {
     const response = await apiClient.patch<BaseResponse<User>>(

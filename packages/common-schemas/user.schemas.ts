@@ -51,6 +51,14 @@ export const RegisterDto = z.object({
   password: z.string().min(6).optional(),
 });
 
+export const ResendVerificationDto = z.object({
+  email: z
+    .string()
+    .min(3)
+    .trim()
+    .transform((s) => s.toLowerCase()),
+});
+
 export const UpdateUserRoleDto = z.object({
   role: z.enum(appRoles),
 });

@@ -1,6 +1,5 @@
 import { inject, injectable } from "tsyringe";
 import bcrypt from "bcrypt";
-import { randomUUID } from "crypto";
 import { Prisma } from "@prisma/client";
 import {
   AssignPsychologistInput,
@@ -116,8 +115,10 @@ export class UserService implements IUserService {
           gender: input.gender,
           birthDate: input.birthDate ? new Date(input.birthDate) : undefined,
           password: hashedPassword,
-          isActive: true,
+          isActive: false,
           verifiedEmail: false,
+          mustChangePassword: false,
+          passwordChangedAt: new Date(),
           lastLogin: null,
         },
         tx,
@@ -160,6 +161,8 @@ export class UserService implements IUserService {
           password: hashedPassword,
           isActive: true,
           verifiedEmail: true,
+          mustChangePassword: true,
+          passwordChangedAt: null,
           lastLogin: null,
         },
         tx,
@@ -280,37 +283,6 @@ export class UserService implements IUserService {
 
       const updatedUser = await this.userRepo.update(targetUserId, updateData, tx);
 
-      const action = !input.psychologistId
-        ? "UNASSIGN_PSYCHOLOGIST"
-        : user.assignedPsychologistId
-          ? "REASSIGN_PSYCHOLOGIST"
-          : "ASSIGN_PSYCHOLOGIST";
-
-      const metadata = {
-        previousPsychologistId: user.assignedPsychologistId ?? null,
-        nextPsychologistId: input.psychologistId,
-        source: "admin_panel",
-      };
-      const auditLogId = randomUUID();
-
-      await tx.$executeRaw`
-        INSERT INTO "securityAuditLogs" (
-          "auditLogId",
-          "actorUserId",
-          "targetUserId",
-          "action",
-          "metadata",
-          "createdAt"
-        ) VALUES (
-          ${auditLogId},
-          ${actorUserId},
-          ${targetUserId},
-          ${action}::"securityAuditAction",
-          CAST(${JSON.stringify(metadata)} AS jsonb),
-          NOW()
-        )
-      `;
-
       return mapUserRecordToUser(updatedUser);
     });
   }
@@ -384,6 +356,7 @@ export class UserService implements IUserService {
         user.userId,
         {
           verifiedEmail: true,
+          isActive: true,
         },
         tx,
       );
@@ -401,6 +374,25 @@ export class UserService implements IUserService {
 
   async checkUnverifiedAccount(email: string): Promise<boolean> {
     const user = await this.userRepo.findByEmail(email.toLowerCase());
-    return user ? !user.isActive : false;
+    return user ? !user.verifiedEmail : false;
+  }
+
+  async resendVerificationEmail(email: string): Promise<void> {
+    const normalizedEmail = email.toLowerCase();
+    const user = await this.userRepo.findByEmail(normalizedEmail);
+
+    if (!user || user.verifiedEmail) {
+      return;
+    }
+
+    const verificationToken =
+      await this.verificationService.createVerificationToken(normalizedEmail);
+    const verificationUrl = `${process.env.APP_FRONTEND_URL}/verify-email?token=${verificationToken}`;
+
+    await this.emailVerificationService.sendVerificationEmailUser(
+      normalizedEmail,
+      user.name || "Usuario",
+      verificationUrl,
+    );
   }
 }

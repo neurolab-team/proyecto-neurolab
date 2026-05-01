@@ -19,6 +19,8 @@ export interface User {
   lastLogin?: Date | string
   verifiedEmail: boolean
   isActive: boolean
+  mustChangePassword: boolean
+  passwordChangedAt?: Date | string | null
   assignedPsychologistId?: string | null
   assignedPsychologist?: BasicUserReference | null
   assignedPsychologistAt?: Date | string | null
