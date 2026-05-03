@@ -117,7 +117,6 @@ UsersController.patch(
     const { id } = CommonDtos.IdParam.parse(req.params);
     const input = AssignPsychologistDto.parse(req.body);
     const user = await userService.assignPsychologistToUser(
-      req.user!.userId,
       id,
       input,
     );

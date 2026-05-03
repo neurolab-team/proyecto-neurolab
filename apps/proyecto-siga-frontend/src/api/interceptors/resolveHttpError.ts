@@ -2,6 +2,7 @@ import { AxiosError } from "axios";
 
 export type HttpErrorAction =
   | { type: "INVALID_CREDENTIALS" }
+  | { type: "UNAUTHENTICATED" }
   | { type: "UNAUTHORIZED_SESSION" }
   | { type: "FORBIDDEN" }
   | { type: "SERVER_ERROR" }
@@ -14,6 +15,9 @@ export const resolveHttpError = (error: AxiosError): HttpErrorAction => {
   if (status === 401) {
     if (url.includes("/api/auth/login")) {
       return { type: "INVALID_CREDENTIALS" };
+    }
+    if (url.includes("/api/auth/me")) {
+      return { type: "UNAUTHENTICATED" };
     }
     return { type: "UNAUTHORIZED_SESSION" };// Cuando se vence las cookies
   }

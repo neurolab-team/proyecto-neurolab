@@ -18,7 +18,6 @@ export interface IUserService {
   createUserByAdmin(input: CreateUserInput): Promise<User>
   updateUserRole(id: string, input: UpdateUserRoleInput): Promise<User>
   assignPsychologistToUser(
-    actorUserId: string,
     targetUserId: string,
     input: AssignPsychologistInput,
   ): Promise<User>

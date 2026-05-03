@@ -229,7 +229,6 @@ export class UserService implements IUserService {
   }
 
   async assignPsychologistToUser(
-    actorUserId: string,
     targetUserId: string,
     input: AssignPsychologistInput,
   ): Promise<User> {

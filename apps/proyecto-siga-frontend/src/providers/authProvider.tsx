@@ -1,12 +1,14 @@
+"use client";
+
 import { ReactNode, useCallback, useEffect, useMemo, useState } from "react";
-import { useRouter } from "next/compat/router";
+import { useRouter } from "next/navigation";
 import { AuthContext } from "../context/authContext";
 import { User } from "@packages/common-types/user.types";
 import { authService } from "../services/auth/auth";
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
   const refreshUser = useCallback(async (): Promise<User | null> => {
@@ -21,29 +23,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   useEffect(() => {
-    let isMounted = true;
-
-    const checkAuth = async () => {
-      try {
-        const data = await authService.me();
-        if (isMounted) {
-          setUser(data);
-        }
-      } catch {
-        if (isMounted) {
-          setUser(null);
-        }
-      } finally {
-        if (isMounted) {
-          setIsLoading(false);
-        }
-      }
+    const onUnauthorized = () => {
+      setUser(null);
     };
 
-    checkAuth();
+    if (typeof window !== "undefined") {
+      window.addEventListener("auth:unauthorized", onUnauthorized);
+    }
 
     return () => {
-      isMounted = false;
+      if (typeof window !== "undefined") {
+        window.removeEventListener("auth:unauthorized", onUnauthorized);
+      }
     };
   }, []);
 
@@ -65,11 +56,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       // aunque falle el backend, limpiamos el estado local
     } finally {
       setUser(null);
-      if (router) {
-        router.push("/");
-      } else if (typeof window !== "undefined") {
-        window.location.assign("/");
-      }
+      router.push("/");
     }
   };
 

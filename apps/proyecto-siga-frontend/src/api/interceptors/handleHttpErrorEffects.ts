@@ -8,6 +8,9 @@ const dispatchUnauthorizedEvent = () => {
 
 export const handleHttpErrorEffects = (action: HttpErrorAction) => {
   switch (action.type) {
+    case "UNAUTHENTICATED":
+      break;
+
     case "UNAUTHORIZED_SESSION":
       notify.error("Tu sesión expiró. Inicia sesión nuevamente.");
       dispatchUnauthorizedEvent();
