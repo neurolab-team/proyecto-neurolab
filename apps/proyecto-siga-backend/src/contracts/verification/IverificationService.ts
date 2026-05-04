@@ -4,7 +4,10 @@ export interface IVerificationService{
         email: string,
         // scope: VerificationScope // de algo servira pero toda nose
     ): Promise<string>;
+    resolveVerificationEmail(
+        token: string
+    ): Promise<string>;
     consumeVerificationToken(
         token: string
-    ): Promise<void | string>;
+    ): Promise<void>;
 }

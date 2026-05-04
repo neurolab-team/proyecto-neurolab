@@ -63,4 +63,6 @@ export type userResponse = {
   assignedPsychologistId?: string | null;
   assignedPsychologist?: BasicUserReference | null;
   assignedPsychologistAt?: Date | string | null;
+  mustChangePassword?: boolean;
+  mustChangePasswordReason?: string | null;
 };

@@ -12,7 +12,7 @@ import { IAssignmentService } from "../../contracts/assignment/IassignmentServic
 import { IAssignmentRepo } from "../../contracts/assignment/IassignmentRepo";
 import { ITestRepo } from "../../contracts/test/ItestRepo";
 import { BadRequest, NotFound } from "../../utils/httpError";
-import prisma from "@packages/libs/prisma";
+import { TransactionManager } from "../transaction/transactionManager";
 
 const questionCodeCollator = new Intl.Collator("es", {
   numeric: true,
@@ -26,6 +26,8 @@ export class AssignmentService implements IAssignmentService {
     private readonly assignmentRepo: IAssignmentRepo,
     @inject("TestRepo")
     private readonly testRepo: ITestRepo,
+    @inject("TransactionManager")
+    private readonly txManager: TransactionManager,
   ) {}
 
   markAssignmentAsCompleted(assignmentId: string): Promise<assignment | null> {
@@ -98,18 +100,7 @@ export class AssignmentService implements IAssignmentService {
   }
 
   async getPsychologistAssignableTests(): Promise<PsychologistAssignableTest[]> {
-    return prisma.test.findMany({
-      select: {
-        testId: true,
-        title: true,
-      },
-      where: {
-        isPublished: true,
-      },
-      orderBy: {
-        title: "asc",
-      },
-    });
+    return this.testRepo.getPsychologistAssignableTests();
   }
 
   async bulkAssignByPsychologist(
@@ -122,85 +113,72 @@ export class AssignmentService implements IAssignmentService {
       throw BadRequest("Debes seleccionar al menos un estudiante");
     }
 
-    const testExists = await prisma.test.findUnique({
-      where: { testId: input.testId },
-      select: { testId: true },
-    });
-
+    const testExists = await this.testRepo.existsById(input.testId);
     if (!testExists) {
       throw NotFound("Prueba no encontrada");
     }
 
-    const assignedStudents = await prisma.user.findMany({
-      where: {
-        userId: { in: uniqueStudentIds },
-        role: "user",
-        isActive: true,
-        assignedPsychologistId: psychologistId,
+    return this.txManager.run(
+      async (tx) => {
+        const authorizedStudentIds =
+          await this.assignmentRepo.findAuthorizedStudentIdsForPsychologist(
+            psychologistId,
+            uniqueStudentIds,
+            tx,
+          );
+        const authorizedSet = new Set(authorizedStudentIds);
+        const unauthorizedStudentIds = uniqueStudentIds.filter(
+          (studentId) => !authorizedSet.has(studentId),
+        );
+
+        if (authorizedStudentIds.length === 0) {
+          return {
+            totalRequested: uniqueStudentIds.length,
+            createdCount: 0,
+            duplicateCount: 0,
+            unauthorizedCount: unauthorizedStudentIds.length,
+            createdStudentIds: [],
+            duplicateStudentIds: [],
+            unauthorizedStudentIds,
+          };
+        }
+
+        const existingStudentIds = await this.assignmentRepo.findExistingAssignmentStudentIds(
+          input.testId,
+          authorizedStudentIds,
+          tx,
+        );
+        const duplicateSet = new Set(existingStudentIds);
+
+        const duplicateStudentIds = authorizedStudentIds.filter((studentId) =>
+          duplicateSet.has(studentId),
+        );
+        const toCreateStudentIds = authorizedStudentIds.filter(
+          (studentId) => !duplicateSet.has(studentId),
+        );
+
+        await this.assignmentRepo.createManyPsychologistAssignments(
+          psychologistId,
+          input.testId,
+          toCreateStudentIds,
+          input.dueAt,
+          tx,
+        );
+
+        return {
+          totalRequested: uniqueStudentIds.length,
+          createdCount: toCreateStudentIds.length,
+          duplicateCount: duplicateStudentIds.length,
+          unauthorizedCount: unauthorizedStudentIds.length,
+          createdStudentIds: toCreateStudentIds,
+          duplicateStudentIds,
+          unauthorizedStudentIds,
+        };
       },
-      select: { userId: true },
-    });
-
-    const authorizedStudentIds = assignedStudents.map((student) => student.userId);
-    const authorizedSet = new Set(authorizedStudentIds);
-    const unauthorizedStudentIds = uniqueStudentIds.filter(
-      (studentId) => !authorizedSet.has(studentId),
-    );
-
-    if (authorizedStudentIds.length === 0) {
-      return {
-        totalRequested: uniqueStudentIds.length,
-        createdCount: 0,
-        duplicateCount: 0,
-        unauthorizedCount: unauthorizedStudentIds.length,
-        createdStudentIds: [],
-        duplicateStudentIds: [],
-        unauthorizedStudentIds,
-      };
-    }
-
-    const existingAssignments = await prisma.assignment.findMany({
-      where: {
-        assignedToId: { in: authorizedStudentIds },
-        testId: input.testId,
+      {
+        isolationLevel: Prisma.TransactionIsolationLevel.Serializable,
       },
-      select: {
-        assignedToId: true,
-      },
-    });
-
-    const duplicateSet = new Set(
-      existingAssignments.map((assignment) => assignment.assignedToId),
     );
-
-    const duplicateStudentIds = authorizedStudentIds.filter((studentId) =>
-      duplicateSet.has(studentId),
-    );
-    const toCreateStudentIds = authorizedStudentIds.filter(
-      (studentId) => !duplicateSet.has(studentId),
-    );
-
-    if (toCreateStudentIds.length > 0) {
-      await prisma.assignment.createMany({
-        data: toCreateStudentIds.map((studentId) => ({
-          assignedById: psychologistId,
-          assignedToId: studentId,
-          testId: input.testId,
-          status: "assigned",
-          dueAt: input.dueAt ? new Date(input.dueAt) : null,
-        })),
-      });
-    }
-
-    return {
-      totalRequested: uniqueStudentIds.length,
-      createdCount: toCreateStudentIds.length,
-      duplicateCount: duplicateStudentIds.length,
-      unauthorizedCount: unauthorizedStudentIds.length,
-      createdStudentIds: toCreateStudentIds,
-      duplicateStudentIds,
-      unauthorizedStudentIds,
-    };
   }
 
   async getAssignmentById(

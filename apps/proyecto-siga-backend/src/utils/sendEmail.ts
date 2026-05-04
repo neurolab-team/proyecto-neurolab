@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import { Conflict } from "./httpError";
 import ejs from "ejs";
 import path from "path";
+import { randomInt } from "crypto";
 
 dotenv.config();
 const transporter = nodeMailer.createTransport({
@@ -57,7 +58,7 @@ export const generateSecurePassword = async (): Promise<string> => {
   const chars = "ABCDEFGHJKMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789!@#$%&*";
   let password = "";
   for (let i = 0; i < 12; i++) {
-    password += chars.charAt(Math.floor(Math.random() * chars.length));
+    password += chars.charAt(randomInt(0, chars.length));
   }
   return password;
 };

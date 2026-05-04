@@ -12,12 +12,16 @@ export class VerificationService implements IVerificationService {
     @inject("TokenCacheService")
     private readonly tokenCacheService: TokenCacheService
   ) {}
-  async consumeVerificationToken(token:string): Promise< void | string>  {
+  async resolveVerificationEmail(token:string): Promise<string>  {
     const storedToken = await this.tokenCacheService.validateVerificationToken(token);
     if (!storedToken.valid) {
       throw BadRequest("Token de verificación inválido o expirado");
     }
     return storedToken.email;
+  }
+
+  async consumeVerificationToken(token: string): Promise<void> {
+    await this.tokenCacheService.consumeVerificationToken(token);
   }
 
   async createVerificationToken(email: string) {

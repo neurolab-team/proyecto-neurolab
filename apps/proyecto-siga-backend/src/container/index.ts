@@ -3,6 +3,10 @@ import { container } from 'tsyringe'
 import { AuthService } from '../services/auth/authService'
 import { UserRepository } from '../repositories/userRepository'
 import { UserService } from '../services/users/userService'
+import { UserRegistrationService } from '../services/users/userRegistrationService'
+import { UserVerificationService } from '../services/users/userVerificationService'
+import { UserAccountService } from '../services/users/userAccountService'
+import { PsychologistAssignmentService } from '../services/users/psychologistAssignmentService'
 import { EmailVerificationService } from '../services/mail/emailVerificationService'
 import { TokenCacheService } from '../services/token/tokenCacheService'
 import { TokenCacheRepository } from '../repositories/tokenCacheRepository'
@@ -18,12 +22,18 @@ import {AssignmentScoreRepository} from '../repositories/assignmentScoreReposito
 import { InterpretationFactory } from '../services/interpretation/InterpretationFactory'
 import { PsychologistStudentsQueryService } from '../modules/psychologist/psychologistStudentsQuery'
 import { PsychologistDashboardQueryService } from '../modules/psychologist/psychologistDashboardQuery'
+import { TransactionManager } from '../services/transaction/transactionManager'
 
 
 //register dependencies - service
 container.register("TokenCacheService", { useClass: TokenCacheService })
 container.register("AuthService", { useClass: AuthService })
+container.register("TransactionManager", { useClass: TransactionManager })
 container.register("UserService",{useClass: UserService})
+container.register("UserRegistrationService", { useClass: UserRegistrationService })
+container.register("UserVerificationService", { useClass: UserVerificationService })
+container.register("UserAccountService", { useClass: UserAccountService })
+container.register("PsychologistAssignmentService", { useClass: PsychologistAssignmentService })
 container.register("VerificationService",{useClass: VerificationService})
 container.register("SessionService", { useClass: SessionService })
 container.register("EmailVerificationService",{useClass: EmailVerificationService})

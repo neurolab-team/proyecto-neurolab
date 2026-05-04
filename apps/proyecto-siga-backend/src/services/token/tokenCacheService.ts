@@ -21,8 +21,11 @@ export class TokenCacheService implements ITokenCacheService {
     if (!email) {
       return { valid: false, email: "" };
     }
-    await this.tokenCacheRepo.deleteVerificationToken(token);
     return { valid: true, email };
+  }
+
+  async consumeVerificationToken(token: string): Promise<void> {
+    await this.tokenCacheRepo.deleteVerificationToken(token);
   }
 
   async storeSession(session: SessionData, expiresIn: number): Promise<void> {

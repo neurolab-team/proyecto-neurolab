@@ -28,4 +28,21 @@ export interface IAssignmentRepo {
       reviewedAt: Date,
       tx?: Prisma.TransactionClient
     ): Promise<assignment>;
+    findAuthorizedStudentIdsForPsychologist(
+      psychologistId: string,
+      studentIds: string[],
+      tx?: Prisma.TransactionClient,
+    ): Promise<string[]>;
+    findExistingAssignmentStudentIds(
+      testId: string,
+      studentIds: string[],
+      tx?: Prisma.TransactionClient,
+    ): Promise<string[]>;
+    createManyPsychologistAssignments(
+      psychologistId: string,
+      testId: string,
+      studentIds: string[],
+      dueAt?: string | null,
+      tx?: Prisma.TransactionClient,
+    ): Promise<number>;
 }

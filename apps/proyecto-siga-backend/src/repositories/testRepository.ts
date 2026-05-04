@@ -2,6 +2,7 @@ import { injectable } from "tsyringe";
 import { ITestRepo } from "../contracts/test/ItestRepo";
 import prisma from "@packages/libs/prisma";
 import { TestWithQuestions } from "@packages/common-types/test.types";
+import { PsychologistAssignableTest } from "@packages/common-types/assignment.types";
 @injectable()
 export class TestRepository implements ITestRepo {
   async getTestWithQuestionsById(
@@ -24,5 +25,28 @@ export class TestRepository implements ITestRepo {
       },
     });
     return testData as TestWithQuestions | null;
+  }
+
+  async getPsychologistAssignableTests(): Promise<PsychologistAssignableTest[]> {
+    return prisma.test.findMany({
+      select: {
+        testId: true,
+        title: true,
+      },
+      where: {
+        isPublished: true,
+      },
+      orderBy: {
+        title: "asc",
+      },
+    });
+  }
+
+  async existsById(testId: string): Promise<boolean> {
+    const result = await prisma.test.findUnique({
+      where: { testId },
+      select: { testId: true },
+    });
+    return Boolean(result);
   }
 }

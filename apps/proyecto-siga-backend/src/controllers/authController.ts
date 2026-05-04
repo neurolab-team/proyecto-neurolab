@@ -7,6 +7,7 @@ import { wrap } from "../middleware/async";
 import { Unauthorized } from "../utils/httpError";
 import { ok } from "../utils/jsonResponse";
 import { SessionService } from "../services/session/sessionService";
+import { loginRateLimiter } from "../security/httpSecurity";
 
 export const AuthController = Router();
 
@@ -15,6 +16,7 @@ const sessionService = container.resolve(SessionService);
 
 AuthController.post(
   "/login",
+  loginRateLimiter,
   wrap(async (req, res) => {
     const { email, password } = LoginDto.parse(req.body);
     const result = await authService.login(email, password);

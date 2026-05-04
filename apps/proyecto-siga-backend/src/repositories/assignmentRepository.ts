@@ -384,4 +384,65 @@ export class AssignmentRepository implements IAssignmentRepo {
       data: { reviewedAt },
     });
   }
+
+  async findAuthorizedStudentIdsForPsychologist(
+    psychologistId: string,
+    studentIds: string[],
+    tx: Prisma.TransactionClient = prisma,
+  ): Promise<string[]> {
+    const students = await tx.user.findMany({
+      where: {
+        userId: { in: studentIds },
+        role: "user",
+        isActive: true,
+        assignedPsychologistId: psychologistId,
+      },
+      select: { userId: true },
+    });
+
+    return students.map((student) => student.userId);
+  }
+
+  async findExistingAssignmentStudentIds(
+    testId: string,
+    studentIds: string[],
+    tx: Prisma.TransactionClient = prisma,
+  ): Promise<string[]> {
+    const assignments = await tx.assignment.findMany({
+      where: {
+        assignedToId: { in: studentIds },
+        testId,
+      },
+      select: {
+        assignedToId: true,
+      },
+    });
+
+    return assignments.map((assignment) => assignment.assignedToId);
+  }
+
+  async createManyPsychologistAssignments(
+    psychologistId: string,
+    testId: string,
+    studentIds: string[],
+    dueAt?: string | null,
+    tx: Prisma.TransactionClient = prisma,
+  ): Promise<number> {
+    if (studentIds.length === 0) {
+      return 0;
+    }
+
+    const result = await tx.assignment.createMany({
+      data: studentIds.map((studentId) => ({
+        assignedById: psychologistId,
+        assignedToId: studentId,
+        testId,
+        status: "assigned",
+        dueAt: dueAt ? new Date(dueAt) : null,
+      })),
+      skipDuplicates: true,
+    });
+
+    return result.count;
+  }
 }

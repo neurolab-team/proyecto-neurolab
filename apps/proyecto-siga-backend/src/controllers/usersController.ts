@@ -18,14 +18,16 @@ import {
   UpdateUserRoleDto,
 } from "@packages/common-schemas/user.schemas";
 import { userResponse } from "@packages/common-types/user.types";
+import {
+  registerRateLimiter,
+  resendVerificationRateLimiter,
+} from "../security/httpSecurity";
+
 // Private Routes
 export const UsersController = Router();
 const userService = container.resolve<IUserService>("UserService");
 
 UsersController.use(auth);
-
-
-
 // Private Routes
 
 UsersController.get(
@@ -139,6 +141,9 @@ UsersController.post(
       birthDate: input.birthDate,
       gender: input.gender
     });
+    const requiresPasswordChangeMessage =
+      user.role === "psychologist" || user.role === "admin";
+
     const userReponse: userResponse = {
       userNumber: user.userNumber,
       email: user.email,
@@ -149,11 +154,22 @@ UsersController.post(
       assignedPsychologistId: user.assignedPsychologistId ?? null,
       assignedPsychologist: user.assignedPsychologist ?? null,
       userId: user.userId,
+      mustChangePassword: user.mustChangePassword,
+      mustChangePasswordReason:
+        requiresPasswordChangeMessage
+          ? "Por seguridad institucional, debes reemplazar la contraseña temporal en tu primer inicio de sesión."
+          : null,
     };
+
+    const successMessage =
+      requiresPasswordChangeMessage
+        ? "Cuenta creada con éxito. Debe cambiar su contraseña temporal en el primer inicio de sesión."
+        : "Usuario creado con éxito. Se ha enviado un email de verificación.";
+
     return created(
       res,
       userReponse,
-      "Usuario creado con éxito. Se ha enviado un email de verificación."
+      successMessage,
     );
   })
 );
@@ -204,6 +220,7 @@ const PublicUsersController = Router();
 
 PublicUsersController.post(
   "/register",
+  registerRateLimiter,
   wrap(async (req: any, res) => {
     const input = RegisterDto.parse(req.body);
     const user = await userService.createUser({
@@ -239,6 +256,7 @@ PublicUsersController.post(
 
 PublicUsersController.post(
   "/resend-verification",
+  resendVerificationRateLimiter,
   wrap(async (req: any, res) => {
     const { email } = ResendVerificationDto.parse(req.body);
     await userService.resendVerificationEmail(email);
