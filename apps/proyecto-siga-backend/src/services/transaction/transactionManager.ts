@@ -1,5 +1,5 @@
 import { injectable } from "tsyringe";
-import { Prisma } from "@prisma/client";
+import { Prisma } from "@packages/libs/prisma";
 import prisma from "@packages/libs/prisma";
 
 @injectable()

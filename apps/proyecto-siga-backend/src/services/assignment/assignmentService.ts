@@ -1,5 +1,5 @@
 import { inject, injectable } from "tsyringe";
-import { assignment, Prisma } from "@prisma/client";
+import { assignment, Prisma } from "@packages/libs/prisma";
 import { TestDataResponse } from "@packages/common-schemas/test.schemas";
 import {
   AssignmentWithTestsDataResponse,

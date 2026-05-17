@@ -1,5 +1,5 @@
 import { inject, injectable } from "tsyringe";
-import { Prisma } from "@prisma/client";
+import { Prisma } from "@packages/libs/prisma";
 import { AssignPsychologistInput, User } from "@packages/common-types/user.types";
 import { BadRequest, NotFound } from "../../utils/httpError";
 import { IUserRepo } from "../../contracts/user/IuserRepo";

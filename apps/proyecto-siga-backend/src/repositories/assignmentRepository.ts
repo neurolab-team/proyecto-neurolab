@@ -4,7 +4,7 @@ import {
   AssignmentWithTestsDataResponse,
 } from "@packages/common-types/assignment.types";
 import { PsychologistRecentActivity } from "@packages/common-types/psychologist.types";
-import { assignment, Prisma } from "@prisma/client";
+import { assignment, Prisma } from "@packages/libs/prisma";
 import {
   DashboardPriorityCaseRecord,
   DashboardStatsRow,

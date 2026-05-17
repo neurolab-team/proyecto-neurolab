@@ -14,7 +14,7 @@
           "platform": "node",
           "outputPath": "apps/proyecto-siga-backend/dist",
           "format": [
-            "cjs"
+            "esm"
           ],
           "bundle": false,
           "main": "apps/proyecto-siga-backend/src/main.ts",
@@ -84,7 +84,7 @@
           "build"
         ],
         "options": {
-          "command": "ts-node-dev -r tsconfig-paths/register apps/proyecto-siga-backend/src/main.ts"
+          "command": "tsx watch --tsconfig apps/proyecto-siga-backend/tsconfig.app.json apps/proyecto-siga-backend/src/main.ts"
         },
         "configurations": {
           "development": {

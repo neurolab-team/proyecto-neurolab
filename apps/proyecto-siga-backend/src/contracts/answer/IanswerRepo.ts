@@ -1,4 +1,4 @@
-import { Prisma, answer } from "@prisma/client";
+import { Prisma, answer } from "@packages/libs/prisma";
 import { AnswerWithDetails, DetailedAnswer } from "./answer.types";
 
 export interface IAnswerRepo {

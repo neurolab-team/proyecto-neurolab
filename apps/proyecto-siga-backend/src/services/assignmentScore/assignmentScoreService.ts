@@ -7,7 +7,7 @@ import {
 } from "@packages/common-types/assignmentScore.types";
 import { IAssignmentScoreRepo } from "../../contracts/assignmentScore/IassignmentScoreRepo";
 import { IAnswerRepo } from "../../contracts/answer/IanswerRepo";
-import { Prisma } from "@prisma/client";
+import { Prisma } from "@packages/libs/prisma";
 import { BadRequest } from "../../utils/httpError";
 import { InterpretationFactory } from "../interpretation/InterpretationFactory";
 import { isRawAnswerInterpreter } from "../../contracts/interpretation/ITestInterpreter";

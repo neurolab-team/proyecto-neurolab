@@ -1,4 +1,4 @@
-import { Prisma, user } from "@prisma/client";
+import { Prisma, user } from "@packages/libs/prisma";
 
 export type UserWithAssignedPsychologistRecord = Prisma.userGetPayload<{
   include: {

@@ -1,6 +1,6 @@
 import prisma from "@packages/libs/prisma";
 import { IAssignmentScoreRepo } from "../contracts/assignmentScore/IassignmentScoreRepo";
-import { Prisma, assignmentScore } from "@prisma/client";
+import { Prisma, assignmentScore } from "@packages/libs/prisma";
 
 export class AssignmentScoreRepository implements IAssignmentScoreRepo {
   create(

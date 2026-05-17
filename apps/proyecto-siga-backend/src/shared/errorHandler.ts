@@ -1,9 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import  { ZodError } from "zod";
-import {
-  PrismaClientKnownRequestError,
-  PrismaClientValidationError,
-} from "@prisma/client/runtime/library";
+import { Prisma } from "@packages/libs/prisma";
+const { PrismaClientKnownRequestError, PrismaClientValidationError } = Prisma;
 import { HttpError, ErrorCode } from "../utils/httpError";
 
 function handlePrismaError(error: any): HttpError {

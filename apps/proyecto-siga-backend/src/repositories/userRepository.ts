@@ -1,4 +1,4 @@
-import { Prisma, user } from '@prisma/client'
+import { Prisma, user } from '@packages/libs/prisma'
 import prisma from '@packages/libs/prisma'
 import { IUserRepo, PsychologistLoadRecord } from '../contracts/user/IuserRepo' 
 

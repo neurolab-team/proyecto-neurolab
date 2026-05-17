@@ -23,6 +23,9 @@
     "paths": {
       "@packages/*": [
         "packages/*"
+      ],
+      "@prisma/generated": [
+        "packages/libs/prisma/generated/client.ts"
       ]
     }
   }

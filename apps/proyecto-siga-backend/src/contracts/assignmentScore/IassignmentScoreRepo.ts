@@ -1,4 +1,4 @@
-import { Prisma, assignmentScore } from "@prisma/client";
+import { Prisma, assignmentScore } from "@packages/libs/prisma";
 export interface IAssignmentScoreRepo {
   create(
     data: Prisma.assignmentScoreCreateInput,

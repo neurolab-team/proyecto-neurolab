@@ -1,4 +1,4 @@
-import { Prisma } from "@prisma/client";
+import { Prisma } from "@packages/libs/prisma";
 
 export type PsychologistAssignmentRecord = Prisma.assignmentGetPayload<{
   include: {

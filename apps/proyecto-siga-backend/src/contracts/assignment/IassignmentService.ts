@@ -5,7 +5,7 @@ import {
   BulkAssignPsychologistTestResult,
   PsychologistAssignableTest,
 } from "@packages/common-types/assignment.types";
-import { assignment, Prisma } from "@prisma/client";
+import { assignment, Prisma } from "@packages/libs/prisma";
 
 export interface IAssignmentService {
     getAssignmentById(assignmentId:string): Promise<TestDataResponse | null>;

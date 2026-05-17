@@ -1,4 +1,4 @@
-import { Prisma, answer } from "@prisma/client";
+import { Prisma, answer } from "@packages/libs/prisma";
 import prisma from "@packages/libs/prisma";
 import { IAnswerRepo } from "../contracts/answer/IanswerRepo";
 import { AnswerWithDetails, DetailedAnswer } from "../contracts/answer/answer.types";

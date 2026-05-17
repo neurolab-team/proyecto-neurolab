@@ -1,5 +1,5 @@
 import { inject, injectable } from "tsyringe";
-import { Prisma } from "@prisma/client";
+import { Prisma } from "@packages/libs/prisma";
 import { NotFound } from "../../utils/httpError";
 import { IVerificationService } from "../../contracts/verification/IverificationService";
 import { IUserRepo } from "../../contracts/user/IuserRepo";
