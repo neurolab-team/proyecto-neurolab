@@ -60,3 +60,7 @@ packages/docs/swagger-output.json
 openspec/
 .kiro/
 .tmp/
+CLAUDE.md
+.claude/
+.specify/
+specs/

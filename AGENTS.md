@@ -20,3 +20,8 @@ If the user wants help with fixing an error in their CI pipeline, use the follow
 
 
 <!-- nx configuration end-->
+
+<!-- SPECKIT START -->
+For additional context about technologies to be used, project structure,
+shell commands, and other important information, read the current plan
+<!-- SPECKIT END -->

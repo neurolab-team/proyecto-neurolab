@@ -8,7 +8,7 @@ import { authService } from "../services/auth/auth";
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
 
   const refreshUser = useCallback(async (): Promise<User | null> => {
@@ -37,6 +37,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
     };
   }, []);
+
+  useEffect(() => {
+    refreshUser().finally(() => setIsLoading(false));
+  }, [refreshUser]);
 
   const login = async (email: string, password: string): Promise<void> => {
     setIsLoading(true);
