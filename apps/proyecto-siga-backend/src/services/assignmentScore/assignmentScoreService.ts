@@ -54,9 +54,7 @@ export class AssignmentScoreService implements IAssignmentScoreService {
       .map((s) => `${s.sectionName}: ${s.interpretation}`)
       .join("; ");
     //create details JSON with section scores
-    const details = {
-      sections: sectionScores,
-    } as unknown as Prisma.InputJsonValue;
+    const details = JSON.stringify({ sections: sectionScores });
 
     const assignmentScore = await this.assignmentScoreRepo.create({
       assignment: { connect: { assignmentId: assignmentId } },
@@ -158,17 +156,17 @@ export class AssignmentScoreService implements IAssignmentScoreService {
     assignmentId: string;
     totalScore: { toNumber(): number };
     percentile?: { toNumber(): number } | null;
-    attentionLevel: AttentionLevel;
+    attentionLevel: string;
     interpretation?: string | null;
-    details?: Prisma.JsonValue | null;
+    details?: string | null;
   }): AssignmentScore {
     return {
       assignmentId: assignmentScore.assignmentId,
       totalScore: assignmentScore.totalScore.toNumber(),
       percentile: assignmentScore.percentile?.toNumber() ?? null,
-      attentionLevel: assignmentScore.attentionLevel,
+      attentionLevel: assignmentScore.attentionLevel as AttentionLevel,
       interpretation: assignmentScore.interpretation ?? null,
-      details: assignmentScore.details ?? undefined,
+      details: assignmentScore.details ? JSON.parse(assignmentScore.details) : undefined,
     };
   }
 }

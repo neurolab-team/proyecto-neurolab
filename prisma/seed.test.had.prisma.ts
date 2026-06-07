@@ -1,8 +1,8 @@
 import "dotenv/config";
 import { PrismaClient } from "../packages/libs/prisma/generated/client";
-import { PrismaPg } from "@prisma/adapter-pg";
+import { PrismaMssql } from "@prisma/adapter-mssql";
 
-const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
+const adapter = new PrismaMssql(process.env.DATABASE_URL!);
 const prisma = new PrismaClient({ adapter });
 
 const TEST_ID = "7996e58f-68e0-5edd-92b4-f1725bf1877d";

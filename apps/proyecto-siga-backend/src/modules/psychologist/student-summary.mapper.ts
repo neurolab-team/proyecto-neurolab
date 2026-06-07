@@ -4,6 +4,7 @@ import {
   PsychologistStudentSummary,
   PsychologistTimelineEvent,
 } from "@packages/common-types/psychologist.types";
+import { UserType } from "@packages/common-types/user.types";
 import { AssignedStudentRecord } from "../../contracts/user/IuserRepo";
 import {
   getAssignmentActivityDate,
@@ -229,7 +230,7 @@ export function buildStudentSummary(
     name: record.name || "",
     email: record.email,
     userNumber: record.userNumber,
-    userType: record.userType,
+    userType: record.userType as UserType,
     gender: record.gender,
     age: calculateAge(record.birthDate),
     assignedAt: toDateString(record.assignedPsychologistAt),

@@ -25,10 +25,9 @@ export class AnswerRepository implements IAnswerRepo {
     data: Prisma.answerCreateManyInput[],
     tx = prisma,
   ): Promise<answer[]> {
-    return tx.answer.createManyAndReturn({
-      data: data,
-      skipDuplicates: false,
-    });
+    return Promise.all(
+      data.map((item) => tx.answer.create({ data: item as unknown as Prisma.answerCreateInput })),
+    );
   }
   async findByAssignmentTestWithDetails(
     assignmentId: string,

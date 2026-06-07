@@ -88,8 +88,8 @@ export class AuthService implements IAuthService {
       userNumber: user.userNumber,
       email: user.email,
       name: user.name || "",
-      role: user.role,
-      userType: user.userType,
+      role: user.role as User["role"],
+      userType: user.userType as User["userType"],
       isActive: user.isActive,
       gender: user.gender || "",
       mustChangePassword: user.mustChangePassword,
@@ -108,8 +108,8 @@ export class AuthService implements IAuthService {
       userNumber: user.userNumber,
       email: user.email,
       name: user.name || "",
-      role: user.role,
-      userType: user.userType,
+      role: user.role as User["role"],
+      userType: user.userType as User["userType"],
       gender: user.gender || "",
       birthDate: user.birthDate || undefined,
       lastLogin: user.lastLogin || undefined,
@@ -172,8 +172,8 @@ export class AuthService implements IAuthService {
     userNumber: string;
     email: string;
     name: string | null;
-    role: User["role"];
-    userType: User["userType"];
+    role: string;
+    userType: string;
     gender: string | null;
     birthDate: Date | null;
     lastLogin: Date | null;
@@ -187,8 +187,8 @@ export class AuthService implements IAuthService {
       userNumber: user.userNumber,
       email: user.email,
       name: user.name || "",
-      role: user.role,
-      userType: user.userType,
+      role: user.role as User["role"],
+      userType: user.userType as User["userType"],
       gender: user.gender || "",
       birthDate: user.birthDate || undefined,
       lastLogin: user.lastLogin || undefined,

@@ -64,7 +64,6 @@ const criticalScoreWhere = {
     {
       interpretation: {
         contains: "sever",
-        mode: "insensitive" as const,
       },
     },
   ],
@@ -440,7 +439,6 @@ export class AssignmentRepository implements IAssignmentRepo {
         status: "assigned",
         dueAt: dueAt ? new Date(dueAt) : null,
       })),
-      skipDuplicates: true,
     });
 
     return result.count;

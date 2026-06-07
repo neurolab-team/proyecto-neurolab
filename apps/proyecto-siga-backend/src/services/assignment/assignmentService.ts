@@ -223,8 +223,8 @@ export class AssignmentService implements IAssignmentService {
         prompt: q.prompt ?? "",
         questionType: q.type ?? "single_choice",
         required: q.required,
-        condition: q.condition ?? null,
-        metadata: q.metadata ?? null,
+        condition: q.condition ? JSON.parse(q.condition) : null,
+        metadata: q.metadata ? JSON.parse(q.metadata) : null,
         questionOption: q.questionOption.map((opt) => ({
           questionOptionId: opt.questionOptionId,
           label: opt.label,

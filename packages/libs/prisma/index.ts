@@ -1,5 +1,5 @@
 import { PrismaClient, Prisma } from "@prisma/generated";
-import { PrismaPg } from "@prisma/adapter-pg";
+import { PrismaMssql } from "@prisma/adapter-mssql";
 
 export { Prisma };
 export type { user, test, testSection, question, questionOption, assignment, answer, assignmentScore } from "@prisma/generated";
@@ -10,7 +10,7 @@ declare global {
   }
 }
 
-const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
+const adapter = new PrismaMssql(process.env.DATABASE_URL!);
 const prisma = globalThis.prismadb || new PrismaClient({ adapter });
 
 if (process.env.NODE_ENV !== "production") globalThis.prismadb = prisma;

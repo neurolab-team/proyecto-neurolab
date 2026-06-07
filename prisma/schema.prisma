@@ -4,54 +4,19 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-}
-
-enum userRole {
-  admin
-  psychologist
-  user
-}
-
-enum userType {
-  itmStudent
-  itmEmployee
-  external
-}
-
-enum questionType {
-  single_choice
-  multiple_choice
-  likert
-  open_text
-  numeric
-  time_input
-}
-
-enum assignmentStatus {
-  assigned
-  in_progress
-  completed
-  expired
-}
-
-enum assignmentAttentionLevel {
-  high
-  medium
-  low
-  none
+  provider = "sqlserver"
 }
 
 model user {
-  userId                 String    @id @default(uuid()) @db.Uuid
+  userId                 String    @id @default(uuid()) @db.UniqueIdentifier
   userNumber             String    @unique
   email                  String    @unique
   password               String?
   name                   String
   gender                 String?
   birthDate              DateTime?
-  userType               userType  @default(external)
-  role                   userRole
+  userType               String    @default("external")
+  role                   String
   isActive               Boolean   @default(false)
   lastLogin              DateTime?
   passwordChangedAt      DateTime?
@@ -59,12 +24,12 @@ model user {
   createdAt              DateTime  @default(now())
   updatedAt              DateTime  @updatedAt
   verifiedEmail          Boolean   @default(false)
-  assignedPsychologistId String?   @db.Uuid
+  assignedPsychologistId String?   @db.UniqueIdentifier
   assignedPsychologistAt DateTime?
   followUpAt             DateTime?
 
   // relations
-  assignedPsychologist user?        @relation("psychologistAssignments", fields: [assignedPsychologistId], references: [userId])
+  assignedPsychologist user?        @relation("psychologistAssignments", fields: [assignedPsychologistId], references: [userId], onDelete: NoAction, onUpdate: NoAction)
   assignedStudents     user[]       @relation("psychologistAssignments")
   createdTests         test[]       @relation("testCreatedBy")
   assignmentsTo        assignment[] @relation("assignedTo")
@@ -74,13 +39,13 @@ model user {
 }
 
 model test {
-  testId      String   @id @default(uuid()) @db.Uuid
+  testId      String   @id @default(uuid()) @db.UniqueIdentifier
   testCode    String?  @unique
   title       String
   description String?
   isPublished Boolean  @default(false)
-  createdById String?  @db.Uuid
-  createdBy   user?    @relation("testCreatedBy", fields: [createdById], references: [userId])
+  createdById String?  @db.UniqueIdentifier
+  createdBy   user?    @relation("testCreatedBy", fields: [createdById], references: [userId], onDelete: SetNull, onUpdate: NoAction)
   createdAt   DateTime @default(now())
 
   sections    testSection[]
@@ -91,29 +56,29 @@ model test {
 }
 
 model testSection {
-  testSectionId   String     @id @default(uuid()) @db.Uuid
+  testSectionId   String     @id @default(uuid()) @db.UniqueIdentifier
   testSectionCode String?
-  testId          String     @db.Uuid
+  testId          String     @db.UniqueIdentifier
   name            String?
-  test            test       @relation(fields: [testId], references: [testId], onDelete: Cascade)
+  test            test       @relation(fields: [testId], references: [testId], onDelete: Cascade, onUpdate: NoAction)
   questions       question[]
 
   @@map("testSections")
 }
 
 model question {
-  questionId    String  @id @default(uuid()) @db.Uuid
-  testId        String  @db.Uuid
-  testSectionId String? @db.Uuid
-  type          questionType @default(single_choice)
+  questionId    String   @id @default(uuid()) @db.UniqueIdentifier
+  testId        String   @db.UniqueIdentifier
+  testSectionId String?  @db.UniqueIdentifier
+  type          String   @default("single_choice")
   code          String?
   prompt        String
-  required      Boolean @default(true)
-  metadata      Json?
-  condition     Json?
+  required      Boolean  @default(true)
+  metadata      String?
+  condition     String?
 
-  section        testSection?     @relation(fields: [testSectionId], references: [testSectionId])
-  test           test             @relation(fields: [testId], references: [testId], onDelete: Cascade)
+  section        testSection?     @relation(fields: [testSectionId], references: [testSectionId], onDelete: NoAction, onUpdate: NoAction)
+  test           test             @relation(fields: [testId], references: [testId], onDelete: Cascade, onUpdate: NoAction)
   questionOption questionOption[]
   answers        answer[]
 
@@ -122,26 +87,26 @@ model question {
 }
 
 model questionOption {
-  questionOptionId String @id @default(uuid()) @db.Uuid
-  questionId       String @db.Uuid
+  questionOptionId String @id @default(uuid()) @db.UniqueIdentifier
+  questionId       String @db.UniqueIdentifier
 
   label      String
   value      String?
   scoreValue Decimal? @db.Decimal(10, 2)
 
-  question question @relation(fields: [questionId], references: [questionId], onDelete: Cascade)
+  question question @relation(fields: [questionId], references: [questionId], onDelete: Cascade, onUpdate: NoAction)
   answers  answer[]
 
   @@map("questionsOptions")
 }
 
 model assignment {
-  assignmentId String @id @default(uuid()) @db.Uuid
-  testId       String @db.Uuid
+  assignmentId String @id @default(uuid()) @db.UniqueIdentifier
+  testId       String @db.UniqueIdentifier
 
-  assignedToId String @db.Uuid
-  assignedById String @db.Uuid
-  status       assignmentStatus @default(assigned)
+  assignedToId String @db.UniqueIdentifier
+  assignedById String @db.UniqueIdentifier
+  status       String @default("assigned")
 
   dueAt       DateTime?
   startedAt   DateTime?
@@ -149,9 +114,9 @@ model assignment {
   reviewedAt  DateTime?
   createdAt   DateTime  @default(now())
 
-  assignedBy user             @relation("assignedBy", fields: [assignedById], references: [userId])
-  assignedTo user             @relation("assignedTo", fields: [assignedToId], references: [userId])
-  test       test             @relation(fields: [testId], references: [testId], onDelete: Cascade, onUpdate: Cascade)
+  assignedBy user             @relation("assignedBy", fields: [assignedById], references: [userId], onDelete: NoAction, onUpdate: NoAction)
+  assignedTo user             @relation("assignedTo", fields: [assignedToId], references: [userId], onDelete: NoAction, onUpdate: NoAction)
+  test       test             @relation(fields: [testId], references: [testId], onDelete: Cascade, onUpdate: NoAction)
   answers    answer[]
   score      assignmentScore?
 
@@ -161,29 +126,29 @@ model assignment {
 }
 
 model answer {
-  answerId         String   @id @default(uuid()) @db.Uuid
-  assignmentId     String   @db.Uuid
-  questionId       String   @db.Uuid
-  questionOptionId String?  @db.Uuid
+  answerId         String  @id @default(uuid()) @db.UniqueIdentifier
+  assignmentId     String  @db.UniqueIdentifier
+  questionId       String  @db.UniqueIdentifier
+  questionOptionId String? @db.UniqueIdentifier
   textValue        String?
 
-  question   question        @relation(fields: [questionId], references: [questionId])
-  option     questionOption? @relation(fields: [questionOptionId], references: [questionOptionId])
-  assignment assignment      @relation(fields: [assignmentId], references: [assignmentId], onDelete: Cascade)
+  question   question        @relation(fields: [questionId], references: [questionId], onDelete: NoAction, onUpdate: NoAction)
+  option     questionOption? @relation(fields: [questionOptionId], references: [questionOptionId], onDelete: NoAction, onUpdate: NoAction)
+  assignment assignment      @relation(fields: [assignmentId], references: [assignmentId], onDelete: Cascade, onUpdate: NoAction)
 
   @@unique([assignmentId, questionId])
   @@map("answers")
 }
 
 model assignmentScore {
-  assignmentId String     @id @db.Uuid
-  assignment   assignment @relation(fields: [assignmentId], references: [assignmentId], onDelete: Cascade)
+  assignmentId String     @id @db.UniqueIdentifier
+  assignment   assignment @relation(fields: [assignmentId], references: [assignmentId], onDelete: Cascade, onUpdate: NoAction)
 
   totalScore     Decimal  @db.Decimal(12, 4)
   percentile     Decimal? @db.Decimal(6, 3)
-  attentionLevel assignmentAttentionLevel @default(none)
+  attentionLevel String   @default("none")
   interpretation String?
-  details        Json?
+  details        String?
 
   @@index([attentionLevel])
   @@map("assignmentScores")

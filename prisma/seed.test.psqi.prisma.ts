@@ -1,8 +1,8 @@
 import "dotenv/config";
 import { PrismaClient } from "../packages/libs/prisma/generated/client";
-import { PrismaPg } from "@prisma/adapter-pg";
+import { PrismaMssql } from "@prisma/adapter-mssql";
 
-const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
+const adapter = new PrismaMssql(process.env.DATABASE_URL!);
 const prisma = new PrismaClient({ adapter });
 
 const TEST_ID = "a1b2c3d4-e5f6-7890-abcd-ef1234567890";
@@ -327,8 +327,8 @@ async function main() {
           prompt: q.prompt,
           type: q.type,
           required: !q.condition,
-          condition: q.condition ?? undefined,
-          metadata: q.metadata ?? undefined,
+          condition: q.condition ? JSON.stringify(q.condition) : undefined,
+          metadata: q.metadata ? JSON.stringify(q.metadata) : undefined,
           ...(q.options.length > 0 && {
             questionOption: {
               createMany: {

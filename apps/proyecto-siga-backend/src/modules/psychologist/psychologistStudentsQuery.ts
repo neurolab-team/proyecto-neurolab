@@ -6,7 +6,9 @@ import {
   PsychologistStudentResultsResponse,
   PsychologistStudentProfile,
   PsychologistStudentSummary,
+  PsychologistPriority,
 } from "@packages/common-types/psychologist.types";
+import { UserType } from "@packages/common-types/user.types";
 import { IUserRepo } from "../../contracts/user/IuserRepo";
 import { getAssignmentActivityDate, resolveAttentionLevel } from "./case.rules";
 import {
@@ -254,13 +256,13 @@ export class PsychologistStudentsQueryService {
           studentName: student.name || student.email,
           studentEmail: student.email,
           studentCode: student.userNumber,
-          userType: student.userType,
+          userType: student.userType as UserType,
           testId: assignment.test.testId,
           testTitle: assignment.test.title,
           assignmentStatus: assignment.status,
           caseStatus: summary.caseStatus,
           priority: summary.priority,
-          attentionLevel: result?.attentionLevel || "none",
+          attentionLevel: (result?.attentionLevel || "none") as PsychologistPriority | "none",
           assignedAt: assignment.createdAt.toISOString(),
           completedAt: assignment.completedAt?.toISOString() || null,
           reviewedAt: assignment.reviewedAt?.toISOString() || null,

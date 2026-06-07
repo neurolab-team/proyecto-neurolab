@@ -171,7 +171,8 @@ export class UserRepository implements IUserRepo {
   }
 
   async delete(id: string, tx = prisma): Promise<void> {
-    await tx.user.delete({ where: { userId: id } })
+    await tx.test.updateMany({ where: { createdById: id }, data: { createdById: null } });
+    await tx.user.delete({ where: { userId: id } });
   }
 
   async count(where: Prisma.userWhereInput, tx = prisma): Promise<number> {

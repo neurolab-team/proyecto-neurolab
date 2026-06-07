@@ -11,7 +11,7 @@ type AssignmentLike = Pick<
   "reviewedAt" | "completedAt" | "startedAt" | "dueAt" | "createdAt" | "status"
 > & {
   score?: {
-    attentionLevel?: PsychologistPriority | "none";
+    attentionLevel?: string | null;
     interpretation?: string | null;
   } | null;
 };
@@ -66,7 +66,7 @@ export function resolveAttentionLevel(
   score?: ScoreLike,
 ): PsychologistPriority | "none" {
   if (score?.attentionLevel) {
-    return score.attentionLevel;
+    return score.attentionLevel as PsychologistPriority | "none";
   }
 
   return getAttentionLevel(score?.interpretation);

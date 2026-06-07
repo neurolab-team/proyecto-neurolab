@@ -12,8 +12,8 @@ type UserRecordLike =
       userNumber: string;
       email: string;
       name: string;
-      role: UserRole;
-      userType: User["userType"];
+      role: string;
+      userType: string;
       gender: string | null;
       birthDate: Date | null;
       lastLogin: Date | null;
@@ -57,8 +57,8 @@ export function mapUserRecordToUser(user: UserRecordLike): User {
     userNumber: user.userNumber,
     email: user.email,
     name: user.name || "",
-    role: user.role,
-    userType: user.userType,
+    role: user.role as UserRole,
+    userType: user.userType as User["userType"],
     gender: user.gender || "",
     birthDate: user.birthDate || undefined,
     lastLogin: user.lastLogin || undefined,

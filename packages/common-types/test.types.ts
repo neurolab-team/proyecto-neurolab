@@ -6,8 +6,8 @@ export interface PrismaQuestion {
     prompt: string;
     type: QuestionType;
     required: boolean;
-    metadata?: Record<string, unknown> | null;
-    condition?: Record<string, unknown> | null;
+    metadata?: string | null;
+    condition?: string | null;
     questionOption: {
         questionOptionId: string;
         label: string;
