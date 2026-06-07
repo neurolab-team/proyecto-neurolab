@@ -11,6 +11,7 @@ type AssignedTest = {
   testId: string;
   assignmentId: string;
   title: string;
+  description?: string | null;
   status: "in_progress" | "completed" | "assigned" | "expired";
   dueDate: string;
   startDate: string | null;
@@ -146,8 +147,11 @@ const AssignmentTestPanel = () => {
                         data-testid={test.testId}
                         className="border-b border-gray-100 hover:bg-gray-50 transition-colors"
                       >
-                        <td className="py-4 px-4 font-medium text-gray-800">
-                          {test.title}
+                        <td className="py-4 px-4">
+                          <span className="font-medium text-gray-800">{test.title}</span>
+                          {test.description && (
+                            <p className="text-xs text-gray-500 mt-0.5">{test.description}</p>
+                          )}
                         </td>
 
                         <td className="py-4 px-4">

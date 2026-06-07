@@ -14,7 +14,7 @@ export const useTest = (assignmentId: string) => {
   const saved = useMemo(() => storage?.load() ?? null, [storage]);
   const currentIndexRef = useRef(saved?.currentIndex ?? 0);
 
-  const { questions, title, testCode, isLoading, error } =
+  const { questions, title, description, testCode, isLoading, error } =
     useTestData(assignmentId);
 
   const { answers, selectAnswer, getSelectedValue } = useTestAnswers(
@@ -70,6 +70,7 @@ export const useTest = (assignmentId: string) => {
     isLoading: isLoading || isSubmitting,
     error: error ?? submitError,
     title,
+    description,
     testCode,
     currentPage,
     currentQuestion: navigation.currentQuestion,

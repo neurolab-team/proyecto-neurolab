@@ -19,6 +19,7 @@ export const useAssignedTests = () => {
       return data.map((item) => ({
         ...item,
         title: item.test?.title || "Sin Título",
+        description: item.test?.description ?? null,
         testId: item.test?.testId,
         status: item.status,
         startDate: item.startedAt,

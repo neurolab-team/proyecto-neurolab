@@ -217,6 +217,7 @@ export class AssignmentService implements IAssignmentService {
     const formattedData: TestDataResponse = {
       testCode: test.testCode ?? "UNKNOWN",
       title: test.title,
+      description: test.description ?? null,
       question: orderedQuestions.map((q) => ({
         questionId: q.questionId,
         code: q.code ?? null,

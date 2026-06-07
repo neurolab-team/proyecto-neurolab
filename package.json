@@ -8,7 +8,8 @@
     "api-docs": "tsx packages/docs/swagger.ts",
     "seed:test": "tsx prisma/seed.test.prisma.ts",
     "seed:test:had": "tsx prisma/seed.test.had.prisma.ts",
-    "seed:test:psqi": "tsx prisma/seed.test.psqi.prisma.ts"
+    "seed:test:psqi": "tsx prisma/seed.test.psqi.prisma.ts",
+    "seed:test:epworth": "tsx prisma/seed.test.epworth.prisma.ts"
   },
   "private": true,
   "packageManager": "pnpm@11.1.2",

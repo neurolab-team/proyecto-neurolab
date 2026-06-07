@@ -9,6 +9,7 @@ export type AssignmentWithTestsDataResponse = {
     test: {
         testId: string;
         title: string;
+        description?: string | null;
     };
     dueAt?: Date | null;
     startedAt?: Date | null;

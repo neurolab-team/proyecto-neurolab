@@ -2,7 +2,7 @@ import { TestConfig } from './testConfig.types';
 import { dass21Config } from './tests/dass21.config';
 import { hadConfig } from './tests/had.config';
 import { psqiConfig } from './tests/psqi.config';
-
+import { epworthConfig } from './tests/epworth.config';
 const defaultConfig: TestConfig = {
   testCode: 'DEFAULT',
   displayName: 'Test',
@@ -23,6 +23,7 @@ const registry = new Map<string, TestConfig>();
 registry.set('DASS-21', dass21Config);
 registry.set('HAD', hadConfig);
 registry.set('PSQI', psqiConfig);
+registry.set('EPWORTH', epworthConfig);
 
 export function getTestConfig(testCode: string): TestConfig {
   return registry.get(testCode.toUpperCase()) ?? defaultConfig;

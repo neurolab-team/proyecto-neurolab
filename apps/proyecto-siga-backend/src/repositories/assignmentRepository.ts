@@ -103,6 +103,7 @@ export class AssignmentRepository implements IAssignmentRepo {
           select: {
             testId: true,
             title: true,
+            description: true,
           },
         },
         dueAt: true,
@@ -120,6 +121,7 @@ export class AssignmentRepository implements IAssignmentRepo {
       test: {
         testId: asgmnt.test.testId,
         title: asgmnt.test.title,
+        description: asgmnt.test.description ?? null,
       },
     }));
   }

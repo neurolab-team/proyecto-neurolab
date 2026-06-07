@@ -13,6 +13,7 @@ export class TestRepository implements ITestRepo {
       select: {
         testId: true,
         title: true,
+        description: true,
         testCode: true,
         questions: {
           orderBy: { code: "desc" },

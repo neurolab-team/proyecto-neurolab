@@ -19,6 +19,7 @@ export interface PrismaQuestion {
 export interface TestWithQuestions {
     testId: string;
     title: string;
+    description?: string | null;
     testCode?: string | null;
     questions: PrismaQuestion[];
 }

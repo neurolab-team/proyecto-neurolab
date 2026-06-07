@@ -20,6 +20,7 @@ export const testQuestionDtoSchema = z.object({
 export const testDataDtoSchema = z.object({
   testCode: z.string(),
   title: z.string(),
+  description: z.string().nullable().optional(),
   question: z.array(testQuestionDtoSchema),
 });
 

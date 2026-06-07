@@ -5,6 +5,7 @@ import { Question } from "@packages/common-types/question.types";
 export const useTestData = (assignmentId: string) => {
   const [questions, setQuestions] = useState<Question[]>([]);
   const [title, setTitle] = useState("");
+  const [description, setDescription] = useState<string | null>(null);
   const [testCode, setTestCode] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -20,6 +21,7 @@ export const useTestData = (assignmentId: string) => {
       .then((data) => {
         setQuestions(data.question as Question[]);
         setTitle(data.title);
+        setDescription(data.description ?? null);
         setTestCode(data.testCode ?? "");
       })
       .catch((err) => {
@@ -30,5 +32,5 @@ export const useTestData = (assignmentId: string) => {
       .finally(() => setIsLoading(false));
   }, [assignmentId]);
 
-  return { questions, title, testCode, isLoading, error };
+  return { questions, title, description, testCode, isLoading, error };
 };
