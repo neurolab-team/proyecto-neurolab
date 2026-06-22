@@ -3,6 +3,7 @@ import { dass21Config } from './tests/dass21.config';
 import { hadConfig } from './tests/had.config';
 import { psqiConfig } from './tests/psqi.config';
 import { epworthConfig } from './tests/epworth.config';
+import { munichConfig } from './tests/munich.config';
 const defaultConfig: TestConfig = {
   testCode: 'DEFAULT',
   displayName: 'Test',
@@ -24,6 +25,7 @@ registry.set('DASS-21', dass21Config);
 registry.set('HAD', hadConfig);
 registry.set('PSQI', psqiConfig);
 registry.set('EPWORTH', epworthConfig);
+registry.set('MUNICH', munichConfig);
 
 export function getTestConfig(testCode: string): TestConfig {
   return registry.get(testCode.toUpperCase()) ?? defaultConfig;

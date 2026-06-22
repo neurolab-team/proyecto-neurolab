@@ -2,7 +2,7 @@ import { TestConfig } from '../testConfig.types';
 
 export const dass21Config: TestConfig = {
   testCode: 'DASS-21',
-  displayName: 'Test DASS-21',
+  displayName: 'Test Escala de Depresión, Ansiedad y Estrés',
   colors: {
     primary: '#102D69',
     primaryDark: '#102D69',

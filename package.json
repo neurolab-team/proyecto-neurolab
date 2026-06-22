@@ -6,10 +6,8 @@
     "dev": "npx nx run-many --target=serve --all",
     "ui": "npx nx run proyecto-siga-frontend:dev --port=3000",
     "api-docs": "tsx packages/docs/swagger.ts",
-    "seed:test": "tsx prisma/seed.test.prisma.ts",
-    "seed:test:had": "tsx prisma/seed.test.had.prisma.ts",
-    "seed:test:psqi": "tsx prisma/seed.test.psqi.prisma.ts",
-    "seed:test:epworth": "tsx prisma/seed.test.epworth.prisma.ts"
+    "seed": "tsx prisma/seeds/runner.ts",
+    "seed:one": "tsx prisma/seeds/runner.ts"
   },
   "private": true,
   "packageManager": "pnpm@11.1.2",
@@ -34,6 +32,7 @@
     "framer-motion": "^12.23.24",
     "helmet": "^8.1.0",
     "jsonwebtoken": "^9.0.2",
+    "lucide-react": "0.460.0",
     "next": "~15.2.4",
     "nodemailer": "^7.0.9",
     "react": "^19.0.0",

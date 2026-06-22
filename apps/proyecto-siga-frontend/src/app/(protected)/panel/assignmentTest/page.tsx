@@ -174,7 +174,11 @@ const AssignmentTestPanel = () => {
                           {["assigned", "in_progress"].includes(
                             test.status,
                           ) && (
-                            <Link href={`/test/${test.assignmentId}`} passHref>
+                            <Link href={
+                              hasProgress(test.assignmentId)
+                                ? `/test/${test.assignmentId}`
+                                : `/test/${test.assignmentId}/preview`
+                            } passHref>
                               <button className="bg-gradient-to-r from-[#102D69] to-[#00A0B7] text-white px-4 py-2 rounded-lg font-bold hover:shadow-md transition-all duration-300">
                                 {test.status === "assigned"
                                   ? (hasProgress(test.assignmentId) ? "Continuar Prueba" : "Comenzar Prueba")

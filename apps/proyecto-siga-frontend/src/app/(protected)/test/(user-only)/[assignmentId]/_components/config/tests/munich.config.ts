@@ -1,8 +1,8 @@
 import { TestConfig } from '../testConfig.types';
 
-export const psqiConfig: TestConfig = {
+export const munichConfig: TestConfig = {
   testCode: 'PSQI',
-  displayName: 'Test Índice de Calidad de Sueño de Pittsburgh',
+  displayName: 'Test Cronotipo Munich',
   colors: {
     primary: '#0B3A66',
     primaryDark: '#082B4D',

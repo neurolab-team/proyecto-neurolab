@@ -2,7 +2,7 @@ import { TestConfig } from '../testConfig.types';
 
 export const hadConfig: TestConfig = {
   testCode: 'HAD',
-  displayName: 'Test HAD',
+  displayName: 'Test Escala Hospitalaria de Ansiedad y Depresión',
   colors: {
     primary: '#7C3AED',
     primaryDark: '#5B21B6',
