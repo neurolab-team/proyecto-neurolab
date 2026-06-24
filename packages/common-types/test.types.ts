@@ -1,5 +1,7 @@
 import { QuestionType } from "./question.types";
 
+export type { PublicTestCard } from "@packages/common-schemas/test.schemas";
+
 export interface PrismaQuestion {
     questionId: string;
     code?: string | null;

@@ -43,6 +43,7 @@ model test {
   testCode    String?  @unique
   title       String
   description String?
+  audience    String   @default("user")
   isPublished Boolean  @default(false)
   createdById String?  @db.UniqueIdentifier
   createdBy   user?    @relation("testCreatedBy", fields: [createdById], references: [userId], onDelete: SetNull, onUpdate: NoAction)

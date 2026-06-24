@@ -4,6 +4,7 @@ export const munichSeed: TestSeedDefinition = {
   testId: "c1e2d3d4-a5f6-1890-aecd-ef1234567890",
   testCode: "MUNICH",
   title: "Cuestionario de Cronotipo de Munich",
+  audience: "user",
   description:
     "Esta es una prueba que permite identificar el cronotipo de una persona",
   sections: [

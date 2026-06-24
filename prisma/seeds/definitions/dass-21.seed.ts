@@ -23,6 +23,7 @@ export const dass21Seed: TestSeedDefinition = {
   testId: "6996e58f-58e0-4edd-92b4-f1725bf1877d",
   testCode: "DASS-21",
   title: "Escala de Depresión, Ansiedad y Estrés (DASS-21)",
+  audience: "user",
   description:
     "Esta es una prueba diseñada para medir los tres estados emocionales negativos de depresión, ansiedad y estrés.",
   sections: [

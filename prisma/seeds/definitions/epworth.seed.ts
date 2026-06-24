@@ -26,6 +26,7 @@ export const epworthSeed: TestSeedDefinition = {
   testId: "9296e58f-68e0-5edd-92b4-f1725bf1877a",
   testCode: "EPWORTH",
   title: "Escala de Somnolencia Diurna de Epworth (ESE)",
+  audience: "user",
   description:
     "Esta escala mide qué tan probable es que te quedes dormido en ocho situaciones cotidianas. Es una de las pruebas más usadas para entender hábitos de sueño y descanso. No hay respuestas correctas ni incorrectas",
   sections: [{ code: "problemas_sueno", name: "Problemas de sueño" }],

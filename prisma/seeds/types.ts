@@ -33,6 +33,7 @@ export interface TestSeedDefinition {
   testCode: string;
   title: string;
   description: string;
+  audience: "user" | "admin" | "psychologist";
   sections: SeedSection[];
   questions: SeedQuestion[];
 }

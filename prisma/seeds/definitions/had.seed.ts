@@ -4,6 +4,7 @@ export const hadSeed: TestSeedDefinition = {
   testId: "7996e58f-68e0-5edd-92b4-f1725bf1877d",
   testCode: "HAD",
   title: "Escala Hospitalaria de Ansiedad y Depresión (HAD)",
+  audience: "user",
   description:
     "Esta es una prueba que evalúa síntomas de ansiedad y depresión en contextos hospitalarios o de salud, ayudando a identificar malestar emocional en el paciente.",
   sections: [

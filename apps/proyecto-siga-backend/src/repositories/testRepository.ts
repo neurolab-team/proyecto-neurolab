@@ -2,6 +2,7 @@ import { injectable } from "tsyringe";
 import { ITestRepo } from "../contracts/test/ItestRepo";
 import prisma from "@packages/libs/prisma";
 import { TestWithQuestions } from "@packages/common-types/test.types";
+import { PublicTestCard } from "@packages/common-types/test.types";
 import { PsychologistAssignableTest } from "@packages/common-types/assignment.types";
 @injectable()
 export class TestRepository implements ITestRepo {
@@ -41,6 +42,35 @@ export class TestRepository implements ITestRepo {
         title: "asc",
       },
     });
+  }
+
+  async getPublicLandingTests(): Promise<PublicTestCard[]> {
+    const tests = await prisma.test.findMany({
+      where: {
+        audience: "user",
+        isPublished: true,
+        testCode: { not: null },
+      },
+      select: {
+        testId: true,
+        testCode: true,
+        title: true,
+        description: true,
+        audience: true,
+      },
+      orderBy: {
+        title: "asc",
+      },
+    });
+
+    // testCode no es nulo por el filtro `testCode: { not: null }`; audience es "user" por el filtro.
+    return tests.map((test) => ({
+      testId: test.testId,
+      testCode: test.testCode as string,
+      title: test.title,
+      description: test.description,
+      audience: "user" as const,
+    }));
   }
 
   async existsById(testId: string): Promise<boolean> {

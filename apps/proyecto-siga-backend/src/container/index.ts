@@ -15,6 +15,7 @@ import { SessionService } from '../services/session/sessionService'
 import { AssignmentRepository } from '../repositories/assignmentRepository'
 import { AssignmentService } from '../services/assignment/assignmentService'
 import { TestRepository } from '../repositories/testRepository'
+import { PublicTestService } from '../services/test/publicTestService'
 import { AnswerService } from '../services/answer/answerService'
 import { AnswerRepository } from '../repositories/answerRepository'
 import {AssignmentScoreService} from '../services/assignmentScore/assignmentScoreService'
@@ -43,6 +44,7 @@ container.register("AssignmentScoreService",{useClass:AssignmentScoreService})
 container.register("InterpretationFactory",{useClass: InterpretationFactory})
 container.register("PsychologistStudentsQueryService",{useClass:PsychologistStudentsQueryService})
 container.register("PsychologistDashboardQueryService",{useClass:PsychologistDashboardQueryService})
+container.register("PublicTestService",{useClass: PublicTestService})
 //register dependencies - repository
 container.register("TokenCacheRepo",{useClass:TokenCacheRepository})
 container.register("UserRepo", { useClass: UserRepository })

@@ -4,6 +4,7 @@ import { AuthController } from "../controllers/authController";
 import { AssignmentController } from "../controllers/assignmentController";
 import { AnswersController } from "../controllers/answerController";
 import { AssignmentScoreController } from "../controllers/assignmentScoreController";
+import { PublicTestController } from "../controllers/publicTestController";
 export const router = Router();
 
 // privates routes
@@ -14,6 +15,7 @@ router.use('/answers',AnswersController);
 router.use('/assignmentScores',AssignmentScoreController);
 // public routes
 router.use('/public/users', PublicUsersController);
+router.use('/public/tests', PublicTestController);
 
 
 

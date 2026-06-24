@@ -11,6 +11,7 @@ export const psqiSeed: TestSeedDefinition = {
   testId: "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
   testCode: "PSQI",
   title: "Índice de Calidad de Sueño de Pittsburgh (PSQI)",
+  audience: "user",
   description:
     "Esta es una prueba que evalúa la calidad y los patrones de sueño durante el último mes, identificando áreas de dificultad en 7 componentes.",
   sections: [

@@ -24,6 +24,15 @@ export const testDataDtoSchema = z.object({
   question: z.array(testQuestionDtoSchema),
 });
 
+export const publicTestCardSchema = z.object({
+  testId: z.uuid(),
+  testCode: z.string(),
+  title: z.string(),
+  description: z.string().nullable().optional(),
+  audience: z.literal('user'),
+});
+
 export type  TestOptionDto = z.infer<typeof testOptionDtoSchema>;
 export type  TestQuestionDto = z.infer<typeof testQuestionDtoSchema>;
 export type  TestDataResponse = z.infer<typeof testDataDtoSchema>;
+export type  PublicTestCard = z.infer<typeof publicTestCardSchema>;

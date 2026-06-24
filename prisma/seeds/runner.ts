@@ -43,6 +43,7 @@ async function seedTest(def: TestSeedDefinition) {
         testCode: def.testCode,
         title: def.title,
         description: def.description,
+        audience: def.audience,
         isPublished: true,
       },
     });

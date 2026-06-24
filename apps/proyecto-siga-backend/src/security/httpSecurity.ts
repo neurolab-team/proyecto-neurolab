@@ -74,3 +74,16 @@ export const resendVerificationRateLimiter = rateLimit({
   legacyHeaders: false,
   message: authLimiterMessage,
 });
+
+const publicReadLimiterMessage = {
+  message: 'Demasiadas solicitudes. Inténtalo de nuevo en unos minutos.',
+};
+
+// Limitador suave para rutas públicas de lectura (sin auth), p. ej. GET /public/tests.
+export const publicReadRateLimiter = rateLimit({
+  windowMs: FIFTEEN_MINUTES,
+  max: 100,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: publicReadLimiterMessage,
+});
