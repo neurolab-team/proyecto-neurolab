@@ -6,7 +6,6 @@ import {
   ArrowRight,
   List,
   Clock,
-  Sun,
   Calendar,
   Shield,
   Leaf,
@@ -24,26 +23,18 @@ export interface TestPreviewStep {
   description: string;
 }
 
-export interface TestPreviewAuthor {
-  name: string;
-  institution: string;
-  validation?: string;
-}
-
 export interface TestPreviewData {
   category: string;
   title: string;
   description: string;
   metadata: TestPreviewMetadata[];
   steps: TestPreviewStep[];
-  author: TestPreviewAuthor;
   assignmentId: string;
 }
 
 const defaultMetadata: TestPreviewMetadata[] = [
   { icon: List, value: '—', label: 'preguntas' },
   { icon: Clock, value: '—', label: 'duración' },
-  { icon: Sun, value: '—', label: 'por pregunta' },
   { icon: Calendar, value: '—', label: 'fecha límite' },
 ];
 
@@ -101,7 +92,7 @@ export default function TestPreview({ data }: { data: TestPreviewData }) {
             className="rounded-2xl bg-white p-8 shadow-sm border border-gray-100"
           >
             {/* Metadata Grid */}
-            <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
               {metadata.map(({ icon: Icon, value, label }) => (
                 <div key={label} className="flex items-center gap-3">
                   <Icon className="h-5 w-5 text-[#102D69]" />
@@ -158,30 +149,12 @@ export default function TestPreview({ data }: { data: TestPreviewData }) {
 
         {/* Right Column */}
         <aside className="flex flex-col gap-6">
-          {/* Author Card */}
-          <div className="rounded-xl border border-gray-200 p-6">
-            <p className="mb-1 text-xs font-medium uppercase tracking-widest text-gray-400">
-              AUTOR
-            </p>
-            <p className="font-semibold text-gray-800">{data.author.name}</p>
-            <p className="text-sm text-gray-500">{data.author.institution}</p>
-            {data.author.validation && (
-              <>
-                <hr className="my-4 border-dashed border-gray-200" />
-                <p className="mb-1 text-xs font-medium uppercase tracking-widest text-gray-400">
-                  VALIDACIÓN EN COLOMBIA
-                </p>
-                <p className="text-sm text-gray-600">{data.author.validation}</p>
-              </>
-            )}
-          </div>
-
           {/* Confidentiality Card */}
           <div className="rounded-xl bg-blue-50/60 p-6">
             <Shield className="mb-3 h-5 w-5 text-[#102D69]" />
             <p className="mb-1 font-semibold text-gray-800">Confidencialidad</p>
             <p className="text-sm text-gray-600">
-              Solo el equipo de psicología de Bienestar Universitario tiene acceso a tus respuestas. Tus profesores y compañeros no verán nada.
+              Solo el equipo de psicología de Permanencia tiene acceso a tus respuestas. Tus profesores y compañeros no verán nada.
             </p>
           </div>
 
