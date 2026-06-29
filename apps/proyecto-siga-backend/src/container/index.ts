@@ -24,6 +24,7 @@ import { InterpretationFactory } from '../services/interpretation/Interpretation
 import { PsychologistStudentsQueryService } from '../modules/psychologist/psychologistStudentsQuery'
 import { PsychologistDashboardQueryService } from '../modules/psychologist/psychologistDashboardQuery'
 import { TransactionManager } from '../services/transaction/transactionManager'
+import { HealthService } from '../services/health/healthService'
 
 
 //register dependencies - service
@@ -45,6 +46,7 @@ container.register("InterpretationFactory",{useClass: InterpretationFactory})
 container.register("PsychologistStudentsQueryService",{useClass:PsychologistStudentsQueryService})
 container.register("PsychologistDashboardQueryService",{useClass:PsychologistDashboardQueryService})
 container.register("PublicTestService",{useClass: PublicTestService})
+container.register("HealthService",{useClass: HealthService})
 //register dependencies - repository
 container.register("TokenCacheRepo",{useClass:TokenCacheRepository})
 container.register("UserRepo", { useClass: UserRepository })

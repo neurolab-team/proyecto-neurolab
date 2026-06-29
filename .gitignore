@@ -45,7 +45,6 @@ Thumbs.db
 
 test-output
 .env
-prisma/migrations/
 
 # Next.js
 .next

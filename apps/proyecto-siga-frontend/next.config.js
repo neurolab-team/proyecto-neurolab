@@ -7,6 +7,7 @@ const { composePlugins, withNx } = require('@nx/next');
  **/
 const nextConfig = {
   nx: {},
+  output: 'standalone',
   env:{
     PORT: '3000',
     NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL
