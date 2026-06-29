@@ -26,4 +26,4 @@ EXPOSE 6001
 HEALTHCHECK --interval=10s --timeout=5s --retries=3 \
   CMD wget --spider -q http://localhost:6001/api/health || exit 1
 
-CMD ["node", "main.js"]
+CMD ["node", "apps/proyecto-siga-backend/src/main.js"]
