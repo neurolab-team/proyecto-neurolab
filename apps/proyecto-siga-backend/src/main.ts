@@ -14,12 +14,27 @@ const app = express();
 app.set('trust proxy', 1);
 
 function loadSwaggerOutput() {
-  const filePath = process.cwd() + '/packages/docs/swagger-output.json'
-  if (!filePath) return null;
-  return JSON.parse(readFileSync(filePath, 'utf-8'));
+  // swagger-output.json es un artefacto generado (no versionado, ver .gitignore).
+  // En un proyecto recién inicializado puede no existir todavía: si falta,
+  // no debe tumbar el arranque del servidor, solo se omiten las docs.
+  const filePath = process.cwd() + '/packages/docs/swagger-output.json';
+  try {
+    return JSON.parse(readFileSync(filePath, 'utf-8'));
+  } catch {
+    console.warn('[swagger] swagger-output.json no encontrado; /api-docs deshabilitado.');
+    return null;
+  }
 }
 
-const swaggerOutput = loadSwaggerOutput();
+// Las docs se sirven solo si están habilitadas explícitamente.
+// Por defecto se habilitan fuera de producción; en prod hay que activarlas
+// a propósito con ENABLE_API_DOCS=true.
+const apiDocsEnabled =
+  process.env.ENABLE_API_DOCS === 'true' ||
+  (process.env.ENABLE_API_DOCS !== 'false' &&
+    process.env.NODE_ENV !== 'production');
+
+const swaggerOutput = apiDocsEnabled ? loadSwaggerOutput() : null;
 
 app.use(helmet({
   crossOriginResourcePolicy: { policy: 'cross-origin' },

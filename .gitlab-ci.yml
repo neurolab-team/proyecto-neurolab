@@ -36,6 +36,10 @@ default:
   before_script:
     - corepack enable
     - pnpm install --frozen-lockfile --store-dir .pnpm-store
+    # El cliente Prisma (@prisma/generated) es un artefacto NO versionado.
+    # Sin esto, en la instalación limpia de CI faltan los tipos y el build/typecheck
+    # falla con TS2307 (módulo no encontrado) y TS7006 (any implícito) en cascada.
+    - pnpm prisma generate
 
 cache:
   key:
