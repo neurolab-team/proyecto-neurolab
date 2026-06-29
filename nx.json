@@ -1,10 +1,7 @@
 {
   "$schema": "./node_modules/nx/schemas/nx-schema.json",
   "namedInputs": {
-    "default": [
-      "{projectRoot}/**/*",
-      "sharedGlobals"
-    ],
+    "default": ["{projectRoot}/**/*", "sharedGlobals"],
     "production": [
       "default",
       "!{projectRoot}/**/?(*.)+(spec|test).[jt]s?(x)?(.snap)",
@@ -15,7 +12,7 @@
     ],
     "sharedGlobals": []
   },
-  "nxCloudId": "68dd99571471fc5fa06a1bf7",
+  "neverConnectToCloud": true,
   "plugins": [
     {
       "plugin": "@nx/js/typescript",
@@ -36,9 +33,7 @@
       "options": {
         "targetName": "test"
       },
-      "exclude": [
-        "apps/proyecto-siga-backend-e2e/**/*"
-      ]
+      "exclude": ["apps/proyecto-siga-backend-e2e/**/*"]
     },
     {
       "plugin": "@nx/docker",
@@ -62,18 +57,11 @@
   "targetDefaults": {
     "@nx/esbuild:esbuild": {
       "cache": true,
-      "dependsOn": [
-        "^build"
-      ],
-      "inputs": [
-        "production",
-        "^production"
-      ]
+      "dependsOn": ["^build"],
+      "inputs": ["production", "^production"]
     },
     "test": {
-      "dependsOn": [
-        "^build"
-      ]
+      "dependsOn": ["^build"]
     }
   },
   "generators": {
