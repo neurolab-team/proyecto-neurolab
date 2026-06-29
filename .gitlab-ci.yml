@@ -39,6 +39,7 @@ default:
     # El cliente Prisma (@prisma/generated) es un artefacto NO versionado.
     # Sin esto, en la instalación limpia de CI faltan los tipos y el build/typecheck
     # falla con TS2307 (módulo no encontrado) y TS7006 (any implícito) en cascada.
+    # `generate` no necesita DATABASE_URL; prisma.config.ts la resuelve de forma lazy.
     - pnpm prisma generate
 
 cache:
