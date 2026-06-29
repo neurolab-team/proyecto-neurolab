@@ -124,7 +124,7 @@ build:frontend:
     - job: lint
       optional: true
   variables:
-    NEXT_PUBLIC_API_URL: "https://siga.buildwebs.online/api"
+    NEXT_PUBLIC_API_URL: "https://neurolab.buildwebs.online/api"
   script:
     - npx nx build proyecto-siga-frontend
   artifacts:
@@ -201,7 +201,7 @@ deploy:
     - docker compose -f docker-compose.prod.yml up -d --remove-orphans
   environment:
     name: production
-    url: https://siga.buildwebs.online
+    url: https://neurolab.buildwebs.online
   rules:
     - *never_on_schedule
     - if: $CI_COMMIT_BRANCH == "main"
@@ -231,9 +231,9 @@ verify:
             echo "✓ Backend y Frontend respondieron 200"
             echo "⚠ /api/health no expone el SHA $CI_COMMIT_SHORT_SHA (¿COMMIT_SHA inyectado?). No bloquea."
           fi
-          PUBLIC_CODE=$(curl -sf -o /dev/null -w "%{http_code}" https://siga.buildwebs.online/api/health || echo "000")
+          PUBLIC_CODE=$(curl -sf -o /dev/null -w "%{http_code}" https://neurolab.buildwebs.online/api/health || echo "000")
           if [ "$PUBLIC_CODE" = "200" ]; then
-            echo "✓ URL pública https://siga.buildwebs.online respondió 200"
+            echo "✓ URL pública https://neurolab.buildwebs.online respondió 200"
           else
             echo "⚠ URL pública respondió $PUBLIC_CODE (revisar DNS/TLS/proxy). No bloquea."
           fi
