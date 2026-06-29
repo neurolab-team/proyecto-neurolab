@@ -1,8 +1,15 @@
-# ─── GitLab CI/CD — Monorepo ProyectoSiga (Ruta A: SIN registry) ─────────────
-# Runner: shell executor sobre el host (38.225.54.181)
-# Sin registry: el pipeline construye y etiqueta imágenes en el daemon LOCAL.
-# El deploy usa esas imágenes directamente (mismo daemon). Sin push/pull/login.
-# Rollback: las imágenes viejas quedan en el daemon; cleanup conserva los últimos N SHA.
+# ─── GitLab CI/CD — Monorepo ProyectoSiga (Executor DOCKER, sin registry) ────
+# Runner: docker executor sobre el host (38.225.54.181)
+# Socket binding: cada job es un contenedor efímero que comparte el daemon
+# de Docker del host, así las imágenes que construye quedan visibles para
+# el `docker compose up -d` de producción (mismo daemon).
+#
+# REQUISITOS del runner (registrar con):
+#   --executor docker
+#   --docker-image alpine:latest
+#   --docker-volumes "/var/run/docker.sock:/var/run/docker.sock"
+#   --docker-volumes "/opt/neurolab:/opt/neurolab"
+#   --docker-volumes "/cache"
 #
 # Variables CI/CD necesarias (masked + protected):
 #   - DATABASE_URL        (job migrate)
@@ -10,9 +17,12 @@
 
 variables:
   PNPM_HOME: "$CI_PROJECT_DIR/.pnpm-store"
-  IMAGE_BACKEND: neurolab/backend # nombre LOCAL, sin prefijo de registry
+  IMAGE_BACKEND: neurolab/backend
   IMAGE_FRONTEND: neurolab/frontend
   DEPLOY_DIR: /opt/neurolab
+  # Node y Docker fijados aquí: cambiar versión = una sola línea.
+  NODE_IMAGE: "node:22-alpine"
+  DOCKER_IMAGE: "docker:27-cli"
 
 workflow:
   rules:
@@ -22,6 +32,7 @@ workflow:
 
 default:
   interruptible: true
+  image: $NODE_IMAGE # imagen por defecto: Node 22
   before_script:
     - corepack enable
     - pnpm install --frozen-lockfile --store-dir .pnpm-store
@@ -36,7 +47,7 @@ cache:
 stages:
   - quality
   - build
-  - image # antes 'publish'; ahora solo construye/etiqueta local
+  - image
   - migrate
   - deploy
   - verify
@@ -49,7 +60,8 @@ stages:
 .only_main: &only_main
   if: $CI_COMMIT_BRANCH == "main"
 
-# ─── QUALITY (paralelo) ──────────────────────────────────────────────────────
+# ─── QUALITY ─────────────────────────────────────────────────────────────────
+# Heredan image: $NODE_IMAGE y before_script (corepack + pnpm install) del default.
 
 typecheck:
   stage: quality
@@ -95,12 +107,9 @@ build:backend:
     expire_in: 1 hour
   rules:
     - *never_on_schedule
-    - if: $CI_COMMIT_BRANCH == "main" # en main, build SIEMPRE (deploy necesita ambas imágenes coherentes por SHA)
-    - changes: [
-          "apps/proyecto-siga-backend/**/*",
-          "packages/**/*",
-          "prisma/**/*",
-        ] # en MR, selectivo
+    - *only_main
+    - changes:
+        ["apps/proyecto-siga-backend/**/*", "packages/**/*", "prisma/**/*"]
 
 build:frontend:
   stage: build
@@ -110,9 +119,6 @@ build:frontend:
     - job: lint
       optional: true
   variables:
-    # FIX #1: NEXT_PUBLIC_* se hornea durante `next build` (este job), NO en
-    # `docker build` (el Dockerfile solo copia el artefacto, ver NOTA #8).
-    # Definir aquí garantiza que el bundle del cliente apunte a prod y no a localhost.
     NEXT_PUBLIC_API_URL: "https://siga.buildwebs.online/api"
   script:
     - npx nx build proyecto-siga-frontend
@@ -121,17 +127,18 @@ build:frontend:
     expire_in: 1 hour
   rules:
     - *never_on_schedule
-    - if: $CI_COMMIT_BRANCH == "main" # en main, build SIEMPRE
-    - changes: ["apps/proyecto-siga-frontend/**/*", "packages/**/*"] # en MR, selectivo
+    - *only_main
+    - changes: ["apps/proyecto-siga-frontend/**/*", "packages/**/*"]
 
-# ─── IMAGE (build local, SIN push/login) ─────────────────────────────────────
-# NOTA #7: contexto raíz '.' para poder COPY prisma/ y packages/.
-# NOTA #8 — RESUELTO: los Dockerfile NO recompilan; copian el artefacto dist/
-#           (.next/) que dejaron los jobs build:* (sin doble compilación).
+# ─── IMAGE (docker build via socket binding) ─────────────────────────────────
+# Imagen del job: docker:27-cli. NO usa Node ni pnpm → before_script vacío.
+# El `docker build` toca el daemon del host (socket montado), así que las
+# imágenes resultantes quedan disponibles para el compose de producción.
 
 .image_base:
   stage: image
-  before_script: [] # no necesita pnpm install ni docker login
+  image: $DOCKER_IMAGE
+  before_script: []
   rules:
     - *never_on_schedule
     - *only_main
@@ -152,25 +159,31 @@ image:frontend:
   script:
     - docker build -t $IMAGE_FRONTEND:$CI_COMMIT_SHORT_SHA -t $IMAGE_FRONTEND:latest -f apps/proyecto-siga-frontend/Dockerfile .
 
-# ─── MIGRATE ─────────────────────────────────────────────────────────────────
+# ─── MIGRATE (Node + Prisma) ─────────────────────────────────────────────────
+# Vuelve a la imagen Node porque ejecuta `prisma migrate deploy`.
 
 migrate:
   stage: migrate
   needs: [image:backend]
   interruptible: false
   script:
-    - pnpm prisma migrate deploy   # usa $DATABASE_URL (apunta a la BD de prod)
+    - pnpm prisma migrate deploy
   rules:
     - *never_on_schedule
     - if: $CI_COMMIT_BRANCH == "main"
       changes: ["prisma/migrations/**/*"]
 
-# ─── DEPLOY ──────────────────────────────────────────────────────────────────
-# Usa las imágenes que image:* dejó en el daemon local (mismo daemon, sin pull).
+# ─── DEPLOY (docker compose via socket binding) ──────────────────────────────
+# El plugin de compose no viene en docker:27-cli oficial; lo añadimos con apk.
+# `cd $DEPLOY_DIR` funciona porque /opt/neurolab está montado como volumen
+# en el runner (ver REQUISITOS arriba).
 
 deploy:
   stage: deploy
+  image: $DOCKER_IMAGE
   interruptible: false
+  before_script:
+    - apk add --no-cache docker-cli-compose
   needs:
     - image:backend
     - image:frontend
@@ -180,7 +193,7 @@ deploy:
     - cd $DEPLOY_DIR
     - export BACKEND_TAG=$CI_COMMIT_SHORT_SHA
     - export FRONTEND_TAG=$CI_COMMIT_SHORT_SHA
-    - docker compose -f docker-compose.prod.yml up -d --remove-orphans # sin 'pull': la imagen ya está local
+    - docker compose -f docker-compose.prod.yml up -d --remove-orphans
   environment:
     name: production
     url: https://siga.buildwebs.online
@@ -190,31 +203,29 @@ deploy:
       when: manual
   allow_failure: false
 
-# ─── VERIFY ──────────────────────────────────────────────────────────────────
+# ─── VERIFY (solo curl) ──────────────────────────────────────────────────────
+# Imagen mínima: curl ya viene incluido. Sin Node, sin docker.
 
 verify:
   stage: verify
+  image: curlimages/curl:latest
+  before_script: []
   needs: [deploy]
   interruptible: false
   script:
     - |
       echo "Esperando que los servicios respondan..."
-      # Requisito DURO: backend y frontend deben responder 200.
-      # Comprobación SUAVE: que /api/health reporte el SHA desplegado (solo aviso).
       for i in $(seq 1 30); do
-        BACKEND_CODE=$(curl -sf -o /dev/null -w "%{http_code}" http://localhost:6001/api/health || echo "000")
-        FRONTEND_CODE=$(curl -sf -o /dev/null -w "%{http_code}" http://localhost:3000 || echo "000")
+        BACKEND_CODE=$(curl -sf -o /dev/null -w "%{http_code}" http://host.docker.internal:6001/api/health || echo "000")
+        FRONTEND_CODE=$(curl -sf -o /dev/null -w "%{http_code}" http://host.docker.internal:3000 || echo "000")
         if [ "$BACKEND_CODE" = "200" ] && [ "$FRONTEND_CODE" = "200" ]; then
-          # Aviso suave: verificar versión sin bloquear el deploy.
-          HEALTH=$(curl -sf http://localhost:6001/api/health || echo "")
+          HEALTH=$(curl -sf http://host.docker.internal:6001/api/health || echo "")
           if echo "$HEALTH" | grep -q "$CI_COMMIT_SHORT_SHA"; then
             echo "✓ Backend ($CI_COMMIT_SHORT_SHA) y Frontend respondieron 200"
           else
             echo "✓ Backend y Frontend respondieron 200"
             echo "⚠ /api/health no expone el SHA $CI_COMMIT_SHORT_SHA (¿COMMIT_SHA inyectado?). No bloquea."
           fi
-          # FIX #8: aviso suave de la URL pública (DNS/TLS/proxy externo). No bloquea:
-          # el deploy interno es correcto aunque el borde (Cloudflare/DNS) falle aparte.
           PUBLIC_CODE=$(curl -sf -o /dev/null -w "%{http_code}" https://siga.buildwebs.online/api/health || echo "000")
           if [ "$PUBLIC_CODE" = "200" ]; then
             echo "✓ URL pública https://siga.buildwebs.online respondió 200"
@@ -232,16 +243,14 @@ verify:
     - *never_on_schedule
     - *only_main
 
-# ─── CLEANUP (programado) — conserva los últimos N SHA ───────────────────────
-# Reemplaza el prune-por-tiempo: ese borraba rollbacks viejos. Este conserva
-# los KEEP SHA más recientes de cada imagen. Las imágenes en uso (el deploy
-# actual) no se borran porque 'docker rmi' sin -f las rechaza.
+# ─── CLEANUP (programado) ────────────────────────────────────────────────────
 
 cleanup:images:
   stage: .post
+  image: $DOCKER_IMAGE
   before_script: []
   variables:
-    KEEP: "30"     # FIX #5: margen amplio para no borrar un SHA en producción aún no rotado (gratis en disco)
+    KEEP: "30"
   script:
     - |
       for repo in $IMAGE_BACKEND $IMAGE_FRONTEND; do
@@ -253,7 +262,7 @@ cleanup:images:
           | sort -u \
           | xargs -r docker rmi 2>/dev/null || true
       done
-      docker image prune -f          # capas dangling resultantes
-      docker builder prune -af       # FIX #10: el build cache (buildx du) crece aparte; purgarlo evita GB acumulados
+      docker image prune -f
+      docker builder prune -af
   rules:
     - if: $CI_PIPELINE_SOURCE == "schedule"
