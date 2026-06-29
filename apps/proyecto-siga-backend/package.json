@@ -16,16 +16,27 @@
           "format": [
             "esm"
           ],
-          "bundle": false,
+          "bundle": true,
+          "target": "node22",
+          "thirdParty": true,
+          "generatePackageJson": true,
           "main": "apps/proyecto-siga-backend/src/main.ts",
           "tsConfig": "apps/proyecto-siga-backend/tsconfig.app.json",
           "assets": [
             "apps/proyecto-siga-backend/src/assets"
           ],
+          "external": [
+            "@prisma/client",
+            "@prisma/adapter-mssql",
+            "bcrypt"
+          ],
           "esbuildOptions": {
             "sourcemap": true,
             "outExtension": {
               ".js": ".js"
+            },
+            "banner": {
+              "js": "import { createRequire as topLevelCreateRequire } from 'module'; import { fileURLToPath as topLevelFileURLToPath } from 'url'; import { dirname as topLevelDirname } from 'path'; const require = topLevelCreateRequire(import.meta.url); const __filename = topLevelFileURLToPath(import.meta.url); const __dirname = topLevelDirname(__filename);"
             }
           }
         },
@@ -37,6 +48,9 @@
               "sourcemap": false,
               "outExtension": {
                 ".js": ".js"
+              },
+              "banner": {
+                "js": "import { createRequire as topLevelCreateRequire } from 'module'; import { fileURLToPath as topLevelFileURLToPath } from 'url'; import { dirname as topLevelDirname } from 'path'; const require = topLevelCreateRequire(import.meta.url); const __filename = topLevelFileURLToPath(import.meta.url); const __dirname = topLevelDirname(__filename);"
               }
             }
           }
@@ -50,7 +64,7 @@
         "executor": "@nx/js:prune-lockfile",
         "outputs": [
           "{workspaceRoot}/apps/proyecto-siga-backend/dist/package.json",
-          "{workspaceRoot}/apps/proyecto-siga-backend/dist/package-lock.json"
+          "{workspaceRoot}/apps/proyecto-siga-backend/dist/pnpm-lock.yaml"
         ],
         "options": {
           "buildTarget": "build"
