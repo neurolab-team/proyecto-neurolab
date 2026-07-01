@@ -30,7 +30,7 @@ export async function PATCH(request: Request, context: RouteContext) {
   try {
     const body = (await request.json()) as AssignPsychologistInput;
     const response = await axios.patch<BaseResponse<User>>(
-      `${process.env.NEXT_PUBLIC_API_URL}/users/${id}/psychologist`,
+      `${process.env.BACKEND_API_URL}/users/${id}/psychologist`,
       body,
       {
         headers: {

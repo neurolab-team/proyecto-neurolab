@@ -23,7 +23,7 @@ export async function GET() {
     }
 
     const authResponse = await axios.get<BaseResponse<User>>(
-      `${process.env.NEXT_PUBLIC_API_URL}/auth/me`,
+      `${process.env.BACKEND_API_URL}/auth/me`,
       {
         headers: {
           "x-session-id": sessionId,

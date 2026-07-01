@@ -21,7 +21,7 @@ export async function GET(_request: Request, context: RouteContext) {
 
   try {
     const response = await axios.get(
-      `${process.env.NEXT_PUBLIC_API_URL}/answers/assignment/${id}/detailed`,
+      `${process.env.BACKEND_API_URL}/answers/assignment/${id}/detailed`,
       {
         headers: { "x-session-id": sessionId },
         timeout: 10000,

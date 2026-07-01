@@ -21,7 +21,7 @@ export async function POST(request: Request) {
   try {
     const body = (await request.json()) as CreateManyAnswersInput;
     const response = await axios.post<BaseResponse<Answer[]>>(
-      `${process.env.NEXT_PUBLIC_API_URL}/answers/many`,
+      `${process.env.BACKEND_API_URL}/answers/many`,
       body,
       {
         headers: {

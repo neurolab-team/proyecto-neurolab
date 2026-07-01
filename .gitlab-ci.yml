@@ -123,8 +123,6 @@ build:frontend:
       optional: true
     - job: lint
       optional: true
-  variables:
-    NEXT_PUBLIC_API_URL: "https://neurolab.buildwebs.online/api"
   script:
     - npx nx build proyecto-siga-frontend
   artifacts:

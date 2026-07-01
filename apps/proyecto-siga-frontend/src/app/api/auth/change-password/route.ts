@@ -30,7 +30,7 @@ export async function PUT(request: Request) {
   try {
     const payload = (await request.json()) as ChangePasswordPayload;
     const response = await axios.put<BaseResponse<null>>(
-      `${process.env.NEXT_PUBLIC_API_URL}/auth/change-password`,
+      `${process.env.BACKEND_API_URL}/auth/change-password`,
       payload,
       {
         headers: {

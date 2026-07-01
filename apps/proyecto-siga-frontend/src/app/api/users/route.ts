@@ -27,7 +27,7 @@ export async function GET() {
 
   try {
     const response = await axios.get<BaseResponse<User[]>>(
-      `${process.env.NEXT_PUBLIC_API_URL}/users`,
+      `${process.env.BACKEND_API_URL}/users`,
       { headers: { "x-session-id": sessionId }, timeout: 10000 },
     );
     return NextResponse.json(response.data, { status: 200 });
@@ -50,7 +50,7 @@ export async function POST(request: Request) {
   try {
     const body = (await request.json()) as CreateUserInput;
     const response = await axios.post<BaseResponse<userResponse>>(
-      `${process.env.NEXT_PUBLIC_API_URL}/users`,
+      `${process.env.BACKEND_API_URL}/users`,
       body,
       {
         headers: {

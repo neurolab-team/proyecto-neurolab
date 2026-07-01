@@ -30,7 +30,7 @@ export async function GET(_request: Request, context: RouteContext) {
 
   try {
     const response = await axios.get<BaseResponse<TestDataResponse>>(
-      `${process.env.NEXT_PUBLIC_API_URL}/assignments/${assignmentId}/test`,
+      `${process.env.BACKEND_API_URL}/assignments/${assignmentId}/test`,
       {
         headers: { "x-session-id": sessionId },
         timeout: 10000,

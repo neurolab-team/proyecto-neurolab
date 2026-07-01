@@ -6,7 +6,7 @@ import type { PublicTestCard } from "@packages/common-types/test.types";
 export async function GET() {
   try {
     const response = await axios.get<BaseResponse<PublicTestCard[]>>(
-      `${process.env.NEXT_PUBLIC_API_URL}/public/tests`,
+      `${process.env.BACKEND_API_URL}/public/tests`,
       {
         headers: { "Content-Type": "application/json" },
         timeout: 10000,

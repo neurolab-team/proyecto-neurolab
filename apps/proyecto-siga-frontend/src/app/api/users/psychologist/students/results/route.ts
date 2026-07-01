@@ -20,7 +20,7 @@ export async function GET(request: Request) {
   try {
     const query = new URL(request.url).searchParams.toString();
     const response = await axios.get<BaseResponse<PsychologistStudentResultsResponse>>(
-      `${process.env.NEXT_PUBLIC_API_URL}/users/psychologist/students/results?${query}`,
+      `${process.env.BACKEND_API_URL}/users/psychologist/students/results?${query}`,
       {
         headers: { "x-session-id": sessionId },
         timeout: 15000,

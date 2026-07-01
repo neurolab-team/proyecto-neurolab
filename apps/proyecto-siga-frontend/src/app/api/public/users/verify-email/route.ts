@@ -8,7 +8,7 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
     const response = await axios.post<BaseResponse<null>>(
-      `${process.env.NEXT_PUBLIC_API_URL}/public/users/verify-email`,
+      `${process.env.BACKEND_API_URL}/public/users/verify-email`,
       body,
       {
         headers: { "Content-Type": "application/json" },

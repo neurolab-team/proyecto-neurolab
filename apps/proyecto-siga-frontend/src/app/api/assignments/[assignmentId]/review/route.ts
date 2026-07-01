@@ -28,7 +28,7 @@ export async function PATCH(_request: Request, context: RouteContext) {
 
   try {
     const response = await axios.patch<BaseResponse<null>>(
-      `${process.env.NEXT_PUBLIC_API_URL}/assignments/${assignmentId}/review`,
+      `${process.env.BACKEND_API_URL}/assignments/${assignmentId}/review`,
       {},
       {
         headers: {

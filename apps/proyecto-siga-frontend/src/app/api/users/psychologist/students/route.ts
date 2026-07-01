@@ -19,7 +19,7 @@ export async function GET() {
 
   try {
     const response = await axios.get<BaseResponse<PsychologistStudentSummary[]>>(
-      `${process.env.NEXT_PUBLIC_API_URL}/users/psychologist/students`,
+      `${process.env.BACKEND_API_URL}/users/psychologist/students`,
       {
         headers: { "x-session-id": sessionId },
         timeout: 10000,

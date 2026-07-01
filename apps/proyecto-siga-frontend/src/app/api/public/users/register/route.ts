@@ -10,7 +10,7 @@ export async function POST(request: Request) {
   try {
     const body = (await request.json()) as Omit<CreateUserInput, "role">;
     const response = await axios.post<BaseResponse<RegisterResponse>>(
-      `${process.env.NEXT_PUBLIC_API_URL}/public/users/register`,
+      `${process.env.BACKEND_API_URL}/public/users/register`,
       body,
       {
         headers: { "Content-Type": "application/json" },

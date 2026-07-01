@@ -23,7 +23,7 @@ export async function POST(request: Request) {
   try {
     const body = (await request.json()) as BulkAssignPsychologistTestInput;
     const response = await axios.post<BaseResponse<BulkAssignPsychologistTestResult>>(
-      `${process.env.NEXT_PUBLIC_API_URL}/assignments/psychologist/bulk`,
+      `${process.env.BACKEND_API_URL}/assignments/psychologist/bulk`,
       body,
       {
         headers: {

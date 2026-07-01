@@ -29,7 +29,7 @@ export async function POST(request: Request) {
 
   try {
     const response = await axios.post<BaseResponse<AssignmentScore>>(
-      `${process.env.NEXT_PUBLIC_API_URL}/assignmentScores/create`,
+      `${process.env.BACKEND_API_URL}/assignmentScores/create`,
       { id },
       {
         headers: {

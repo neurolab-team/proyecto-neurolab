@@ -29,7 +29,7 @@ export async function GET(_request: Request, context: RouteContext) {
 
   try {
     const response = await axios.get<BaseResponse<PsychologistStudentProfile>>(
-      `${process.env.NEXT_PUBLIC_API_URL}/users/psychologist/students/${id}`,
+      `${process.env.BACKEND_API_URL}/users/psychologist/students/${id}`,
       {
         headers: { "x-session-id": sessionId },
         timeout: 10000,

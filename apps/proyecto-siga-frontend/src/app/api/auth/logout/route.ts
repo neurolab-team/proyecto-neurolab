@@ -12,7 +12,7 @@ export async function POST() {
   try {
     if (sessionId) {
       await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}/auth/logout`,
+        `${process.env.BACKEND_API_URL}/auth/logout`,
         {},
         {
           headers: {

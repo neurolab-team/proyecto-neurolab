@@ -12,7 +12,7 @@ export async function POST(request: Request) {
   try {
     const { email, password } = (await request.json()) as LoginCredentials;
     const authResponse = await axios.post<BaseResponse<LoginData>>(
-      `${process.env.NEXT_PUBLIC_API_URL}/auth/login`,
+      `${process.env.BACKEND_API_URL}/auth/login`,
       { email, password },
       {
         headers: {
