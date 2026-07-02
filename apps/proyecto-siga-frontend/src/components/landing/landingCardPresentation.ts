@@ -21,7 +21,7 @@ export type CardPresentation = {
 
 const PRESENTATION_BY_TEST_CODE: Record<string, CardPresentation> = {
   EPWORTH: {
-    categoryLabel: "SUEÑO Y DESCANSO",
+    categoryLabel: "SUEÑO Y RITMOS CIRCADIANOS",
     scaleName: "Escala de Epworth",
     accentColor: "#1E5FA8",
     bgColor: "#DBEAFE",
@@ -29,7 +29,7 @@ const PRESENTATION_BY_TEST_CODE: Record<string, CardPresentation> = {
     highlightWord: "descanso",
   },
   PSQI: {
-    categoryLabel: "SUEÑO Y DESCANSO",
+    categoryLabel: "SUEÑO Y RITMOS CIRCADIANOS",
     scaleName: "Pittsburgh (PSQI)",
     accentColor: "#2B7A9C",
     bgColor: "#E0F2FE",
@@ -37,7 +37,7 @@ const PRESENTATION_BY_TEST_CODE: Record<string, CardPresentation> = {
     highlightWord: "calidad",
   },
   "DASS-21": {
-    categoryLabel: "ESTRÉS ACADÉMICO",
+    categoryLabel: "TAMIZAJE SALUD MENTAL",
     scaleName: "DASS-21",
     accentColor: "#7B3DA6",
     bgColor: "#EDE9FE",
@@ -45,7 +45,7 @@ const PRESENTATION_BY_TEST_CODE: Record<string, CardPresentation> = {
     highlightWord: "carga",
   },
   HAD: {
-    categoryLabel: "ÁNIMO Y EMOCIONES",
+    categoryLabel: "TAMIZAJE SALUD MENTAL",
     scaleName: "Escala HAD",
     accentColor: "#1A6B35",
     bgColor: "#DCFCE7",
@@ -53,7 +53,7 @@ const PRESENTATION_BY_TEST_CODE: Record<string, CardPresentation> = {
     highlightWord: "estado de ánimo",
   },
   MUNICH: {
-    categoryLabel: "RITMOS CIRCADIANOS",
+    categoryLabel: "SUEÑO Y RITMOS CIRCADIANOS",
     scaleName: "Cronotipo Munich (MCTQ)",
     accentColor: "#B5642E",
     bgColor: "#FEF3C7",

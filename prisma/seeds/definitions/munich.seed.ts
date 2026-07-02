@@ -41,6 +41,13 @@ export const munichSeed: TestSeedDefinition = {
     },
     {
       code: "MUNICH-3",
+      prompt: "Necesito _____ minutos para conciliar el sueño",
+      type: "numeric",
+      sectionCode: "dias_laborales",
+      options: [],
+    },
+    {
+      code: "MUNICH-4",
       prompt: "Me despierto a las _____ horas",
       type: "time_input",
       sectionCode: "dias_laborales",
@@ -53,7 +60,7 @@ export const munichSeed: TestSeedDefinition = {
       },
     },
     {
-      code: "MUNICH-4",
+      code: "MUNICH-5",
       prompt: "Me despierto _____",
       type: "single_choice",
       sectionCode: "dias_laborales",
@@ -63,14 +70,14 @@ export const munichSeed: TestSeedDefinition = {
       ],
     },
     {
-      code: "MUNICH-5",
+      code: "MUNICH-6",
       prompt: "Me levanto despues de _____ minutos",
       type: "numeric",
       sectionCode: "dias_laborales",
       options: [],
     },
     {
-      code: "MUNICH-6",
+      code: "MUNICH-7",
       prompt: "Me acuesto a las _____ horas",
       type: "time_input",
       sectionCode: "dias_no_laborales",
@@ -83,7 +90,7 @@ export const munichSeed: TestSeedDefinition = {
       },
     },
     {
-      code: "MUNICH-7",
+      code: "MUNICH-8",
       prompt: "En realidad estoy listo/a para dormirme a las _____ horas",
       type: "time_input",
       sectionCode: "dias_no_laborales",
@@ -96,14 +103,14 @@ export const munichSeed: TestSeedDefinition = {
       },
     },
     {
-      code: "MUNICH-8",
+      code: "MUNICH-9",
       prompt: "Necesito _____ minutos para conciliar el sueǹo",
       type: "numeric",
       sectionCode: "dias_no_laborales",
       options: [],
     },
     {
-      code: "MUNICH-9",
+      code: "MUNICH-10",
       prompt: "Me despierto a las _____ horas",
       type: "time_input",
       sectionCode: "dias_no_laborales",
@@ -116,7 +123,7 @@ export const munichSeed: TestSeedDefinition = {
       },
     },
     {
-      code: "MUNICH-10",
+      code: "MUNICH-11",
       prompt: "Me despierto _____",
       type: "single_choice",
       sectionCode: "dias_no_laborales",
@@ -126,7 +133,14 @@ export const munichSeed: TestSeedDefinition = {
       ],
     },
     {
-      code: "MUNICH-11",
+      code: "MUNICH-12",
+      prompt: "Me levanto despues de  _____ minutos",
+      type: "numeric",
+      sectionCode: "dias_no_laborales",
+      options: [],
+    },
+    {
+      code: "MUNICH-13",
       prompt: "Empiezo a trabajar a las _____ horas",
       type: "time_input",
       sectionCode: "informacion_complementaria",
@@ -139,7 +153,7 @@ export const munichSeed: TestSeedDefinition = {
       },
     },
     {
-      code: "MUNICH-12",
+      code: "MUNICH-14",
       prompt: "Salgo de trabajar a las _____ horas",
       type: "time_input",
       sectionCode: "informacion_complementaria",
@@ -153,14 +167,14 @@ export const munichSeed: TestSeedDefinition = {
     },
 
     {
-      code: "MUNICH-13",
+      code: "MUNICH-15",
       prompt: "Tardo en llegar de mi casa al trabajo _____ horas",
       type: "numeric",
       sectionCode: "informacion_complementaria",
       options: [],
     },
     {
-      code: "MUNICH-14",
+      code: "MUNICH-16",
       prompt:
         "Necesito _____ horas desde que me despierto hasta que salgo de casa",
       type: "numeric",
@@ -168,7 +182,7 @@ export const munichSeed: TestSeedDefinition = {
       options: [],
     },
     {
-      code: "MUNICH-15",
+      code: "MUNICH-17",
       prompt: "Trabajo _____ dias a la semana",
       type: "numeric",
       sectionCode: "informacion_complementaria",
