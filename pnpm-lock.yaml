@@ -12,10 +12,10 @@ importers:
         specifier: ^2.2.10
         version: 2.2.10(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
       '@prisma/adapter-mssql':
-        specifier: ^7.8.0
+        specifier: 7.8.0
         version: 7.8.0(@azure/core-client@1.10.1)
       '@prisma/client':
-        specifier: ^7.8.0
+        specifier: 7.8.0
         version: 7.8.0(prisma@7.8.0(@types/react-dom@19.0.0)(@types/react@19.0.0)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(typescript@5.9.3))(typescript@5.9.3)
       '@react-email/components':
         specifier: ^0.5.7
@@ -202,7 +202,7 @@ importers:
         specifier: 8.4.38
         version: 8.4.38
       prisma:
-        specifier: ^7.8.0
+        specifier: 7.8.0
         version: 7.8.0(@types/react-dom@19.0.0)(@types/react@19.0.0)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(typescript@5.9.3)
       swagger-autogen:
         specifier: ^2.23.7
