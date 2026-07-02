@@ -74,6 +74,7 @@ typecheck:
     - npx nx run-many -t typecheck --all
   rules:
     - *never_on_schedule
+    - *only_main
     - changes: ["apps/**/*", "packages/**/*", "tsconfig*.json"]
 
 lint:
@@ -82,16 +83,14 @@ lint:
     - npx nx run-many -t lint --all -- --max-warnings 0
   rules:
     - *never_on_schedule
+    - *only_main
     - changes: ["apps/**/*", "packages/**/*", ".eslintrc*", "eslint.config*"]
 
 prisma:validate:
   stage: quality
   script:
     - pnpm prisma validate
-    - pnpm prisma migrate diff \
-      --from-config-datasource \
-      --to-schema prisma/schema.prisma \
-      --exit-code
+    - pnpm prisma migrate diff --from-config-datasource --to-schema prisma/schema.prisma --exit-code
   rules:
     - *never_on_schedule
     - changes: ["prisma/**/*"]
