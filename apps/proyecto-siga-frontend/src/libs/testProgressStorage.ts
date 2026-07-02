@@ -9,6 +9,25 @@ export interface TestProgressStorage {
   clear(): void;
 }
 
+/**
+ * Returns the resume path for a given assignment based on localStorage progress.
+ * If the user has saved at least one answer, navigates directly to the test;
+ * otherwise navigates to the preview page.
+ */
+export function getTestResumePath(assignmentId: string): string {
+  const saved = createLocalStorageProgress(assignmentId).load();
+  const hasProgress = !!saved && Object.keys(saved.answers).length > 0;
+  return hasProgress ? `/test/${assignmentId}` : `/test/${assignmentId}/preview`;
+}
+
+/**
+ * Returns true if there is locally saved progress (at least one answer) for the given assignment.
+ */
+export function hasLocalProgress(assignmentId: string): boolean {
+  const saved = createLocalStorageProgress(assignmentId).load();
+  return !!saved && Object.keys(saved.answers).length > 0;
+}
+
 export function createLocalStorageProgress(assignmentId: string): TestProgressStorage {
   const key = `test-progress-${assignmentId}`;
 

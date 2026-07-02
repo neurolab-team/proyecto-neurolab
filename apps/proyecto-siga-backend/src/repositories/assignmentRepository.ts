@@ -102,8 +102,12 @@ export class AssignmentRepository implements IAssignmentRepo {
         test: {
           select: {
             testId: true,
+            testCode: true,
             title: true,
             description: true,
+            _count: {
+              select: { questions: true },
+            },
           },
         },
         dueAt: true,
@@ -120,8 +124,10 @@ export class AssignmentRepository implements IAssignmentRepo {
       status: asgmnt.status,
       test: {
         testId: asgmnt.test.testId,
+        testCode: asgmnt.test.testCode ?? null,
         title: asgmnt.test.title,
         description: asgmnt.test.description ?? null,
+        questionCount: asgmnt.test._count.questions,
       },
     }));
   }

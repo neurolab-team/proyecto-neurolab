@@ -21,6 +21,8 @@ export const useAssignedTests = () => {
         title: item.test?.title || "Sin Título",
         description: item.test?.description ?? null,
         testId: item.test?.testId,
+        testCode: item.test?.testCode ?? null,
+        questionCount: item.test?.questionCount ?? 0,
         status: item.status,
         startDate: item.startedAt,
         dueDate: item.dueAt,

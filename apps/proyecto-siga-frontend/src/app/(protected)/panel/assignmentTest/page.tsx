@@ -1,11 +1,11 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { useAssignedTests } from "./_hooks/useAssignedTests";
-import { createLocalStorageProgress } from "@/libs/testProgressStorage";
+import { getTestResumePath, hasLocalProgress } from "@/libs/testProgressStorage";
 
 type AssignedTest = {
   testId: string;
@@ -20,20 +20,6 @@ type AssignedTest = {
 const AssignmentTestPanel = () => {
   const [testTitleFilter, setTestTitleFilter] = useState("");
   const { tests, isLoading, isError } = useAssignedTests();
-  const savedIds = useMemo(() => {
-    const ids = new Set<string>();
-
-    for (const t of tests) {
-      const saved = createLocalStorageProgress(t.assignmentId).load();
-      if (saved && Object.keys(saved.answers).length > 0) {
-        ids.add(t.assignmentId);
-      }
-    }
-
-    return ids;
-  }, [tests]);
-
-  const hasProgress = (assignmentId: string) => savedIds.has(assignmentId);
 
   const filteredTests = tests.filter((test: AssignedTest) =>
     (test.title || "").toLowerCase().includes(testTitleFilter.toLowerCase()),
@@ -174,15 +160,11 @@ const AssignmentTestPanel = () => {
                           {["assigned", "in_progress"].includes(
                             test.status,
                           ) && (
-                            <Link href={
-                              hasProgress(test.assignmentId)
-                                ? `/test/${test.assignmentId}`
-                                : `/test/${test.assignmentId}/preview`
-                            } passHref>
+                            <Link href={getTestResumePath(test.assignmentId)} passHref>
                               <button className="bg-gradient-to-r from-[#102D69] to-[#00A0B7] text-white px-4 py-2 rounded-lg font-bold hover:shadow-md transition-all duration-300">
-                                {test.status === "assigned"
-                                  ? (hasProgress(test.assignmentId) ? "Continuar Prueba" : "Comenzar Prueba")
-                                  : "Continuar Prueba"}
+                                {hasLocalProgress(test.assignmentId) || test.status === "in_progress"
+                                  ? "Continuar Prueba"
+                                  : "Comenzar Prueba"}
                               </button>
                             </Link>
                           )}

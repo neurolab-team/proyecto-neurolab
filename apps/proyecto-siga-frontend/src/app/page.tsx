@@ -5,6 +5,7 @@ import TestsSection from "@/components/landing/TestsSection";
 import StepsSection from "@/components/landing/StepsSection";
 import BenefitsSection from "@/components/landing/BenefitsSection";
 import FinalCtaSection from "@/components/landing/FinalCtaSection";
+import QuickAccessTestsSection from "@/components/quickAccess/QuickAccessTestsSection";
 
 export default function HomePage() {
   return (
@@ -16,16 +17,19 @@ export default function HomePage() {
         {/* 1. Hero — gancho + CTA (estado diferenciado con/sin sesión) */}
         <HeroSection />
 
-        {/* 2. Pruebas disponibles — el contenido más valioso, arriba del pliegue */}
+        {/* 2. Acceso rápido a pruebas pendientes (solo autenticados) */}
+        <QuickAccessTestsSection />
+
+        {/* 3. Pruebas disponibles — el contenido más valioso, arriba del pliegue */}
         <TestsSection />
 
-        {/* 3. Cómo funciona — 3 pasos */}
+        {/* 4. Cómo funciona — 3 pasos */}
         <StepsSection />
 
-        {/* 4. Beneficios / garantías — resuelve objeciones (confidencialidad, validez) */}
+        {/* 5. Beneficios / garantías — resuelve objeciones (confidencialidad, validez) */}
         <BenefitsSection />
 
-        {/* 5. CTA final — cierre */}
+        {/* 6. CTA final — cierre */}
         <FinalCtaSection />
       </main>
 
