@@ -61,22 +61,6 @@ export default function Navbar() {
               </>
             ) : (
               <>
-                {user.role === "admin" && (
-                  <button
-                    onClick={() => handleNavigation("/panel/admin/")}
-                    className="text-white hover:bg-white/20 px-4 py-2 rounded-lg transition-all duration-300 text-sm font-medium border border-white/30 shadow-md hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0"
-                  >
-                    Panel Admin
-                  </button>
-                )}
-                {user.role === "psychologist" && (
-                  <button
-                    onClick={() => handleNavigation("/panel/psychologist/")}
-                    className="text-white hover:bg-white/20 px-4 py-2 rounded-lg transition-all duration-300 text-sm font-medium border border-white/30 shadow-md hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0"
-                  >
-                    Mi Panel
-                  </button>
-                )}
                 {user.role === "user" && (
                   <button
                     onClick={() => handleNavigation("/panel/assignmentTest")}
