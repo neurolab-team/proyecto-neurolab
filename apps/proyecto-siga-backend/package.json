@@ -23,7 +23,11 @@
           "main": "apps/proyecto-siga-backend/src/main.ts",
           "tsConfig": "apps/proyecto-siga-backend/tsconfig.app.json",
           "assets": [
-            "apps/proyecto-siga-backend/src/assets"
+            {
+              "glob": "**/*",
+              "input": "apps/proyecto-siga-backend/src/templates",
+              "output": "templates"
+            }
           ],
           "external": [
             "@prisma/client",

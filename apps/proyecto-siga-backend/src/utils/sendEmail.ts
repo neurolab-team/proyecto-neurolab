@@ -21,15 +21,16 @@ const renderEmailTemplate = async (
   templateName: string,
   data: any
 ): Promise<string> => {
-  const templatePath = path.resolve(
-    process.cwd(),
-    "apps",
-    "proyecto-siga-backend",
-    "src",
-    "templates",
-    "email",
-    `${templateName}.ejs`
-  );
+  // Producción: esbuild bundlea todo a dist/main.js (raíz de dist/) y copia
+  // los templates a dist/templates (ver "assets" en package.json del backend).
+  // Desarrollo: tsx ejecuta este archivo directo desde src/utils/sendEmail.ts,
+  // por lo que los templates están un nivel arriba, en src/templates.
+  const templatesDir =
+    process.env.NODE_ENV === "production"
+      ? path.resolve(__dirname, "templates")
+      : path.resolve(__dirname, "..", "templates");
+
+  const templatePath = path.join(templatesDir, "email", `${templateName}.ejs`);
   return ejs.renderFile(templatePath, data);
 };
 
