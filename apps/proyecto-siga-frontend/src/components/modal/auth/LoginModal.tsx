@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useMutation } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
 import { useAuth } from "../../../hooks/useAuth";
 import { authService } from "../../../services/auth/auth";
 import { usersService } from "../../../services/users/users";
@@ -22,6 +23,7 @@ type ModalView = "login" | "firstLogin" | "inactive" | "emailVerification";
 
 export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
   const auth = useAuth();
+  const router = useRouter();
   const [modalView, setModalView] = useState<ModalView>("login");
   const [loginPassword, setLoginPassword] = useState("");
   const [attemptedEmail, setAttemptedEmail] = useState("");
@@ -51,6 +53,7 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
       } else {
         await auth.refreshUser();
         onClose();
+        router.refresh();
       }
     },
   });

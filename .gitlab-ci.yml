@@ -195,7 +195,7 @@ deploy:
     - cd $DEPLOY_DIR
     - export BACKEND_TAG=$CI_COMMIT_SHORT_SHA
     - export FRONTEND_TAG=$CI_COMMIT_SHORT_SHA
-    - docker compose -f docker-compose.prod.yml up -d --remove-orphans
+    - docker compose -f docker-compose.prod.yml up -d --remove-orphans --force-recreate --pull never backend frontend
   environment:
     name: production
     url: https://neurolab.buildwebs.online
