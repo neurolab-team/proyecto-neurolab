@@ -16,6 +16,7 @@ import {
   resolveAttentionLevel,
 } from "./case.rules";
 import { mapBasicUserReference } from "../users/user.mapper";
+import { calculateAge } from "../../utils/age";
 
 function toDateString(value?: Date | null): string | null {
   return value ? value.toISOString() : null;
@@ -26,20 +27,6 @@ function decimalToNumber(
 ): number | null {
   if (value === null || value === undefined) return null;
   return typeof value === "number" ? value : value.toNumber();
-}
-
-function calculateAge(birthDate?: Date | null): number | null {
-  if (!birthDate) return null;
-
-  const today = new Date();
-  let age = today.getFullYear() - birthDate.getFullYear();
-  const hasNotHadBirthday =
-    today.getMonth() < birthDate.getMonth() ||
-    (today.getMonth() === birthDate.getMonth() &&
-      today.getDate() < birthDate.getDate());
-
-  if (hasNotHadBirthday) age -= 1;
-  return age >= 0 ? age : null;
 }
 
 export function buildAssignmentSummary(

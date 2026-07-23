@@ -23,6 +23,23 @@ const psychologistResultsStatusFilters = [
 ] as const;
 const psychologistResultsDetailLevels = ["assignment", "question"] as const;
 
+const MINIMUM_REGISTRATION_AGE = 18;
+
+function isOfLegalAge(birthDate: string): boolean {
+  const parsed = new Date(birthDate);
+  if (Number.isNaN(parsed.getTime())) return false;
+
+  const today = new Date();
+  let age = today.getFullYear() - parsed.getFullYear();
+  const hasNotHadBirthday =
+    today.getMonth() < parsed.getMonth() ||
+    (today.getMonth() === parsed.getMonth() &&
+      today.getDate() < parsed.getDate());
+
+  if (hasNotHadBirthday) age -= 1;
+  return age >= MINIMUM_REGISTRATION_AGE;
+}
+
 export const CreateUserDto = z.object({
   email: z
     .string()
@@ -46,9 +63,20 @@ export const RegisterDto = z.object({
   name: z.string().min(1).trim(),
   userNumber: z.string().min(1).trim(),
   userType: z.enum(userTypes),
-  birthDate: z.string().optional(),
+  birthDate: z
+    .string()
+    .min(1, "La fecha de nacimiento es obligatoria")
+    .refine((value) => !Number.isNaN(Date.parse(value)), {
+      message: "Fecha de nacimiento inválida",
+    })
+    .refine((value) => isOfLegalAge(value), {
+      message: `Debes ser mayor de ${MINIMUM_REGISTRATION_AGE} años para registrarte`,
+    }),
   gender: z.string().optional(),
   password: z.string().min(6).optional(),
+  acceptedDataPolicy: z.literal(true, {
+    error: "Debes aceptar la política de tratamiento de datos personales",
+  }),
 });
 
 export const ResendVerificationDto = z.object({

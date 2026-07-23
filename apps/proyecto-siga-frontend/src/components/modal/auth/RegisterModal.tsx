@@ -1,11 +1,18 @@
 import { useForm } from "react-hook-form";
 import { useMutation } from "@tanstack/react-query";
+import Link from "next/link";
 import { usersService } from "../../../services/users/users";
 import { notify } from "../../../libs/toastService";
 import { UserRole, UserType } from "@packages/common-types/user.types";
 import ModalShell from "../core/ModalShell";
 import FormErrorBanner from "../../FormErrorBanner";
 import { getApiErrorMessage } from "../../../libs/getApiErrorMessage";
+import {
+  getMaxBirthDateForMinimumAge,
+  passwordRequirements,
+  validateMinimumAge,
+  validatePasswordStrength,
+} from "../../../libs/authFormValidation";
 
 type RegisterFormData = {
   userType: UserType;
@@ -16,6 +23,7 @@ type RegisterFormData = {
   birthDate: string;
   password?: string;
   role?: UserRole;
+  acceptedDataPolicy?: boolean;
 };
 
 interface RegisterModalProps {
@@ -236,10 +244,18 @@ export default function RegisterModal({
                       required: !isAdminMode
                         ? "Este campo es obligatorio"
                         : false,
+                      minLength: {
+                        value: passwordRequirements.minLength,
+                        message: passwordRequirements.minLengthMessage,
+                      },
+                      validate: validatePasswordStrength,
                     })}
                     className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-opacity-50 focus:ring-[#2a4d8f] focus:border-[#2a4d8f] transition-all"
                     placeholder="********"
                   />
+                  <p className="text-xs text-gray-500 mt-1">
+                    {passwordRequirements.helperText}
+                  </p>
                   {errors.password && (
                     <p className="text-red-500 text-sm mt-1">
                       {errors.password.message}
@@ -255,8 +271,10 @@ export default function RegisterModal({
                   </label>
                   <input
                     type="date"
+                    max={getMaxBirthDateForMinimumAge()}
                     {...register("birthDate", {
                       required: "Este campo es obligatorio",
+                      validate: validateMinimumAge,
                     })}
                     className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-opacity-50 focus:ring-[#2a4d8f] focus:border-[#2a4d8f] transition-all"
                   />
@@ -310,6 +328,40 @@ export default function RegisterModal({
               </p>
             </div>
           </div>
+
+          {!isAdminMode && (
+            <div>
+              <label className="flex items-start space-x-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  {...register("acceptedDataPolicy", {
+                    required:
+                      "Debes aceptar la política de tratamiento de datos personales",
+                  })}
+                  className="mt-1 h-5 w-5 rounded border-2 border-gray-300 text-[#102D69] focus:ring-[#2a4d8f] cursor-pointer"
+                />
+                <span className="text-sm text-gray-700">
+                  He leído y acepto la{" "}
+                  <Link
+                    href="/politica-tratamiento-datos"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-semibold text-[#102D69] underline hover:text-[#2a4d8f]"
+                  >
+                    Política de Tratamiento de Datos Personales
+                  </Link>
+                  , y autorizo el tratamiento de mis datos, incluyendo los
+                  resultados de las pruebas de autoevaluación, conforme a la
+                  Ley 1581 de 2012. *
+                </span>
+              </label>
+              {errors.acceptedDataPolicy && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.acceptedDataPolicy.message}
+                </p>
+              )}
+            </div>
+          )}
 
           <FormErrorBanner message={signupMutation.isError ? getApiErrorMessage(signupMutation.error, 'No fue posible completar el registro.') : null} />
 

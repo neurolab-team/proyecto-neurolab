@@ -231,6 +231,7 @@ PublicUsersController.post(
       birthDate: input.birthDate,
       gender: input.gender,
       password: input.password,
+      acceptedDataPolicy: input.acceptedDataPolicy,
       role: "user", 
     });
     return created(

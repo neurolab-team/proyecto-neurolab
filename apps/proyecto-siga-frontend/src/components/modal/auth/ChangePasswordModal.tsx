@@ -4,7 +4,12 @@ import { authService } from "../../../services/auth/auth";
 import { useAuth } from "../../../hooks/useAuth";
 import ModalShell from "../core/ModalShell";
 import FormErrorBanner from "../../FormErrorBanner";
+import PasswordInput from "../../PasswordInput";
 import { getApiErrorMessage } from "../../../libs/getApiErrorMessage";
+import {
+  passwordRequirements,
+  validatePasswordStrength,
+} from "../../../libs/authFormValidation";
 
 interface ChangePasswordModalProps {
   isOpen: boolean;
@@ -64,8 +69,7 @@ export default function ChangePasswordModal({
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Contraseña Actual
             </label>
-            <input
-              type="password"
+            <PasswordInput
               {...register("currentPassword", {
                 required: "Contraseña actual requerida",
               })}
@@ -82,19 +86,20 @@ export default function ChangePasswordModal({
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Nueva Contraseña
             </label>
-            <input
-              type="password"
+            <PasswordInput
               {...register("newPassword", {
                 required: "Nueva contraseña requerida",
-                minLength: { value: 6, message: "Mínimo 6 caracteres" },
-                pattern: {
-                  value: /(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
-                  message:
-                    "Debe contener al menos: 1 minúscula, 1 mayúscula y 1 número",
+                minLength: {
+                  value: passwordRequirements.minLength,
+                  message: passwordRequirements.minLengthMessage,
                 },
+                validate: validatePasswordStrength,
               })}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00A0B7] focus:border-transparent"
             />
+            <p className="text-xs text-gray-500 mt-1">
+              {passwordRequirements.helperText}
+            </p>
             {errors.newPassword && (
               <p className="text-red-500 text-xs mt-1">
                 {errors.newPassword.message}
@@ -106,8 +111,7 @@ export default function ChangePasswordModal({
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Confirmar Nueva Contraseña
             </label>
-            <input
-              type="password"
+            <PasswordInput
               {...register("confirmPassword", {
                 required: "Confirmar contraseña requerida",
                 validate: (value) =>

@@ -149,7 +149,7 @@ export class AuthService implements IAuthService {
     }
 
     // Validate new password with security policies
-    const passwordErrors = await checkPassword(newPassword);
+    const passwordErrors = await checkPassword(newPassword, user.email);
     if (passwordErrors.length > 0) {
       throw BadRequest(passwordErrors.join(". "));
     }

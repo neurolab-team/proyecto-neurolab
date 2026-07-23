@@ -18,6 +18,7 @@ type UserRecordLike =
       birthDate: Date | null;
       lastLogin: Date | null;
       passwordChangedAt?: Date | null;
+      dataPolicyAcceptedAt?: Date | null;
       mustChangePassword: boolean;
       verifiedEmail: boolean;
       isActive: boolean;
@@ -63,6 +64,7 @@ export function mapUserRecordToUser(user: UserRecordLike): User {
     birthDate: user.birthDate || undefined,
     lastLogin: user.lastLogin || undefined,
     passwordChangedAt: user.passwordChangedAt || null,
+    dataPolicyAcceptedAt: user.dataPolicyAcceptedAt || null,
     mustChangePassword: Boolean(user.mustChangePassword),
     verifiedEmail: user.verifiedEmail,
     isActive: user.isActive,

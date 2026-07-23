@@ -9,6 +9,8 @@ import { IAssignmentService } from "../../contracts/assignment/IassignmentServic
 import { mapUserRecordToUser } from "../../modules/users/user.mapper";
 import { generateSecurePassword } from "../../utils/sendEmail";
 import { TransactionManager } from "../transaction/transactionManager";
+import { checkPassword } from "../../security/passwordPolicy";
+import { isOfLegalAge, MINIMUM_REGISTRATION_AGE } from "../../utils/age";
 
 @injectable()
 export class UserRegistrationService {
@@ -45,6 +47,23 @@ export class UserRegistrationService {
     const email = input.email.toLowerCase();
     this.validateInstitutionalEmail(input, email);
 
+    if (!input.acceptedDataPolicy) {
+      throw BadRequest(
+        "Debes aceptar la política de tratamiento de datos personales",
+      );
+    }
+
+    if (!isOfLegalAge(input.birthDate)) {
+      throw BadRequest(
+        `Debes ser mayor de ${MINIMUM_REGISTRATION_AGE} años para registrarte`,
+      );
+    }
+
+    const passwordErrors = await checkPassword(input.password ?? "", email);
+    if (passwordErrors.length > 0) {
+      throw BadRequest(passwordErrors.join(". "));
+    }
+
     const hashedPassword = await this.hashPassword(input.password!);
     const verificationToken = await this.verificationService.createVerificationToken(email);
 
@@ -63,6 +82,7 @@ export class UserRegistrationService {
           verifiedEmail: false,
           mustChangePassword: false,
           passwordChangedAt: new Date(),
+          dataPolicyAcceptedAt: new Date(),
           lastLogin: null,
         },
         tx,

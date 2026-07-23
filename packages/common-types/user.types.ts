@@ -21,6 +21,7 @@ export interface User {
   isActive: boolean
   mustChangePassword: boolean
   passwordChangedAt?: Date | string | null
+  dataPolicyAcceptedAt?: Date | string | null
   assignedPsychologistId?: string | null
   assignedPsychologist?: BasicUserReference | null
   assignedPsychologistAt?: Date | string | null
@@ -36,6 +37,7 @@ export interface CreateUserInput {
   role: UserRole
   userType: UserType
   password?: string
+  acceptedDataPolicy?: boolean
 }
 
 export interface UpdateUserInput {
