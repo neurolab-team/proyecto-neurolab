@@ -5,15 +5,16 @@ import ejs from "ejs";
 import path from "path";
 import { randomInt } from "crypto";
 
-dotenv.config();
+dotenv.config({ override: true });
 const transporter = nodeMailer.createTransport({
   host: process.env.SMTP_HOST,
   port: Number(process.env.SMTP_PORT) || 587,
-  service: process.env.SMTP_SERVICE,
+  //service: process.env.SMTP_SERVICE,
   auth: {
     user: process.env.SMTP_USER,
     pass: process.env.SMTP_PASSWORD,
   },
+  name: process.env.SMTP_FROM_NAME
 });
 // Render an EJS email template
 
@@ -45,12 +46,13 @@ export const sendEmail = async (
   try {
     const html = await renderEmailTemplate(templateName, data);
     await transporter.sendMail({
-      from: `<${process.env.SMTP_USER}>`,
+      from: `<${process.env.SMTP_FROM_EMAIL}>`,
       to,
       subject,
       html,
     });
   } catch (error) {
+    console.log(error)
     throw Conflict("Error enviando email", { details: error });
   }
 };
