@@ -20,6 +20,7 @@ export const munichSeed: TestSeedDefinition = {
       sectionCode: "dias_laborales",
       options: [],
       metadata: {
+        notice: { text: "Responda las siguientes preguntas de acuerdo a su Horario en dias laborales" },
         inputFormat: "12h",
         validHours: { min: 1, max: 12 },
         validMinutes: { min: 0, max: 59 },
@@ -83,6 +84,7 @@ export const munichSeed: TestSeedDefinition = {
       sectionCode: "dias_no_laborales",
       options: [],
       metadata: {
+        notice: { text: "Responda las siguientes preguntas de acuerdo a su Horario en dias de descanso" },
         inputFormat: "12h",
         validHours: { min: 1, max: 12 },
         validMinutes: { min: 0, max: 59 },
@@ -146,6 +148,7 @@ export const munichSeed: TestSeedDefinition = {
       sectionCode: "informacion_complementaria",
       options: [],
       metadata: {
+        notice: { text: "Responda la siguiente informacion complementaria" },
         inputFormat: "12h",
         validHours: { min: 1, max: 12 },
         validMinutes: { min: 0, max: 59 },

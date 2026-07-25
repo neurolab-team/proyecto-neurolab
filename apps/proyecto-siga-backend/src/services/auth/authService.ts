@@ -45,7 +45,7 @@ export class AuthService implements IAuthService {
         mustChangePassword: user.mustChangePassword,
         passwordChangedAt: user.passwordChangedAt || undefined,
         lastLogin: user.lastLogin,
-        verifiedEmail: user.verifiedEmail ,        
+        verifiedEmail: user.verifiedEmail ,
       },
     };
   }
@@ -199,5 +199,3 @@ export class AuthService implements IAuthService {
     };
   }
 }
-//TODO:
-// evitar porque no hay logica para el last login y definir como se va a manejar cuando un usuario lo desactivan

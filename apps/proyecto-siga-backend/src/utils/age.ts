@@ -21,7 +21,7 @@ export function calculateAge(birthDate?: Date | string | null): number | null {
   return age >= 0 ? age : null;
 }
 
-export const MINIMUM_REGISTRATION_AGE = 18;
+export const MINIMUM_REGISTRATION_AGE = 16;
 
 export function isOfLegalAge(
   birthDate?: Date | string | null,

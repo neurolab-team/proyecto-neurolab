@@ -17,21 +17,14 @@ export default function DataPolicyPage() {
               Política de Tratamiento de Datos Personales
             </h1>
             <p className="mt-2 text-sm text-slate-500">
-              Última actualización: [fecha pendiente de definir por la institución]
+              Última actualización: 25 de Julio del 2026
             </p>
 
             <div className="mt-8 space-y-6 text-slate-700 leading-relaxed">
               <p>
-                <strong>
-                  Este documento es una plantilla provisional y no constituye
-                  un texto legal definitivo.
-                </strong>{" "}
-                Debe ser revisado, completado y aprobado por el área jurídica
-                y/o el Oficial de Protección de Datos (DPO) del Instituto
-                Tecnológico Metropolitano (ITM) antes de su publicación
-                oficial, conforme a la Ley 1581 de 2012, el Decreto 1377 de
-                2013 y demás normas concordantes sobre protección de datos
-                personales en Colombia.
+                Dando cumplimiento a lo dispuesto en la Ley 1581 de 2012, "Por el cual se dictan disposiciones generales para la protección de datos personales" y de conformidad con lo señalado en el Decreto 1377 de 2013, manifiesto que otorgo mi autorización expresa y clara a este proyecto de investigación, para que puedan hacer tratamiento y uso de mis datos personales, los cuales estarán cuidadosamente guardados en la base de datos de la que es responsable dicho proyecto.
+                De acuerdo a la normatividad citada, este proyecto de investigación queda autorizado de manera expresa e inequívoca para mantener y manejar la información suministrada, solo para aquellas finalidades para las que se encuentra facultado y respetando en todo caso, la normatividad vigente sobre protección de datos personales.
+                Personales en Colombia.
               </p>
 
               <section>
@@ -39,8 +32,8 @@ export default function DataPolicyPage() {
                   1. Responsable del tratamiento
                 </h2>
                 <p className="mt-2">
-                  [Nombre de la institución/entidad responsable], identificada
-                  con NIT [pendiente], con domicilio en [dirección pendiente],
+                  Instituto Tecnologico Metropolitano (ITM)  , identificada
+                  con NIT 800214750, con domicilio en Cl. 54a #30-01, Medellín,
                   actuando como responsable del tratamiento de los datos
                   personales recolectados a través del presente sistema de
                   autoevaluación psicológica.
@@ -167,7 +160,7 @@ export default function DataPolicyPage() {
 
               <p className="text-sm text-slate-500">
                 Para dudas sobre esta política, comunícate al correo
-                [correo de contacto pendiente].
+                neurolab@itm.edu.co.
               </p>
             </div>
 

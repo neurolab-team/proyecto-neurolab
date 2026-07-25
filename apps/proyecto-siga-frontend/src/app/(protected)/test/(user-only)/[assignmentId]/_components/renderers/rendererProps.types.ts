@@ -1,5 +1,5 @@
 import { TestConfig } from '../config/testConfig.types';
-import { QuestionType } from '@packages/common-types/question.types';
+import { QuestionType, QuestionMetadata } from '@packages/common-types/question.types';
 
 export interface QuestionRendererProps {
   question: {
@@ -7,6 +7,7 @@ export interface QuestionRendererProps {
     code?: string | null;
     prompt?: string;
     questionType?: QuestionType;
+    metadata?: QuestionMetadata | null;
     questionOption: {
       questionOptionId: string;
       label: string;

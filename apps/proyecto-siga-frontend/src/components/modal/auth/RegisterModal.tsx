@@ -184,7 +184,7 @@ export default function RegisterModal({
               })}
               className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-opacity-50 focus:ring-[#2a4d8f] focus:border-[#2a4d8f] transition-all"
               placeholder={`correo@${userType === "itmStudent" ?
-                 "correo.itm.edu.co" : userType === "itmEmployee" 
+                 "correo.itm.edu.co" : userType === "itmEmployee"
                  ? "itm.edu.co" : "ejemplo.com"}`}
             />
             {errors.email && (
@@ -343,7 +343,7 @@ export default function RegisterModal({
                 <span className="text-sm text-gray-700">
                   He leído y acepto la{" "}
                   <Link
-                    href="/politica-tratamiento-datos"
+                    href="/data-protection-policy"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="font-semibold text-[#102D69] underline hover:text-[#2a4d8f]"

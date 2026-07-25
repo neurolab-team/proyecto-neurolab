@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Listbox, ListboxButton, ListboxOption, ListboxOptions } from '@headlessui/react';
 import { QuestionRendererProps } from './rendererProps.types';
+import { QuestionNotice } from './QuestionNotice';
 
 const HOURS = Array.from({ length: 12 }, (_, i) => String(i + 1).padStart(2, '0'));
 const MINUTES = Array.from({ length: 60 }, (_, i) => String(i).padStart(2, '0'));
@@ -82,6 +83,7 @@ export const TimeInputRenderer = ({
 
   return (
     <div className="bg-white rounded-2xl shadow-xl p-6 sm:p-8">
+      <QuestionNotice notice={question.metadata?.notice} />
       <h3 className="text-xl sm:text-2xl font-bold mb-6" style={{ color: colors.primaryDark }}>
         <span style={{ color: colors.primaryLight }} className="mr-2">{current}.</span>
         {question.prompt}

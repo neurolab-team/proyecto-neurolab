@@ -4,6 +4,7 @@ import { Dass21Interpreter } from "../../interpreters/Dass21Interpreter";
 import { HadInterpreter } from "../../interpreters/HadIntrpreter";
 import { PsqiInterpreter } from "../../interpreters/PsqiInterpreter";
 import { EpworthInterpreter } from "../../interpreters/EpworthInterpreter";
+import { MunichInterpreter } from "../../interpreters/MunichInterpreter";
 
 @injectable()
 export class InterpretationFactory {
@@ -22,6 +23,7 @@ export class InterpretationFactory {
     this.register("HAD", new HadInterpreter());
     this.register("PSQI", new PsqiInterpreter());
     this.register("EPWORTH", new EpworthInterpreter());
+    this.register("MUNICH", new MunichInterpreter());
     // Register more interpreters here as they are created:
     // this.register("PHQ-9", new Phq9Interpreter());
   }

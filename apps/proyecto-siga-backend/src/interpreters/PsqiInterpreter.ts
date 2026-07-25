@@ -1,6 +1,7 @@
 import { AttentionLevel, SectionScore } from "@packages/common-types/assignmentScore.types";
 import { IRawAnswerInterpreter } from "../contracts/interpretation/ITestInterpreter";
 import { AnswerWithDetails } from "../contracts/answer/answer.types";
+import { parseTime12h } from "./shared/timeUtils";
 
 export class PsqiInterpreter implements IRawAnswerInterpreter {
   readonly testCode = "PSQI";
@@ -31,8 +32,8 @@ export class PsqiInterpreter implements IRawAnswerInterpreter {
     const c3 = isNaN(hoursSlept) ? 0 : hoursSlept > 7 ? 0 : hoursSlept >= 6 ? 1 : hoursSlept >= 5 ? 2 : 3;
 
     // C4: Eficiencia habitual del sueño
-    const bedtime = this.parseTime(text("PSQI-1"));
-    const wakeTime = this.parseTime(text("PSQI-3"));
+    const bedtime = parseTime12h(text("PSQI-1"));
+    const wakeTime = parseTime12h(text("PSQI-3"));
     const hoursInBed = this.calcHoursInBed(bedtime, wakeTime);
     const efficiency = hoursInBed > 0 && !isNaN(hoursSlept) ? (hoursSlept / hoursInBed) * 100 : NaN;
     const c4 = isNaN(efficiency) ? 0 : efficiency > 85 ? 0 : efficiency >= 75 ? 1 : efficiency >= 65 ? 2 : 3;
@@ -85,19 +86,6 @@ export class PsqiInterpreter implements IRawAnswerInterpreter {
     if (total < 8) return { interpretation: "Merece atención médica", attentionLevel: "low" };
     if (total < 15) return { interpretation: "Merece atención y tratamiento médico", attentionLevel: "medium" };
     return { interpretation: "Se trata de un problema de sueño", attentionLevel: "high" };
-  }
-
-  protected parseTime(val: string): { hours: number; minutes: number } | null {
-    const match = val.match(/^(\d{2}):(\d{2})\s(AM|PM)$/);
-    if (!match) return null;
-    let hours = parseInt(match[1], 10);
-    const minutes = parseInt(match[2], 10);
-    const period = match[3];
-    if (hours < 1 || hours > 12 || minutes > 59) return null;
-    // Convert 12h to 24h
-    if (period === "AM" && hours === 12) hours = 0;
-    else if (period === "PM" && hours !== 12) hours += 12;
-    return { hours, minutes };
   }
 
   protected calcHoursInBed(

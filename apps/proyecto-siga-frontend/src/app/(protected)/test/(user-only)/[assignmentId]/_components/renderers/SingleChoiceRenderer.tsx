@@ -1,4 +1,5 @@
 import { QuestionRendererProps } from './rendererProps.types';
+import { QuestionNotice } from './QuestionNotice';
 
 export const SingleChoiceRenderer = ({
   question,
@@ -12,10 +13,13 @@ export const SingleChoiceRenderer = ({
   return (
     <div className="bg-white rounded-2xl shadow-xl p-6 sm:p-8">
       <div className="flex flex-col space-y-6">
-        <h3 className="text-xl sm:text-2xl font-bold" style={{ color: colors.primaryDark }}>
-          <span style={{ color: colors.primaryLight }} className="mr-2">{current}.</span>
-          {question.prompt}
-        </h3>
+        <div>
+          <QuestionNotice notice={question.metadata?.notice} />
+          <h3 className="text-xl sm:text-2xl font-bold" style={{ color: colors.primaryDark }}>
+            <span style={{ color: colors.primaryLight }} className="mr-2">{current}.</span>
+            {question.prompt}
+          </h3>
+        </div>
 
         <div className="flex flex-col space-y-3">
           {question.questionOption

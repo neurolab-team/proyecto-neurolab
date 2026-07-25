@@ -3,9 +3,6 @@ import { PsqiInterpreter } from "./PsqiInterpreter";
 
 // --- Subclase testable ---
 class TestablePsqi extends PsqiInterpreter {
-  public override parseTime(val: string) {
-    return super.parseTime(val);
-  }
   public override calcHoursInBed(
     b: { hours: number; minutes: number } | null,
     w: { hours: number; minutes: number } | null,
@@ -65,31 +62,6 @@ describe("PsqiInterpreter", () => {
 
   it("should have testCode PSQI", () => {
     expect(t.testCode).toBe("PSQI");
-  });
-
-  // ==================== parseTime ====================
-  describe("parseTime", () => {
-    it.each([
-      ["09:30 AM", { hours: 9, minutes: 30 }],
-      ["09:30 PM", { hours: 21, minutes: 30 }],
-      ["12:00 AM", { hours: 0, minutes: 0 }],
-      ["12:00 PM", { hours: 12, minutes: 0 }],
-      ["12:30 PM", { hours: 12, minutes: 30 }],
-      ["01:00 AM", { hours: 1, minutes: 0 }],
-      ["11:59 PM", { hours: 23, minutes: 59 }],
-    ] as [string, { hours: number; minutes: number }][])(
-      "parses '%s' correctly",
-      (input, expected) => {
-        expect(t.parseTime(input)).toEqual(expected);
-      },
-    );
-
-    it.each(["9:30 AM", "21:30", "", "abc", "00:00 AM", "13:00 PM"])(
-      "returns null for invalid '%s'",
-      (input) => {
-        expect(t.parseTime(input)).toBeNull();
-      },
-    );
   });
 
   // ==================== calcHoursInBed ====================
