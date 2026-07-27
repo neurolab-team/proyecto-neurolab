@@ -98,14 +98,14 @@ export default function RegisterModal({
     <ModalShell
       isOpen={isOpen}
       onClose={onClose}
-      backdropClassName="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
-      panelClassName="bg-white rounded-3xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto relative"
-      closeButtonClassName="absolute top-4 right-4 text-white hover:text-gray-200 z-10"
+      backdropClassName="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-2 sm:p-4 z-50"
+      panelClassName="bg-white rounded-2xl sm:rounded-3xl shadow-2xl w-full max-w-2xl max-h-[95vh] sm:max-h-[90vh] overflow-y-auto relative"
+      closeButtonClassName="absolute top-3 right-3 sm:top-4 sm:right-4 text-white hover:text-gray-200 z-10"
     >
-      <div className="bg-gradient-to-r from-[#001d4e] via-[#102D69] to-[#2a4d8f] text-white p-8 text-center relative">
-        <div className="w-20 h-20 bg-white rounded-full mx-auto mb-4 flex items-center justify-center">
+      <div className="bg-gradient-to-r from-[#001d4e] via-[#102D69] to-[#2a4d8f] text-white p-6 sm:p-8 text-center relative">
+        <div className="w-16 h-16 sm:w-20 sm:h-20 bg-white rounded-full mx-auto mb-3 sm:mb-4 flex items-center justify-center">
           <svg
-            className="w-12 h-12 text-[#102D69]"
+            className="w-10 h-10 sm:w-12 sm:h-12 text-[#102D69]"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -118,11 +118,15 @@ export default function RegisterModal({
             />
           </svg>
         </div>
-        <h1 className="text-3xl font-bold mb-2">Registro de Usuario</h1>
-        <p className="text-blue-100">Sistema de Autoevaluación - ITM</p>
+        <h1 className="text-2xl sm:text-3xl font-bold mb-2">
+          Registro de Usuario
+        </h1>
+        <p className="text-sm sm:text-base text-blue-100">
+          Sistema de Autoevaluación - ITM
+        </p>
       </div>
 
-      <div className="p-8">
+      <div className="p-4 sm:p-6 lg:p-8">
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-2">
@@ -211,13 +215,15 @@ export default function RegisterModal({
             )}
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">
                 Número de identificación *
               </label>
               <input
                 type="text"
+                inputMode="numeric"
+                autoComplete="off"
                 {...register("userNumber", {
                   required: "Este campo es obligatorio",
                 })}
@@ -368,7 +374,7 @@ export default function RegisterModal({
           <button
             type="submit"
             disabled={signupMutation.isPending}
-            className="w-full bg-gradient-to-r from-[#001d4e] via-[#102D69] to-[#2a4d8f] text-white py-4 rounded-xl font-bold text-lg hover:shadow-2xl transform hover:scale-105 transition-all duration-300 flex items-center justify-center space-x-2"
+            className="w-full bg-gradient-to-r from-[#001d4e] via-[#102D69] to-[#2a4d8f] text-white py-3.5 sm:py-4 rounded-xl font-bold text-base sm:text-lg hover:shadow-2xl transform hover:scale-[1.02] transition-all duration-300 flex items-center justify-center space-x-2"
           >
             <span>
               {signupMutation.isPending ? "Cargando..." : "Registrarse"}

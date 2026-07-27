@@ -4,14 +4,14 @@ import { useRouter } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { motion } from "framer-motion";
-
+import { Lightbulb } from 'lucide-react';
 const TestCompletedPage = () => {
   const router = useRouter();
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-gradient-from via-gradient-via to-gradient-to">
       <Navbar />
-      
+
       <main className="flex-grow flex items-center justify-center px-4 py-16">
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
@@ -53,16 +53,16 @@ const TestCompletedPage = () => {
 
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-8">
             <p className="text-sm text-blue-800">
-              💡 <strong>Tip:</strong> Puedes ver el estado de tus tests asignados en tu panel.
+                <Lightbulb className="inline w-4 h-4" /> <strong>Tip:</strong> Puedes ver el estado de tus pruebas asignados en tu panel.
             </p>
           </div>
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
             <button
               onClick={() => {
                 router.push("/panel/assignmentTest");
               }}
-              className="px-8 py-3 bg-primary text-white rounded-lg font-semibold hover:bg-primary-dark transition-colors shadow-md"
+              className="w-full sm:w-auto px-8 py-3 rounded-lg font-semibold text-white bg-gradient-to-r from-primary-dark to-primary-light shadow-md hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-light focus-visible:ring-offset-2"
             >
               Ver Mis Tests
             </button>
@@ -70,7 +70,7 @@ const TestCompletedPage = () => {
               onClick={() => {
                 router.push("/");
               }}
-              className="px-8 py-3 bg-gray-200 text-gray-700 rounded-lg font-semibold hover:bg-gray-300 transition-colors"
+              className="w-full sm:w-auto px-8 py-3 rounded-lg font-semibold text-primary-dark bg-white border-2 border-primary-dark/20 shadow-sm hover:bg-slate-50 hover:border-primary-dark/40 hover:shadow-md hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-dark focus-visible:ring-offset-2"
             >
               Ir al Inicio
             </button>
