@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import type { BaseResponse } from "@packages/common-types/baseResponse.types";
 import type { RegisterResponse } from "@packages/common-types/auth.types";
 import type { CreateUserInput } from "@packages/common-types/user.types";
+import { buildForwardedForHeaders } from "@/libs/server/clientIp";
 
 const METHOD_NOT_ALLOWED = "Método no permitido";
 
@@ -13,7 +14,10 @@ export async function POST(request: Request) {
       `${process.env.BACKEND_API_URL}/public/users/register`,
       body,
       {
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          ...buildForwardedForHeaders(request),
+        },
         timeout: 10000,
       },
     );

@@ -1,5 +1,8 @@
 //inject repositories
-import { container } from 'tsyringe'
+import { container, instanceCachingFactory } from 'tsyringe'
+import { IEmailProvider } from '../contracts/mail/IemailProvider'
+import { createEmailProvider } from '../services/mail/providers/emailProviderFactory'
+import { MailService } from '../services/mail/mailService'
 import { AuthService } from '../services/auth/authService'
 import { UserRepository } from '../repositories/userRepository'
 import { UserService } from '../services/users/userService'
@@ -38,6 +41,13 @@ container.register("UserAccountService", { useClass: UserAccountService })
 container.register("PsychologistAssignmentService", { useClass: PsychologistAssignmentService })
 container.register("VerificationService",{useClass: VerificationService})
 container.register("SessionService", { useClass: SessionService })
+// El proveedor de correo se construye una sola vez y de forma perezosa: la
+// factory lee el entorno en la primera resolución, no al importar el módulo.
+// Cambiar de proveedor = variable EMAIL_PROVIDER (ver emailProviderFactory).
+container.register<IEmailProvider>("EmailProvider", {
+  useFactory: instanceCachingFactory(() => createEmailProvider(process.env)),
+})
+container.register("MailService", { useClass: MailService })
 container.register("EmailVerificationService",{useClass: EmailVerificationService})
 container.register("AssignmentService",{useClass:AssignmentService})
 container.register("AnswerService",{useClass: AnswerService})

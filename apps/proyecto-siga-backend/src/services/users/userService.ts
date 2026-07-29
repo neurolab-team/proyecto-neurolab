@@ -87,8 +87,8 @@ export class UserService implements IUserService {
     );
   }
 
-  deactivateUser(id: string): Promise<void> {
-    return this.userAccountService.deactivateUser(id);
+  deactivateUser(id: string, actorId: string): Promise<void> {
+    return this.userAccountService.deactivateUser(id, actorId);
   }
 
   activateUser(id: string): Promise<void> {

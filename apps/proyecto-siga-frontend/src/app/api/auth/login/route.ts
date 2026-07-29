@@ -1,6 +1,7 @@
 import axios, { AxiosError } from "axios";
 import { NextResponse } from "next/server";
 import { setSessionCookieApp } from "@/libs/server/sessionCookieApp";
+import { buildForwardedForHeaders } from "@/libs/server/clientIp";
 import type { BaseResponse } from "@packages/common-types/baseResponse.types";
 import type { User } from "@packages/common-types/user.types";
 import type {
@@ -17,6 +18,7 @@ export async function POST(request: Request) {
       {
         headers: {
           "Content-Type": "application/json",
+          ...buildForwardedForHeaders(request),
         },
         timeout: 10000,
       },

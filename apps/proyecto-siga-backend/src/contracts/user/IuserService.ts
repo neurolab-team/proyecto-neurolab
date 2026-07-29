@@ -30,7 +30,7 @@ export interface IUserService {
     psychologistId: string,
     filters: PsychologistStudentResultsFilters,
   ): Promise<PsychologistStudentResultsResponse>
-  deactivateUser(id: string): Promise<void>
+  deactivateUser(id: string, actorId: string): Promise<void>
   activateUser(id: string): Promise<void>
   checkEmailAvailable(email: string, excludeId?: string): Promise<boolean>
   verifyEmail(token: string): Promise<void>

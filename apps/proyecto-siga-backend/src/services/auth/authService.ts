@@ -1,5 +1,6 @@
 import { inject, injectable } from "tsyringe";
 import bcrypt from "bcrypt";
+import { randomBytes } from "crypto";
 import {
   LoginCredentials,
   LoginResult,
@@ -15,6 +16,23 @@ type AuthUserRecord = User & {
   password: string | null;
 };
 
+function resolveSaltRounds(): number {
+  const rounds = Number(process.env.BCRYPT_SALT_ROUNDS);
+  return Number.isFinite(rounds) && rounds > 0 ? rounds : 10;
+}
+
+/**
+ * Hash de una cadena aleatoria, generado una vez al arrancar y con el mismo
+ * coste que los hashes reales. Se usa para que las rutas de login que fallan
+ * porque el email no existe consuman el mismo tiempo que las que fallan por
+ * contraseña incorrecta, y no se pueda inferir qué correos están registrados.
+ * Nada puede coincidir con él: la cadena de origen se descarta.
+ */
+const TIMING_EQUALIZER_HASH = bcrypt.hashSync(
+  randomBytes(32).toString("hex"),
+  resolveSaltRounds(),
+);
+
 @injectable()
 export class AuthService implements IAuthService {
   constructor(
@@ -22,15 +40,12 @@ export class AuthService implements IAuthService {
   ) {}
 
   private async HashPassword(password: string): Promise<string> {
-    const rounds = Number(process.env.BCRYPT_SALT_ROUNDS);
-    const saltRounds = Number.isFinite(rounds) && rounds > 0 ? rounds : 10;
-    return bcrypt.hash(password, saltRounds);
+    return bcrypt.hash(password, resolveSaltRounds());
   }
 
   async login(email: string, password: string): Promise<LoginResult> {
     const credentials: LoginCredentials = { email, password };
 
-    password = await this.HashPassword(password);
     const user = await this.validateCredentials(credentials);
     return {
       user: {
@@ -65,11 +80,17 @@ export class AuthService implements IAuthService {
     const user = await this.userRepo.findByEmail(credentials.email);
 
     if (!user) {
+      // Se compara contra un hash de descarte para que un email inexistente
+      // tarde lo mismo que uno existente con contraseña incorrecta. Sin esto,
+      // la diferencia de tiempo (~100 ms) permite averiguar desde fuera qué
+      // correos están registrados.
+      await bcrypt.compare(credentials.password, TIMING_EQUALIZER_HASH);
       throw Unauthorized("Credenciales inválidas");
     }
+
     const isValidPassword = await bcrypt.compare(
       credentials.password,
-      user.password!
+      user.password ?? TIMING_EQUALIZER_HASH
     );
     if (!isValidPassword) {
       throw Unauthorized("Credenciales inválidas");
@@ -142,7 +163,7 @@ export class AuthService implements IAuthService {
 
     const isValidPassword = await bcrypt.compare(
       currentPassword,
-      user.password || ""
+      user.password ?? TIMING_EQUALIZER_HASH
     );
     if (!isValidPassword) {
       throw Unauthorized("Contraseña actual incorrecta");
@@ -155,10 +176,7 @@ export class AuthService implements IAuthService {
     }
 
     // Hash new password
-    const saltRounds = process.env.BCRYPT_SALT_ROUNDS
-      ? Number(process.env.BCRYPT_SALT_ROUNDS)
-      : 10;
-    const newPasswordHash = await bcrypt.hash(newPassword, saltRounds);
+    const newPasswordHash = await this.HashPassword(newPassword);
 
     await this.userRepo.update(user.userId, {
       password: newPasswordHash,

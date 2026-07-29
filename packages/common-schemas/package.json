@@ -6,8 +6,11 @@
   "types": "./test.schemas.ts",
   "exports": {
     ".": "./test.schemas.ts",
+    "./age": "./age.ts",
     "./test.schemas": "./test.schemas.ts",
     "./auth.schemas": "./auth.schemas.ts",
+    "./answer.schemas": "./answer.schemas.ts",
+    "./assignment.schemas": "./assignment.schemas.ts",
     "./user.schemas": "./user.schemas.ts"
   }
 }

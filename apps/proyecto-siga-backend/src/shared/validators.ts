@@ -32,6 +32,10 @@ export const CommonDtos = {
     userId: CommonValidators.id
   }),
 
+  AssignmentIdParam: z.object({
+    assignmentId: CommonValidators.id
+  }),
+
   PaginatedQuery: z.object({
     limit: z.coerce.number().int().min(1).max(1000).default(100),
     offset: z.coerce.number().int().min(0).default(0)

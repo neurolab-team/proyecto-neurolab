@@ -1,4 +1,9 @@
 import "reflect-metadata";
+// Carga del .env de forma explícita y como primer efecto del arranque.
+// Antes esto vivía escondido en utils/sendEmail.ts con { override: true }, así
+// que dependía del orden del grafo de imports y podía pisar variables reales
+// inyectadas por el contenedor. Sin override, el entorno del proceso gana.
+import "dotenv/config";
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
@@ -7,8 +12,16 @@ import { readFileSync } from 'fs';
 import { router } from './routes/routes';
 import { errorHandler } from './shared/errorHandler';
 import { corsOptions } from './security/httpSecurity';
+import container from './container';
+import { IEmailProvider } from './contracts/mail/IemailProvider';
 const host = process.env.HOST ?? 'localhost';
 const port = process.env.PORT ? Number(process.env.PORT) : 6001;
+
+// Resolver el proveedor de correo en el arranque valida su configuración acá
+// (credenciales faltantes, EMAIL_PROVIDER inválido) en lugar de fallar recién
+// al primer envío. Para desarrollo sin SMTP: EMAIL_PROVIDER=console.
+const emailProvider = container.resolve<IEmailProvider>('EmailProvider');
+console.log(`[email] proveedor activo: ${emailProvider.name}`);
 
 const app = express();
 app.set('trust proxy', 1);

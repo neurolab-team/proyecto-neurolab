@@ -77,7 +77,20 @@ export class UserAccountService {
     });
   }
 
-  async deactivateUser(id: string): Promise<void> {
+  /**
+   * Desactivar una cuenta la deja fuera de inmediato: `SessionService`
+   * comprueba `isActive` en cada petición y revoca todas sus sesiones.
+   *
+   * Por eso hay dos guardas que evitan estados irrecuperables: nadie puede
+   * desactivarse a sí mismo y no se puede desactivar al último admin activo,
+   * porque dejaría la institución sin acceso administrativo y solo se podría
+   * arreglar tocando la base de datos.
+   */
+  async deactivateUser(id: string, actorId: string): Promise<void> {
+    if (id === actorId) {
+      throw BadRequest("No puedes desactivar tu propia cuenta");
+    }
+
     await this.txManager.run(async (tx) => {
       const user = await this.userRepo.findById(id, tx);
       if (!user) {
@@ -86,6 +99,19 @@ export class UserAccountService {
 
       if (!user.isActive) {
         throw BadRequest("El usuario ya está desactivado");
+      }
+
+      if (user.role === "admin") {
+        const activeAdmins = await this.userRepo.count(
+          { role: "admin", isActive: true },
+          tx,
+        );
+
+        if (activeAdmins <= 1) {
+          throw BadRequest(
+            "No puedes desactivar al último administrador activo",
+          );
+        }
       }
 
       await this.userRepo.update(id, { isActive: false }, tx);

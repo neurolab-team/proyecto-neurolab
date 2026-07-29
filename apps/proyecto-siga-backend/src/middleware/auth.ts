@@ -11,6 +11,7 @@ export interface AuthedUser {
   userId: string;
   role: AppRole;
   email: string;
+  mustChangePassword: boolean;
 }
 
 export interface AuthedRequest extends Request {
@@ -27,8 +28,40 @@ export function applyAuthResult(req: AuthedRequest, authResult: AuthResult): voi
     userId: authResult.userId,
     role: authResult.role,
     email: authResult.email,
+    mustChangePassword: authResult.mustChangePassword,
   };
   req.sessionId = authResult.sessionId;
+}
+
+/**
+ * Rutas accesibles mientras el usuario arrastra una contraseña temporal: lo
+ * mínimo para poder cambiarla, saber quién es y cerrar sesión.
+ */
+const PASSWORD_CHANGE_EXEMPT_ROUTES = new Set([
+  "PUT /api/auth/change-password",
+  "GET /api/auth/me",
+  "POST /api/auth/logout",
+  "POST /api/auth/logout-all",
+]);
+
+/**
+ * Las cuentas de admin y psicólogo se crean con una contraseña temporal enviada
+ * por correo y `mustChangePassword: true`. Antes este flag solo lo respetaba el
+ * modal de login del frontend: la sesión ya era válida para toda la API, así
+ * que bastaba con no usar la interfaz para no cambiar nunca esa contraseña.
+ *
+ * El bloqueo vive dentro de `auth` a propósito. Es el único punto por el que
+ * pasan todas las rutas privadas, así que un router nuevo queda cubierto sin
+ * que nadie tenga que acordarse de añadir nada.
+ */
+function assertPasswordChangeNotPending(req: AuthedRequest): void {
+  if (!req.user?.mustChangePassword) return;
+
+  const path = `${req.baseUrl}${req.path}`.replace(/\/$/, "");
+
+  if (PASSWORD_CHANGE_EXEMPT_ROUTES.has(`${req.method} ${path}`)) return;
+
+  throw Forbidden("Debes cambiar tu contraseña temporal antes de continuar");
 }
 
 export async function auth(
@@ -46,6 +79,7 @@ export async function auth(
 
     const authResult = await sessionService.authenticate(sessionId);
     applyAuthResult(req, authResult);
+    assertPasswordChangeNotPending(req);
     return next();
   } catch (error) {
     return next(error);

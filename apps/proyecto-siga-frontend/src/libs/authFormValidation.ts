@@ -1,4 +1,5 @@
-const MINIMUM_REGISTRATION_AGE = 16;
+import { MINIMUM_REGISTRATION_AGE } from "@packages/common-schemas/age";
+
 const MINIMUM_PASSWORD_LENGTH = 10;
 const MINIMUM_PASSWORD_CHARACTER_CLASSES = 3;
 

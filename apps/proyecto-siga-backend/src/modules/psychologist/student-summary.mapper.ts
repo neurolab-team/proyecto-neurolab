@@ -16,7 +16,8 @@ import {
   resolveAttentionLevel,
 } from "./case.rules";
 import { mapBasicUserReference } from "../users/user.mapper";
-import { calculateAge } from "../../utils/age";
+import { calculateAge } from "@packages/common-schemas/age";
+
 
 function toDateString(value?: Date | null): string | null {
   return value ? value.toISOString() : null;

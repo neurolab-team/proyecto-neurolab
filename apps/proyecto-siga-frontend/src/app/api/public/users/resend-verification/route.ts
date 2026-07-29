@@ -1,6 +1,7 @@
 import axios, { AxiosError } from "axios";
 import { NextResponse } from "next/server";
 import type { BaseResponse } from "@packages/common-types/baseResponse.types";
+import { buildForwardedForHeaders } from "@/libs/server/clientIp";
 
 const METHOD_NOT_ALLOWED = "Método no permitido";
 
@@ -11,7 +12,10 @@ export async function POST(request: Request) {
       `${process.env.BACKEND_API_URL}/public/users/resend-verification`,
       body,
       {
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          ...buildForwardedForHeaders(request),
+        },
         timeout: 10000,
       },
     );

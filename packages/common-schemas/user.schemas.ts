@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { isOfLegalAge, MINIMUM_REGISTRATION_AGE } from "./age";
 
 const userTypes = ["itmStudent", "itmEmployee", "external"] as const;
 const staffRoles = ["psychologist", "admin"] as const;
@@ -22,23 +23,6 @@ const psychologistResultsStatusFilters = [
   "pending_review",
 ] as const;
 const psychologistResultsDetailLevels = ["assignment", "question"] as const;
-
-const MINIMUM_REGISTRATION_AGE = 18;
-
-function isOfLegalAge(birthDate: string): boolean {
-  const parsed = new Date(birthDate);
-  if (Number.isNaN(parsed.getTime())) return false;
-
-  const today = new Date();
-  let age = today.getFullYear() - parsed.getFullYear();
-  const hasNotHadBirthday =
-    today.getMonth() < parsed.getMonth() ||
-    (today.getMonth() === parsed.getMonth() &&
-      today.getDate() < parsed.getDate());
-
-  if (hasNotHadBirthday) age -= 1;
-  return age >= MINIMUM_REGISTRATION_AGE;
-}
 
 export const CreateUserDto = z.object({
   email: z

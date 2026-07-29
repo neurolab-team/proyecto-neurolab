@@ -19,6 +19,7 @@ import {
 } from "@packages/common-schemas/user.schemas";
 import { userResponse } from "@packages/common-types/user.types";
 import {
+  authIpRateLimiter,
   registerRateLimiter,
   resendVerificationRateLimiter,
 } from "../security/httpSecurity";
@@ -174,19 +175,23 @@ UsersController.post(
   })
 );
 
+// Activar y desactivar cuentas es una operación administrativa: antes estaba
+// abierta a psicólogos y sin restricción sobre el objetivo, así que cualquier
+// psicólogo podía desactivar a un admin o a estudiantes que no eran suyos.
+// El frontend no consume estas rutas, así que restringirlas no afecta la UI.
 UsersController.patch(
   "/:id/deactivate",
-  asAdminOrPsychologist,
+  asAdmin,
   wrap(async (req: any, res) => {
     const { id } = CommonDtos.IdParam.parse(req.params);
-    await userService.deactivateUser(id);
+    await userService.deactivateUser(id, req.user!.userId);
     return ok(res, null, "Usuario desactivado con éxito");
   })
 );
 
 UsersController.patch(
   "/:id/activate",
-  asAdminOrPsychologist,
+  asAdmin,
   wrap(async (req: any, res) => {
     const { id } = CommonDtos.IdParam.parse(req.params);
     await userService.activateUser(id);
@@ -217,6 +222,10 @@ UsersController.get(
 // Public Routes
 
 const PublicUsersController = Router();
+
+// Limitador secundario por IP para todo el router público (registro,
+// verificación y consultas de estado de cuenta).
+PublicUsersController.use(authIpRateLimiter);
 
 PublicUsersController.post(
   "/register",

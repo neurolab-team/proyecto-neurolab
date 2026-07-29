@@ -6,10 +6,13 @@ import { ok } from "../utils/jsonResponse";
 import { created } from "../utils/jsonResponse";
 import { auth, AuthedRequest } from "../middleware/auth";
 import { CommonDtos } from "../shared/validators";
-import { NotFound, Forbidden } from "../utils/httpError";
+import { NotFound } from "../utils/httpError";
 import { AssignmentService } from "../services/assignment/assignmentService";
-import { IAssignmentRepo } from "../contracts/assignment/IassignmentRepo";
-import { IUserRepo } from "../contracts/user/IuserRepo";
+import {
+  AssignmentAccess,
+  assignmentAccessGuard,
+  isSensitiveTestCode,
+} from "../middleware/assignmentAccess";
 
 export const AssignmentScoreController = Router();
 
@@ -20,72 +23,77 @@ const assignmentScoreService = container.resolve<AssignmentScoreService>(
 );
 const assignmentService =
   container.resolve<AssignmentService>("AssignmentService");
-const assignmentRepo = container.resolve<IAssignmentRepo>("AssignmentRepo");
-const userRepo = container.resolve<IUserRepo>("UserRepo");
+
+/**
+ * Devuelve el puntaje con el nivel de detalle que corresponde a quien consulta.
+ * El personal clínico ve el puntaje completo. Al propio evaluado se le oculta la
+ * interpretación cuando el resultado requiere atención (para que la reciba de su
+ * psicólogo y no de una pantalla), y se le marca si las respuestas detalladas
+ * están restringidas por ser una prueba sensible.
+ */
+const buildScoreResponse = async (
+  assignmentId: string,
+  access: AssignmentAccess,
+) => {
+  const score =
+    await assignmentScoreService.getAssignmentScoreByAssignmentId(assignmentId);
+
+  if (!score) throw NotFound("Resultados no disponibles");
+
+  if (access.isClinician) {
+    return score;
+  }
+
+  const testCode = await assignmentAccessGuard().getTestCode(assignmentId);
+  const isRestrictedForUser = score.attentionLevel === "high";
+
+  return {
+    assignmentId: score.assignmentId,
+    interpretation: isRestrictedForUser ? null : score.interpretation,
+    interpretationRestricted: isRestrictedForUser,
+    detailedAnswersRestricted: isSensitiveTestCode(testCode),
+  };
+};
 
 AssignmentScoreController.get(
   "/:id/results",
   wrap(async (req: AuthedRequest, res) => {
     const assignmentId = CommonDtos.IdParam.parse(req.params).id;
-    const user = req.user!;
 
-    const assignment = await assignmentRepo.getAssignmentForId(assignmentId);
-    if (!assignment) throw NotFound("Asignación no encontrada");
+    const access = await assignmentAccessGuard().requireReadAccess(
+      req.user!,
+      assignmentId,
+    );
 
-    const isOwner = assignment.assignedToId === user.userId;
-    const isPsychologist = user.role === "psychologist" || user.role === "admin";
-
-    if (!isOwner && !isPsychologist) throw Forbidden();
-
-    // Psicólogo solo ve resultados de sus estudiantes asignados
-    if (isPsychologist && !isOwner) {
-      const student = await userRepo.findById(assignment.assignedToId);
-      if (student?.assignedPsychologistId !== user.userId && user.role !== "admin") {
-        throw Forbidden("No tienes acceso a los resultados de este estudiante");
-      }
-    }
-
-    const score = await assignmentScoreService.getAssignmentScoreByAssignmentId(assignmentId);
-    if (!score) throw NotFound("Resultados no disponibles");
-
-    const testCode = await assignmentRepo.getTestCodeByAssignmentId(assignmentId);
-    const isSensitiveTest = testCode === "DASS-21" || testCode === "HAD";
-    const isRestrictedForUser =
-      user.role === "user" && score.attentionLevel === "high";
-    const detailedAnswersRestricted = user.role === "user" && isSensitiveTest;
-
-    const result = isPsychologist
-      ? score
-      : {
-          assignmentId: score.assignmentId,
-          interpretation: isRestrictedForUser ? null : score.interpretation,
-          interpretationRestricted: isRestrictedForUser,
-          detailedAnswersRestricted,
-        };
-
+    const result = await buildScoreResponse(assignmentId, access);
     return ok(res, result, "Resultados de la asignación");
   }),
 );
 
 AssignmentScoreController.get(
   "/:id",
-  wrap(async (req, res) => {
+  wrap(async (req: AuthedRequest, res) => {
     const assignmentId = CommonDtos.IdParam.parse(req.params).id;
 
-    const assignmentScore =
-      await assignmentScoreService.getAssignmentScoreByAssignmentId(
-        assignmentId,
-      );
-    if (!assignmentScore) {
-      throw NotFound("AssignmentScore not found");
-    }
-    return ok(res, assignmentScore, "Detalle de la asignación");
+    const access = await assignmentAccessGuard().requireReadAccess(
+      req.user!,
+      assignmentId,
+    );
+
+    const result = await buildScoreResponse(assignmentId, access);
+    return ok(res, result, "Detalle de la asignación");
   }),
 );
+
 AssignmentScoreController.post(
   "/create",
-  wrap(async (req, res) => {
+  wrap(async (req: AuthedRequest, res) => {
     const assignmentId = CommonDtos.IdParam.parse(req.body).id;
+
+    // Calcular el puntaje cierra la asignación: solo puede hacerlo el evaluado
+    // al terminar su propia prueba.
+    await assignmentAccessGuard().requireOwnership(req.user!, assignmentId);
+
     const assignmentScore =
       await assignmentScoreService.createAssignmentScore(assignmentId);
     await assignmentService.markAssignmentAsCompleted(assignmentId);

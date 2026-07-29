@@ -60,6 +60,7 @@ export class SessionService implements ISessionService {
       role: user.role as SessionAuthResult["role"],
       email: user.email,
       sessionId: session.sessionId,
+      mustChangePassword: user.mustChangePassword,
     };
   }
 

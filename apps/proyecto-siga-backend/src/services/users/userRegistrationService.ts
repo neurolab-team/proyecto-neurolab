@@ -7,10 +7,10 @@ import { IUserRepo } from "../../contracts/user/IuserRepo";
 import { IVerificationService } from "../../contracts/verification/IverificationService";
 import { IAssignmentService } from "../../contracts/assignment/IassignmentService";
 import { mapUserRecordToUser } from "../../modules/users/user.mapper";
-import { generateSecurePassword } from "../../utils/sendEmail";
 import { TransactionManager } from "../transaction/transactionManager";
 import { checkPassword } from "../../security/passwordPolicy";
-import { isOfLegalAge, MINIMUM_REGISTRATION_AGE } from "../../utils/age";
+import { generateSecurePassword } from "../../security/passwordGenerator";
+import { isOfLegalAge, MINIMUM_REGISTRATION_AGE } from "@packages/common-schemas/age";
 
 @injectable()
 export class UserRegistrationService {
