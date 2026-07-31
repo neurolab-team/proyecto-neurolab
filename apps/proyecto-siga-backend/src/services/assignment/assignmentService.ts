@@ -19,6 +19,17 @@ const questionCodeCollator = new Intl.Collator("es", {
   sensitivity: "base",
 });
 
+/**
+ * Tests que se asignan automaticamente al registrar un usuario.
+ * Los ids deben coincidir con los definidos en prisma/seeds/definitions.
+ */
+const INITIAL_TEST_IDS: ReadonlyArray<{ testCode: string; testId: string }> = [
+  //{ testCode: "DASS-21", testId: "6996e58f-58e0-4edd-92b4-f1725bf1877d" },
+  { testCode: "EPWORTH", testId: "9296e58f-68e0-5edd-92b4-f1725bf1877a" },
+  { testCode: "PSQI", testId: "a1b2c3d4-e5f6-7890-abcd-ef1234567890" },
+  { testCode: "MUNICH", testId: "c1e2d3d4-a5f6-1890-aecd-ef1234567890" },
+];
+
 @injectable()
 export class AssignmentService implements IAssignmentService {
   constructor(
@@ -65,26 +76,30 @@ export class AssignmentService implements IAssignmentService {
     userId: string,
     tx?: Prisma.TransactionClient,
   ): Promise<void> {
-    const assignment: Prisma.assignmentCreateInput = {
-      assignedBy: {
-        connect: { userId: userId },
-      },
-      assignedTo: {
-        connect: { userId: userId },
-      },
-      test: {
-        connect: { testId: "6996e58f-58e0-4edd-92b4-f1725bf1877d" },
-      },
-      status: "assigned",
-    };
+    for (const { testCode, testId } of INITIAL_TEST_IDS) {
+      const assignment: Prisma.assignmentCreateInput = {
+        assignedBy: {
+          connect: { userId: userId },
+        },
+        assignedTo: {
+          connect: { userId: userId },
+        },
+        test: {
+          connect: { testId },
+        },
+        status: "assigned",
+      };
 
-    const response = await this.assignmentRepo.assignInitialTestsToUser(
-      assignment,
-      tx,
-    );
+      const response = await this.assignmentRepo.assignInitialTestsToUser(
+        assignment,
+        tx,
+      );
 
-    if (!response) {
-      throw new Error("Error al asignar el test inicial al usuario");
+      if (!response) {
+        throw new Error(
+          `Error al asignar el test inicial ${testCode} al usuario`,
+        );
+      }
     }
   }
 

@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { AxiosError } from "axios";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import SleepHygieneDecalogue from "@/components/SleepHygieneDecalogue";
 import { useAuth } from "@/hooks/useAuth";
 import {
   assignmentScoreService,
@@ -195,6 +196,9 @@ export default function TestResultsPage() {
               </div>
             </div>
           )}
+
+          {/* Sleep Hygiene Decalogue */}
+          <SleepHygieneDecalogue />
 
           {/* Psychologist: Section Scores */}
           {isPsychologist && sections && sections.length > 0 && (

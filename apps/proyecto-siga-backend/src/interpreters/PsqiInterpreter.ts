@@ -63,20 +63,26 @@ export class PsqiInterpreter implements IRawAnswerInterpreter {
     const totalScore = components.reduce((sum, c) => sum + c.score, 0);
     const { interpretation, attentionLevel } = this.interpretTotal(totalScore);
 
-    const sectionScores: SectionScore[] = components.map((c) => ({
-      sectionName: c.name,
-      totalScore: c.score,
-      interpretation: c.score === 0 ? "Sin dificultad" : c.score === 1 ? "Leve" : c.score === 2 ? "Moderada" : "Severa",
-      attentionLevel: (c.score <= 1 ? "none" : c.score === 2 ? "medium" : "high") as AttentionLevel,
-    }));
-
-    // Add overall interpretation as context
-    sectionScores.push({
-      sectionName: "Puntuación Global PSQI",
+    // const sectionScores: SectionScore[] = components.map((c) => ({
+    //   sectionName: c.name,
+    //   totalScore: c.score,
+    //   interpretation: c.score === 0 ? "Sin dificultad" : c.score === 1 ? "Leve" : c.score === 2 ? "Moderada" : "Severa",
+    //   attentionLevel: (c.score <= 1 ? "none" : c.score === 2 ? "medium" : "high") as AttentionLevel,
+    // }));
+    const sectionScores: SectionScore[] = [{
+      sectionName: "Puntuacion Global Calidad de Sueño de Pittsburgh",
       totalScore,
       interpretation,
-      attentionLevel,
-    });
+      attentionLevel
+    }]
+
+    // Add overall interpretation as context
+    // sectionScores.push({
+    //   sectionName: "Puntuación Global PSQI",
+    //   totalScore,
+    //   interpretation,
+    //   attentionLevel,
+    // });
 
     return { sectionScores, totalScore, attentionLevel };
   }
