@@ -4,6 +4,9 @@ import { hadConfig } from './tests/had.config';
 import { psqiConfig } from './tests/psqi.config';
 import { epworthConfig } from './tests/epworth.config';
 import { munichConfig } from './tests/munich.config';
+import { who5Config } from './tests/who5.config';
+import { gad7Config } from './tests/gad7.config';
+import { phq9Config } from './tests/phq9.config';
 const defaultConfig: TestConfig = {
   testCode: 'DEFAULT',
   displayName: 'Test',
@@ -26,6 +29,10 @@ registry.set('HAD', hadConfig);
 registry.set('PSQI', psqiConfig);
 registry.set('EPWORTH', epworthConfig);
 registry.set('MUNICH', munichConfig);
+registry.set('WHO5', who5Config);
+registry.set('GAD7', gad7Config);
+registry.set('PHQ9', phq9Config);
+
 
 export function getTestConfig(testCode: string): TestConfig {
   return registry.get(testCode.toUpperCase()) ?? defaultConfig;

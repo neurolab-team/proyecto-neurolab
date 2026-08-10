@@ -4,9 +4,6 @@ import Link from 'next/link';
 import {
   ArrowLeft,
   ArrowRight,
-  List,
-  Clock,
-  Calendar,
   Shield,
   Leaf,
   LucideIcon,
@@ -32,12 +29,6 @@ export interface TestPreviewData {
   assignmentId: string;
 }
 
-const defaultMetadata: TestPreviewMetadata[] = [
-  { icon: List, value: '—', label: 'preguntas' },
-  { icon: Clock, value: '—', label: 'duración' },
-  { icon: Calendar, value: '—', label: 'fecha límite' },
-];
-
 const defaultSteps: TestPreviewStep[] = [
   {
     title: 'Lee cada situación con calma.',
@@ -54,7 +45,6 @@ const defaultSteps: TestPreviewStep[] = [
 ];
 
 export default function TestPreview({ data }: { data: TestPreviewData }) {
-  const metadata = data.metadata.length > 0 ? data.metadata : defaultMetadata;
   const steps = data.steps.length > 0 ? data.steps : defaultSteps;
 
   return (
@@ -93,7 +83,7 @@ export default function TestPreview({ data }: { data: TestPreviewData }) {
           >
             {/* Metadata Grid */}
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
-              {metadata.map(({ icon: Icon, value, label }) => (
+              {data.metadata.map(({ icon: Icon, value, label }) => (
                 <div key={label} className="flex items-center gap-3">
                   <Icon className="h-5 w-5 text-[#102D69]" />
                   <div>
