@@ -49,6 +49,7 @@ const buildScoreResponse = async (
 
   return {
     assignmentId: score.assignmentId,
+    testCode,
     interpretation: isRestrictedForUser ? null : score.interpretation,
     interpretationRestricted: isRestrictedForUser,
     detailedAnswersRestricted: isSensitiveTestCode(testCode),

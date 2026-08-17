@@ -14,6 +14,7 @@ import {
 
 type ScoreResults = {
   assignmentId: string;
+  testCode?: string;
   interpretation?: string | null;
   interpretationRestricted?: boolean;
   detailedAnswersRestricted?: boolean;
@@ -21,6 +22,8 @@ type ScoreResults = {
   attentionLevel?: string;
   details?: { sections?: { sectionName: string; totalScore: number; interpretation: string; attentionLevel: string }[] };
 };
+
+const SLEEP_TEST_CODES = ['EPWORTH', 'PSQI', 'MUNICH'];
 
 const attentionColors: Record<string, string> = {
   high: "bg-red-100 text-red-800",
@@ -198,7 +201,9 @@ export default function TestResultsPage() {
           )}
 
           {/* Sleep Hygiene Decalogue */}
-          <SleepHygieneDecalogue />
+          {score?.testCode && SLEEP_TEST_CODES.includes(score.testCode.toUpperCase()) && (
+            <SleepHygieneDecalogue />
+          )}
 
           {/* Psychologist: Section Scores */}
           {isPsychologist && sections && sections.length > 0 && (
