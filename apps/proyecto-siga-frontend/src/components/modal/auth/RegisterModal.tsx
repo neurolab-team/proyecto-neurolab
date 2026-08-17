@@ -6,6 +6,7 @@ import { notify } from "../../../libs/toastService";
 import { UserRole, UserType } from "@packages/common-types/user.types";
 import ModalShell from "../core/ModalShell";
 import FormErrorBanner from "../../FormErrorBanner";
+import PasswordInput from "../../PasswordInput";
 import { getApiErrorMessage } from "../../../libs/getApiErrorMessage";
 import {
   getMaxBirthDateForMinimumAge,
@@ -22,6 +23,8 @@ type RegisterFormData = {
   gender?: string;
   birthDate: string;
   password?: string;
+  /** Solo para validación en el formulario; no se envía al backend. */
+  confirmPassword?: string;
   role?: UserRole;
   acceptedDataPolicy?: boolean;
 };
@@ -54,6 +57,7 @@ export default function RegisterModal({
     register,
     handleSubmit,
     watch,
+    getValues,
     formState: { errors },
   } = useForm<RegisterFormData>({
     defaultValues: {
@@ -65,15 +69,17 @@ export default function RegisterModal({
 
   const signupMutation = useMutation({
     mutationFn: async (data: RegisterFormData) => {
+      // confirmPassword solo valida el formulario: nunca viaja al backend.
+      const { confirmPassword: _confirmPassword, ...payload } = data;
+
       if (isAdminMode) {
         const userData = {
-          ...data,
-          role: (data.role || "user") as UserRole,
+          ...payload,
+          role: (payload.role || "user") as UserRole,
         };
         return usersService.create(userData);
       } else {
-        const { ...publicUserData } = data;
-        return usersService.register(publicUserData);
+        return usersService.register(payload);
       }
     },
 
@@ -238,59 +244,25 @@ export default function RegisterModal({
             </div>
 
             {!isAdminMode && (
-              <>
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Contraseña
-                  </label>
-                  {/* Agregar que se pueda mostrar la contraseña */}
-                  <input
-                    type="password"
-                    {...register("password", {
-                      required: !isAdminMode
-                        ? "Este campo es obligatorio"
-                        : false,
-                      minLength: {
-                        value: passwordRequirements.minLength,
-                        message: passwordRequirements.minLengthMessage,
-                      },
-                      validate: validatePasswordStrength,
-                    })}
-                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-opacity-50 focus:ring-[#2a4d8f] focus:border-[#2a4d8f] transition-all"
-                    placeholder="********"
-                  />
-                  <p className="text-xs text-gray-500 mt-1">
-                    {passwordRequirements.helperText}
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Fecha de nacimiento *
+                </label>
+                <input
+                  type="date"
+                  max={getMaxBirthDateForMinimumAge()}
+                  {...register("birthDate", {
+                    required: "Este campo es obligatorio",
+                    validate: validateMinimumAge,
+                  })}
+                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-opacity-50 focus:ring-[#2a4d8f] focus:border-[#2a4d8f] transition-all"
+                />
+                {errors.birthDate && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors.birthDate.message}
                   </p>
-                  {errors.password && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {errors.password.message}
-                    </p>
-                  )}
-                </div>
-
-                <div>
-                  <label
-                    className={`block text-sm font-semibold text-gray-700 ${isAdminMode ? "mb-4" : "mb-2"}`}
-                  >
-                    Fecha de nacimiento *
-                  </label>
-                  <input
-                    type="date"
-                    max={getMaxBirthDateForMinimumAge()}
-                    {...register("birthDate", {
-                      required: "Este campo es obligatorio",
-                      validate: validateMinimumAge,
-                    })}
-                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-opacity-50 focus:ring-[#2a4d8f] focus:border-[#2a4d8f] transition-all"
-                  />
-                  {errors.birthDate && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {errors.birthDate.message}
-                    </p>
-                  )}
-                </div>
-              </>
+                )}
+              </div>
             )}
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">
@@ -309,6 +281,76 @@ export default function RegisterModal({
               </select>
             </div>
           </div>
+
+          {!isAdminMode && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label
+                  htmlFor="register-password"
+                  className="block text-sm font-semibold text-gray-700 mb-2"
+                >
+                  Contraseña *
+                </label>
+                <PasswordInput
+                  id="register-password"
+                  autoComplete="new-password"
+                  aria-describedby="register-password-requirements"
+                  {...register("password", {
+                    required: "Este campo es obligatorio",
+                    minLength: {
+                      value: passwordRequirements.minLength,
+                      message: passwordRequirements.minLengthMessage,
+                    },
+                    validate: validatePasswordStrength,
+                    // Revalida la confirmación al editar la contraseña, para que
+                    // no quede un "no coinciden" obsoleto tras corregir arriba.
+                    deps: ["confirmPassword"],
+                  })}
+                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-opacity-50 focus:ring-[#2a4d8f] focus:border-[#2a4d8f] transition-all"
+                  placeholder="********"
+                />
+                {errors.password && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors.password.message}
+                  </p>
+                )}
+              </div>
+
+              <div>
+                <label
+                  htmlFor="register-confirm-password"
+                  className="block text-sm font-semibold text-gray-700 mb-2"
+                >
+                  Confirmar contraseña *
+                </label>
+                <PasswordInput
+                  id="register-confirm-password"
+                  autoComplete="new-password"
+                  {...register("confirmPassword", {
+                    required: "Confirma tu contraseña",
+                    validate: (value) =>
+                      value === getValues("password") ||
+                      "Las contraseñas no coinciden",
+                  })}
+                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-opacity-50 focus:ring-[#2a4d8f] focus:border-[#2a4d8f] transition-all"
+                  placeholder="********"
+                />
+                {errors.confirmPassword && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors.confirmPassword.message}
+                  </p>
+                )}
+              </div>
+
+              <p
+                id="register-password-requirements"
+                className="sm:col-span-2 text-xs text-gray-500"
+              >
+                {passwordRequirements.helperText} Usa el ícono del ojo para
+                verificar lo que escribiste.
+              </p>
+            </div>
+          )}
 
           <div className="bg-gradient-to-r from-blue-50 to-cyan-50 border-2 border-blue-200 rounded-xl p-4">
             <div className="flex items-start space-x-3">

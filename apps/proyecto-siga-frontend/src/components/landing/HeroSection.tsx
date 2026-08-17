@@ -118,29 +118,42 @@ export default function HeroSection() {
             {HERO.description}
           </p>
 
-          <div className="flex flex-wrap items-center gap-4 mb-8">
+          <div className="mb-8">
             {isAuthenticated ? (
               <button
                 type="button"
                 onClick={() => router.push("/panel/assignmentTest")}
-                className="flex items-center gap-2 text-white px-7 py-3 rounded-full font-bold text-sm transition-all shadow-md hover:shadow-lg"
+                className="w-full sm:w-auto flex items-center justify-center gap-2 text-white px-7 py-3 rounded-full font-bold text-sm transition-all shadow-md hover:shadow-lg"
                 style={{ backgroundColor: COLORS.primary }}
               >
                 Continúa con tus pruebas <ArrowRight size={16} aria-hidden="true" />
               </button>
             ) : (
-              <button
-                type="button"
-                onClick={() => openModal("login")}
-                className="flex items-center gap-2 text-white px-7 py-3 rounded-full font-bold text-sm transition-all shadow-md hover:shadow-lg"
-                style={{ backgroundColor: COLORS.primary }}
-              >
-                Iniciar sesión <ArrowRight size={16} aria-hidden="true" />
-              </button>
+              <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => openModal("register")}
+                  className="w-full sm:w-auto flex items-center justify-center gap-2 text-white px-7 py-3 rounded-full font-bold text-sm transition-all shadow-md hover:shadow-lg"
+                  style={{ backgroundColor: COLORS.primary }}
+                >
+                  Crear mi cuenta <ArrowRight size={16} aria-hidden="true" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => openModal("login")}
+                  className="w-full sm:w-auto flex items-center justify-center gap-2 bg-white px-7 py-3 rounded-full font-bold text-sm transition-all hover:bg-blue-50"
+                  style={{
+                    color: COLORS.primary,
+                    border: `1.5px solid ${COLORS.primary}`,
+                  }}
+                >
+                  Ya tengo cuenta
+                </button>
+              </div>
             )}
             <a
               href="#como-funciona"
-              className="flex items-center gap-1 text-sm font-medium hover:underline"
+              className="mt-4 inline-flex items-center gap-1 text-sm font-medium hover:underline"
               style={{ color: COLORS.primary }}
             >
               ¿Cómo funciona? <ArrowRight size={14} aria-hidden="true" />
