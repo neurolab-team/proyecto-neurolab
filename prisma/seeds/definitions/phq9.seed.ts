@@ -29,7 +29,7 @@ export const phq9Seed: TestSeedDefinition = {
   audience: "none",
   description:
     "Este cuestionario mide la frecuencia con la que has experimentado nueve síntomas relacionados con el estado de ánimo durante los últimos días. Se usa para evaluar la presencia y gravedad de síntomas depresivos. No hay respuestas correctas ni incorrectas",
-  sections: [{ code: "depresion", name: "Depresión" }],
+  sections: [{ code: "binestar", name: "Bienestar" }],
   questions: [
     {
       code: "PHQ9-1",

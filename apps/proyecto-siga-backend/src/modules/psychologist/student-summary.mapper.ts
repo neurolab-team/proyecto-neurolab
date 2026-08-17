@@ -194,6 +194,9 @@ export function buildStudentSummary(
   const hasCriticalResults = assignments.some((assignment) =>
     isCriticalScore(assignment.score),
   );
+  const hasCriticResults = assignments.some(
+    (assignment) => resolveAttentionLevel(assignment.score) === "critic",
+  );
   const hasCompletedAssignments = assignments.some(
     (assignment) => assignment.status === "completed",
   );
@@ -211,6 +214,7 @@ export function buildStudentSummary(
     hasCriticalResults,
     hasPendingReview,
     followUpAt: record.followUpAt,
+    hasCriticResults,
   });
 
   return {

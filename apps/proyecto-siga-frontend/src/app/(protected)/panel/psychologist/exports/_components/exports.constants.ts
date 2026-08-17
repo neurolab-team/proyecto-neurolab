@@ -1,6 +1,7 @@
 import { PsychologistPriority } from "@packages/common-types/psychologist.types";
 
 export const priorityLabel: Record<PsychologistPriority, string> = {
+  critic: "Crítica",
   high: "Alta",
   medium: "Media",
   low: "Baja",
@@ -24,6 +25,7 @@ export const caseStatusLabel: Record<string, string> = {
 };
 
 export const attentionLevelLabel: Record<string, string> = {
+  critic: "Crítica",
   high: "Alta",
   medium: "Media",
   low: "Baja",

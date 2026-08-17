@@ -14,6 +14,7 @@ import { isRawAnswerInterpreter } from "../../contracts/interpretation/ITestInte
 import { IAssignmentRepo } from "../../contracts/assignment/IassignmentRepo";
 
 const ATTENTION_LEVEL_WEIGHT: Record<AttentionLevel, number> = {
+  critic: 4,
   high: 3,
   medium: 2,
   low: 1,

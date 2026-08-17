@@ -1,4 +1,4 @@
-export type PsychologistPriority = "high" | "medium" | "low";
+export type PsychologistPriority = "high" | "medium" | "low" | "critic";
 
 export type PsychologistCaseStatus =
   | "new"

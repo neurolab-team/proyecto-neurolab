@@ -45,8 +45,10 @@ function mapFollowUpLevel(score: number): FollowUpMetrics["level"] {
   return "stable";
 }
 
-function attentionWeight(level: "high" | "medium" | "low" | "none"): number {
+function attentionWeight(level: "high" | "medium" | "low" | "none" | "critic"): number {
   switch (level) {
+    case "critic":
+      return 4;
     case "high":
       return 3;
     case "medium":

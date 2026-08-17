@@ -31,32 +31,11 @@ type AssignmentPriorityLike = Pick<
   score?: ScoreLike;
 };
 
-export function normalizeClinicalText(value?: string | null): string {
-  return (value || "")
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "");
-}
-
 export function getAttentionLevel(
-  interpretation?: string | null,
+  score?: ScoreLike,
 ): PsychologistPriority | "none" {
-  const normalized = normalizeClinicalText(interpretation);
-
-  if (
-    normalized.includes("extremadamente sever") ||
-    normalized.includes("severa") ||
-    normalized.includes("severo")
-  ) {
-    return "high";
-  }
-
-  if (normalized.includes("moderada") || normalized.includes("moderado")) {
-    return "medium";
-  }
-
-  if (normalized.includes("leve")) {
-    return "low";
+  if (score?.attentionLevel) {
+    return score.attentionLevel as PsychologistPriority | "none";
   }
 
   return "none";
@@ -65,21 +44,12 @@ export function getAttentionLevel(
 export function resolveAttentionLevel(
   score?: ScoreLike,
 ): PsychologistPriority | "none" {
-  if (score?.attentionLevel) {
-    return score.attentionLevel as PsychologistPriority | "none";
-  }
-
-  return getAttentionLevel(score?.interpretation);
-}
-
-export function isCriticalInterpretation(
-  interpretation?: string | null,
-): boolean {
-  return getAttentionLevel(interpretation) === "high";
+  return getAttentionLevel(score);
 }
 
 export function isCriticalScore(score?: ScoreLike): boolean {
-  return resolveAttentionLevel(score) === "high";
+  const level = resolveAttentionLevel(score);
+  return level === "critic" || level === "high";
 }
 
 export function isDateReached(date?: Date | null): boolean {
@@ -102,7 +72,9 @@ export function getStudentPriority(params: {
   hasCriticalResults: boolean;
   hasPendingReview: boolean;
   followUpAt?: Date | null;
+  hasCriticResults?: boolean;
 }): PsychologistPriority {
+  if (params.hasCriticResults) return "critic";
   if (params.hasCriticalResults) return "high";
   if (params.hasPendingReview) return "medium";
   if (isDateReached(params.followUpAt)) return "medium";
@@ -156,6 +128,8 @@ export function getPriorityWeight(
   priority: PsychologistPriority | "none",
 ): number {
   switch (priority) {
+    case "critic":
+      return 4;
     case "high":
       return 3;
     case "medium":
@@ -170,7 +144,13 @@ export function getPriorityWeight(
 export function getAssignmentPriority(
   assignment: AssignmentPriorityLike,
 ): PsychologistPriority {
-  if (resolveAttentionLevel(assignment.score) === "high") {
+  const attention = resolveAttentionLevel(assignment.score);
+
+  if (attention === "critic") {
+    return "critic";
+  }
+
+  if (attention === "high") {
     return "high";
   }
 
@@ -189,6 +169,10 @@ export function getPriorityReason(
   assignment: AssignmentPriorityLike,
 ): string {
   const attention = resolveAttentionLevel(assignment.score);
+
+  if (attention === "critic") {
+    return "Resultado extremadamente severo - atencion inmediata";
+  }
 
   if (attention === "high") {
     return "Resultado critico o severo";

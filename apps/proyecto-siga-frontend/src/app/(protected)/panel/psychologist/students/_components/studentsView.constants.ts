@@ -13,6 +13,7 @@ export const caseStatusLabel: Record<PsychologistCaseStatus, string> = {
 };
 
 export const priorityLabel: Record<PsychologistPriority, string> = {
+  critic: "Crítica",
   high: "Alta",
   medium: "Media",
   low: "Baja",
@@ -26,6 +27,7 @@ export const statusLabel: Record<string, string> = {
 };
 
 export const priorityBadge: Record<PsychologistPriority, string> = {
+  critic: "bg-red-200 text-red-900",
   high: "bg-rose-100 text-rose-700",
   medium: "bg-amber-100 text-amber-700",
   low: "bg-slate-100 text-slate-700",

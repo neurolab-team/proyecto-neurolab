@@ -4,7 +4,7 @@ import { isOfLegalAge, MINIMUM_REGISTRATION_AGE } from "./age";
 const userTypes = ["itmStudent", "itmEmployee", "external"] as const;
 const staffRoles = ["psychologist", "admin"] as const;
 const appRoles = ["admin", "psychologist", "user"] as const;
-const psychologistPriorityFilters = ["all", "high", "medium", "low"] as const;
+const psychologistPriorityFilters = ["all", "critic", "high", "medium", "low"] as const;
 const psychologistCaseStatusFilters = [
   "all",
   "new",
