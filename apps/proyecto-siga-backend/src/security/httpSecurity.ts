@@ -1,9 +1,19 @@
 import  { CorsOptions } from 'cors';
-import type { Request } from 'express';
+import type { Request, Response } from 'express';
 import rateLimit, { ipKeyGenerator } from 'express-rate-limit';
+import { ErrorCode } from '../utils/httpError';
+import { toRemainingMinutes } from './passwordResetPolicy';
 
 const ONE_MINUTE = 60 * 1000;
 const FIFTEEN_MINUTES = 15 * ONE_MINUTE;
+
+// express-rate-limit adjunta la información del contador en `req.rateLimit`
+// en tiempo de ejecución (bajo el nombre por defecto `requestPropertyName`),
+// pero no declara ese campo en sus tipos. Se tipa acá, en el único punto que
+// lo lee, en vez de recurrir a `any`.
+type RequestWithRateLimit = Request & {
+  rateLimit?: { resetTime?: Date };
+};
 
 function normalizeOrigin(origin: string): string {
   return origin.trim().replace(/\/$/, '');
@@ -87,6 +97,25 @@ export const rateLimitKeys = {
   emailOrIp: emailOrIpKey,
 };
 
+// Handler específico para el bloqueo por intentos de login: a diferencia del
+// mensaje genérico de los demás limitadores, este caso necesita distinguirse
+// claramente de "credenciales inválidas" (401) para que el usuario entienda
+// que su cuenta quedó temporalmente bloqueada y no siga reintentando la
+// contraseña a ciegas. Se calculan los minutos restantes a partir de
+// `req.rateLimit.resetTime`, que expone express-rate-limit, con el mismo
+// redondeo hacia arriba que usa el flujo de restablecimiento de contraseña.
+function loginRateLimitHandler(req: RequestWithRateLimit, res: Response) {
+  const resetTime = req.rateLimit?.resetTime;
+  const remainingMs = resetTime ? resetTime.getTime() - Date.now() : FIFTEEN_MINUTES;
+  const remainingMinutes = toRemainingMinutes(remainingMs / 1000);
+
+  res.status(429).json({
+    success: false,
+    message: `Demasiados intentos fallidos. Tu cuenta quedó bloqueada temporalmente. Intenta de nuevo en ${remainingMinutes} minuto${remainingMinutes === 1 ? '' : 's'}.`,
+    code: ErrorCode.TOO_MANY_REQUESTS,
+  });
+}
+
 // Los logins correctos no consumen cuota: así una jornada de uso normal nunca
 // alcanza el límite, que queda reservado para intentos fallidos repetidos.
 export const loginRateLimiter = rateLimit({
@@ -96,7 +125,7 @@ export const loginRateLimiter = rateLimit({
   skipSuccessfulRequests: true,
   standardHeaders: true,
   legacyHeaders: false,
-  message: authLimiterMessage,
+  handler: loginRateLimitHandler,
 });
 
 export const registerRateLimiter = rateLimit({

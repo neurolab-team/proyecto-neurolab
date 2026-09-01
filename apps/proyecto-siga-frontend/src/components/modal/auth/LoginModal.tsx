@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
+import axios from "axios";
 import { useAuth } from "../../../hooks/useAuth";
 import { authService } from "../../../services/auth/auth";
 import { usersService } from "../../../services/users/users";
@@ -14,6 +15,7 @@ import ForgotPasswordView, {
 } from "./views/ForgotPasswordView";
 import InactiveView from "./views/InactiveView";
 import EmailVerificationView from "./views/EmailVerificationView";
+import AccountLockedView from "./views/AccountLockedView";
 
 interface LoginModalProps {
   isOpen: boolean;
@@ -25,7 +27,8 @@ type ModalView =
   | "firstLogin"
   | "inactive"
   | "emailVerification"
-  | "forgotPassword";
+  | "forgotPassword"
+  | "accountLocked";
 
 /**
  * Contenedor del flujo de autenticación. No renderiza formularios directamente:
@@ -44,6 +47,9 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
   const [loginPassword, setLoginPassword] = useState("");
   const [attemptedEmail, setAttemptedEmail] = useState("");
   const [resendMessage, setResendMessage] = useState<string | null>(null);
+  const [accountLockedMessage, setAccountLockedMessage] = useState<
+    string | null
+  >(null);
   const [forgotPasswordMessage, setForgotPasswordMessage] = useState<
     string | null
   >(null);
@@ -70,6 +76,22 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
         await auth.refreshUser();
         onClose();
         router.refresh();
+      }
+    },
+    onError: (error) => {
+      // El bloqueo por intentos fallidos (429) es un estado distinto de
+      // "credenciales inválidas" (401): el usuario no debe seguir intentando
+      // contraseñas, así que se lleva a una pantalla propia con el mensaje
+      // que ya calculó el backend (incluye minutos restantes).
+      if (axios.isAxiosError(error) && error.response?.status === 429) {
+        const rawMessage = getApiErrorMessage(
+          error,
+          "Detectamos demasiados intentos fallidos. Tu cuenta quedó bloqueada temporalmente.",
+        );
+        setAccountLockedMessage(
+          Array.isArray(rawMessage) ? rawMessage.join(", ") : rawMessage,
+        );
+        setModalView("accountLocked");
       }
     },
   });
@@ -160,12 +182,26 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
     onClose();
   };
 
+  const handleAcknowledgeAccountLocked = () => {
+    setAccountLockedMessage(null);
+    loginMutation.reset();
+    setModalView("login");
+  };
+
   if (!isOpen) return null;
 
   const renderContent = () => {
     switch (modalView) {
       case "inactive":
         return <InactiveView onAcknowledge={handleAcknowledgeInactive} />;
+
+      case "accountLocked":
+        return (
+          <AccountLockedView
+            message={accountLockedMessage}
+            onAcknowledge={handleAcknowledgeAccountLocked}
+          />
+        );
 
       case "firstLogin":
         return (

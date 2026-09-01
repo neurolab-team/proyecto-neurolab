@@ -2,6 +2,7 @@ import { AxiosError } from "axios";
 
 export type HttpErrorAction =
   | { type: "INVALID_CREDENTIALS" }
+  | { type: "ACCOUNT_LOCKED" }
   | { type: "UNAUTHENTICATED" }
   | { type: "UNAUTHORIZED_SESSION" }
   | { type: "FORBIDDEN" }
@@ -11,6 +12,10 @@ export type HttpErrorAction =
 export const resolveHttpError = (error: AxiosError): HttpErrorAction => {
   const status = error.response?.status;
   const url = error.config?.url ?? "";
+
+  if (status === 429 && url.includes("/api/auth/login")) {
+    return { type: "ACCOUNT_LOCKED" };
+  }
 
   if (status === 401) {
     if (url.includes("/api/auth/login")) {
