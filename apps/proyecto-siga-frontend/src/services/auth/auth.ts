@@ -1,5 +1,9 @@
 import { BaseResponse } from "@packages/common-types/baseResponse.types";
 import type { User } from "@packages/common-types/user.types";
+import type {
+  ForgotPasswordInput,
+  ResetPasswordInput,
+} from "@packages/common-types/passwordReset.types";
 import apiClient from "../../api/interceptors/axiosConfig";
 
 export const authService = {
@@ -22,5 +26,21 @@ export const authService = {
 
   async changePassword(payload: any): Promise<void> {
     await apiClient.put("/api/auth/change-password", payload);
+  },
+
+  async forgotPassword(payload: ForgotPasswordInput): Promise<BaseResponse<null>> {
+    const response = await apiClient.post<BaseResponse<null>>(
+      "/api/auth/forgot-password",
+      payload,
+    );
+    return response.data;
+  },
+
+  async resetPassword(payload: ResetPasswordInput): Promise<BaseResponse<null>> {
+    const response = await apiClient.post<BaseResponse<null>>(
+      "/api/auth/reset-password",
+      payload,
+    );
+    return response.data;
   },
 };

@@ -117,6 +117,21 @@ export const resendVerificationRateLimiter = rateLimit({
   message: authLimiterMessage,
 });
 
+// Segunda capa sobre el control propio del flujo de restablecimiento, que ya
+// impone 5 minutos de espera y 3 solicitudes por correo con estado en Redis
+// (ver services/passwordReset/passwordResetService.ts). Este limitador existe
+// para frenar el sondeo de correos distintos, que el contador por correo no
+// puede ver porque cada intento usa una clave nueva. El umbral es holgado para
+// no castigar a un grupo detrás de la misma NAT.
+export const forgotPasswordRateLimiter = rateLimit({
+  windowMs: FIFTEEN_MINUTES,
+  limit: 20,
+  keyGenerator: emailOrIpKey,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: authLimiterMessage,
+});
+
 // Limitador secundario por IP para las rutas de autenticación y registro.
 // El umbral es alto a propósito: debe frenar un ataque automatizado desde un
 // host sin bloquear a un grupo de usuarios detrás de la misma NAT.

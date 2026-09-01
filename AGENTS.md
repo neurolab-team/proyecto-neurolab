@@ -24,5 +24,5 @@ If the user wants help with fixing an error in their CI pipeline, use the follow
 <!-- SPECKIT START -->
 For additional context about technologies to be used, project structure,
 shell commands, and other important information, read the current plan:
-`specs/003-testpreview-metadata/plan.md`
+`specs/005-password-reset-flow/plan.md`
 <!-- SPECKIT END -->

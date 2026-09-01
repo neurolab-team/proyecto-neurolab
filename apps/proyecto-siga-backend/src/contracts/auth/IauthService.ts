@@ -8,4 +8,5 @@ export interface IAuthService {
     currentPassword: string,
     newPassword: string,
   ): Promise<void>;
+  resetPassword(userId: string, newPassword: string): Promise<void>;
 }

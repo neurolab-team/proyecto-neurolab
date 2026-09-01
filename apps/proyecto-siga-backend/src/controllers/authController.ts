@@ -1,18 +1,42 @@
 import { Router } from "express";
+import type { Request } from "express";
 import { AuthedRequest, auth } from "../middleware/auth";
 import container from "../container/index";
 import { IAuthService } from "../contracts/auth/IauthService";
-import { LoginDto, ChangePasswordDto } from "@packages/common-schemas/auth.schemas";
+import { IPasswordResetService } from "../contracts/passwordReset/IpasswordResetService";
+import {
+  LoginDto,
+  ChangePasswordDto,
+  ForgotPasswordDto,
+  ResetPasswordDto,
+} from "@packages/common-schemas/auth.schemas";
 import { wrap } from "../middleware/async";
 import { Unauthorized } from "../utils/httpError";
 import { ok } from "../utils/jsonResponse";
 import { SessionService } from "../services/session/sessionService";
-import { authIpRateLimiter, loginRateLimiter } from "../security/httpSecurity";
+import {
+  authIpRateLimiter,
+  loginRateLimiter,
+  forgotPasswordRateLimiter,
+} from "../security/httpSecurity";
 
 export const AuthController = Router();
 
 const authService = container.resolve<IAuthService>("AuthService");
 const sessionService = container.resolve(SessionService);
+const passwordResetService = container.resolve<IPasswordResetService>(
+  "PasswordResetService",
+);
+
+/**
+ * Origen de la petición para el contador de enlaces inválidos. Express resuelve
+ * `req.ip` a partir de X-Forwarded-For porque la app corre con `trust proxy`; el
+ * BFF de Next reenvía la IP real del cliente. El literal de reserva evita que
+ * una petición sin IP resoluble quede sin ninguna contabilidad.
+ */
+function resolveClientIp(req: Request): string {
+  return req.ip ?? req.socket?.remoteAddress ?? "unknown";
+}
 
 AuthController.post(
   "/login",
@@ -46,6 +70,44 @@ AuthController.post(
       },
       "Inicio de sesión exitoso",
     );
+  }),
+);
+
+// Rutas públicas del flujo de restablecimiento de contraseña.
+// Los límites de 5 minutos de espera, 3 solicitudes y 30 minutos de bloqueo
+// viven en PasswordResetService, porque necesitan devolver el tiempo restante
+// al usuario y limpiarse tras un restablecimiento exitoso. Los limitadores de
+// abajo son la segunda capa por IP.
+AuthController.post(
+  "/forgot-password",
+  authIpRateLimiter,
+  forgotPasswordRateLimiter,
+  wrap(async (req, res) => {
+    const { email } = ForgotPasswordDto.parse(req.body);
+
+    await passwordResetService.requestPasswordReset(email);
+
+    return ok(
+      res,
+      null,
+      "Te enviamos un enlace para restablecer tu contraseña. Caduca en 30 minutos.",
+    );
+  }),
+);
+
+AuthController.post(
+  "/reset-password",
+  authIpRateLimiter,
+  wrap(async (req, res) => {
+    const { token, newPassword } = ResetPasswordDto.parse(req.body);
+
+    await passwordResetService.resetPassword(
+      token,
+      newPassword,
+      resolveClientIp(req),
+    );
+
+    return ok(res, null, "Contraseña restablecida. Ya puedes iniciar sesión.");
   }),
 );
 

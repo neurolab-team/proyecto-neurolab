@@ -35,8 +35,6 @@ export interface IUserService {
   checkEmailAvailable(email: string, excludeId?: string): Promise<boolean>
   verifyEmail(token: string): Promise<void>
   resendVerificationEmail(email: string): Promise<void>
-  // requestPasswordReset(email: string): Promise<void>
-  // resetPassword(token: string, newPassword: string): Promise<void>
   // resendActivation(email: string): Promise<void>
   checkUnverifiedAccount(email: string): Promise<boolean>
 }

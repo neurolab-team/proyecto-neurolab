@@ -15,6 +15,9 @@ import { TokenCacheService } from '../services/token/tokenCacheService'
 import { TokenCacheRepository } from '../repositories/tokenCacheRepository'
 import { VerificationService } from '../services/verification/verificationService'
 import { SessionService } from '../services/session/sessionService'
+import { PasswordResetService } from '../services/passwordReset/passwordResetService'
+import { PasswordResetRepository } from '../repositories/passwordResetRepository'
+import { PasswordResetEmailService } from '../services/mail/passwordResetEmailService'
 import { AssignmentRepository } from '../repositories/assignmentRepository'
 import { AssignmentService } from '../services/assignment/assignmentService'
 import { TestRepository } from '../repositories/testRepository'
@@ -41,6 +44,7 @@ container.register("UserAccountService", { useClass: UserAccountService })
 container.register("PsychologistAssignmentService", { useClass: PsychologistAssignmentService })
 container.register("VerificationService",{useClass: VerificationService})
 container.register("SessionService", { useClass: SessionService })
+container.register("PasswordResetService", { useClass: PasswordResetService })
 // El proveedor de correo se construye una sola vez y de forma perezosa: la
 // factory lee el entorno en la primera resolución, no al importar el módulo.
 // Cambiar de proveedor = variable EMAIL_PROVIDER (ver emailProviderFactory).
@@ -49,6 +53,7 @@ container.register<IEmailProvider>("EmailProvider", {
 })
 container.register("MailService", { useClass: MailService })
 container.register("EmailVerificationService",{useClass: EmailVerificationService})
+container.register("PasswordResetEmailService",{useClass: PasswordResetEmailService})
 container.register("AssignmentService",{useClass:AssignmentService})
 container.register("AnswerService",{useClass: AnswerService})
 container.register("AssignmentScoreService",{useClass:AssignmentScoreService})
@@ -59,6 +64,7 @@ container.register("PublicTestService",{useClass: PublicTestService})
 container.register("HealthService",{useClass: HealthService})
 //register dependencies - repository
 container.register("TokenCacheRepo",{useClass:TokenCacheRepository})
+container.register("PasswordResetRepo",{useClass:PasswordResetRepository})
 container.register("UserRepo", { useClass: UserRepository })
 container.register("AssignmentRepo",{useClass:AssignmentRepository})
 container.register("TestRepo",{useClass:TestRepository})

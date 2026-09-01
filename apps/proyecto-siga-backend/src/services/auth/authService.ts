@@ -170,15 +170,37 @@ export class AuthService implements IAuthService {
     }
 
     // Validate new password with security policies
-    const passwordErrors = await checkPassword(newPassword, user.email);
+    await this.applyNewPassword(user.userId, user.email, newPassword);
+  }
+
+  async resetPassword(userId: string, newPassword: string): Promise<void> {
+    const user = await this.userRepo.findById(userId);
+    if (!user) {
+      throw Unauthorized("Usuario no encontrado");
+    }
+
+    await this.applyNewPassword(user.userId, user.email, newPassword);
+  }
+
+  /**
+   * Valida la política y escribe la credencial nueva. Es el único punto del
+   * servicio que hashea contraseñas, así que el coste de bcrypt y las reglas de
+   * política quedan definidos en un solo lugar para el cambio autenticado y
+   * para el restablecimiento por enlace.
+   */
+  private async applyNewPassword(
+    userId: string,
+    email: string,
+    newPassword: string,
+  ): Promise<void> {
+    const passwordErrors = await checkPassword(newPassword, email);
     if (passwordErrors.length > 0) {
       throw BadRequest(passwordErrors.join(". "));
     }
 
-    // Hash new password
     const newPasswordHash = await this.HashPassword(newPassword);
 
-    await this.userRepo.update(user.userId, {
+    await this.userRepo.update(userId, {
       password: newPasswordHash,
       mustChangePassword: false,
       passwordChangedAt: new Date(),

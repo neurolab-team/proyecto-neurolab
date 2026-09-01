@@ -6,6 +6,7 @@ export enum ErrorCode {
   NOT_FOUND = 'NOT_FOUND',
   CONFLICT = 'CONFLICT',
   UNPROCESSABLE = 'UNPROCESSABLE',
+  TOO_MANY_REQUESTS = 'TOO_MANY_REQUESTS',
   INTERNAL = 'INTERNAL'
 }
 
@@ -43,6 +44,9 @@ export const Conflict = (msg = 'Conflict', details?: any) =>
 
 export const Unprocessable = (msg = 'Unprocessable Entity', details?: any) =>
   new HttpError(422, msg, ErrorCode.UNPROCESSABLE, details)
+
+export const TooManyRequests = (msg = 'Too Many Requests', details?: any) =>
+  new HttpError(429, msg, ErrorCode.TOO_MANY_REQUESTS, details)
 
 export const ServerError = (msg = 'Internal Server Error', details?: any) =>
   new HttpError(500, msg, ErrorCode.INTERNAL, details)
