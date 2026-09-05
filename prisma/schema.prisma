@@ -150,6 +150,7 @@ model assignmentScore {
   percentile     Decimal? @db.Decimal(6, 3)
   attentionLevel String   @default("none")
   interpretation String?
+  clinicalInterpretation String?
   details        String?
 
   @@index([attentionLevel])

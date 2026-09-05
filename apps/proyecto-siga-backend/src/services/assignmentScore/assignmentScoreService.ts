@@ -10,7 +10,7 @@ import { IAnswerRepo } from "../../contracts/answer/IanswerRepo";
 import { Prisma } from "@packages/libs/prisma";
 import { BadRequest } from "../../utils/httpError";
 import { InterpretationFactory } from "../interpretation/InterpretationFactory";
-import { isRawAnswerInterpreter } from "../../contracts/interpretation/ITestInterpreter";
+import { isRawAnswerInterpreter, hasClinicalInterpretation, UserInterpretationMode } from "../../contracts/interpretation/ITestInterpreter";
 import { IAssignmentRepo } from "../../contracts/assignment/IassignmentRepo";
 
 const ATTENTION_LEVEL_WEIGHT: Record<AttentionLevel, number> = {
@@ -48,12 +48,28 @@ export class AssignmentScoreService implements IAssignmentScoreService {
       throw BadRequest("Assignment score already exists for this assignment");
     }
     //Calculate score before creating assignment score record
-    const { sectionScores, totalScore, attentionLevel } =
+    const { sectionScores, totalScore, attentionLevel, clinicalInterpretation, userInterpretationMode } =
       await this.calculateAssignmentScore(assignmentId);
-    //Create general interpretation
+    //Create general interpretation (section-based descriptive text)
     const overallInterpretation = sectionScores
       .map((s) => `${s.sectionName}: ${s.interpretation}`)
       .join("; ");
+
+    // Decide what the user sees vs. what the psychologist sees.
+    // - "scoreOnly": the user only gets the numeric score; the descriptive
+    //   general interpretation is reserved for the psychologist.
+    // - "full" (default): the user gets the general interpretation, and the
+    //   clinical text (if any) or the general text goes to the psychologist.
+    let userInterpretation: string;
+    let clinicalText: string;
+    if (userInterpretationMode === "scoreOnly") {
+      userInterpretation = `Puntaje total: ${totalScore}`;
+      clinicalText = clinicalInterpretation ?? overallInterpretation;
+    } else {
+      userInterpretation = overallInterpretation;
+      clinicalText = clinicalInterpretation ?? overallInterpretation;
+    }
+
     //create details JSON with section scores
     const details = JSON.stringify({ sections: sectionScores });
 
@@ -62,7 +78,8 @@ export class AssignmentScoreService implements IAssignmentScoreService {
       totalScore: new Prisma.Decimal(totalScore),
       percentile: null,
       attentionLevel,
-      interpretation: overallInterpretation,
+      interpretation: userInterpretation,
+      clinicalInterpretation: clinicalText,
       details: details,
     });
 
@@ -81,6 +98,8 @@ export class AssignmentScoreService implements IAssignmentScoreService {
     sectionScores: SectionScore[];
     totalScore: number;
     attentionLevel: AttentionLevel;
+    clinicalInterpretation?: string;
+    userInterpretationMode: UserInterpretationMode;
   }> {
     const testCode =
       await this.assignmentRepo.getTestCodeByAssignmentId(assignmentId);
@@ -96,12 +115,16 @@ export class AssignmentScoreService implements IAssignmentScoreService {
       );
     }
 
+    const userInterpretationMode: UserInterpretationMode =
+      interpreter.userInterpretationMode ?? "full";
+
     const answers =
       await this.answerRepo.findByAssignmentTestWithDetails(assignmentId);
 
-    // If the interpreter handles its own scoring (e.g. PSQI), delegate entirely
+    // If the interpreter handles its own scoring (e.g. PSQI), delegate entirely.
+    // It may also return its own clinical interpretation.
     if (isRawAnswerInterpreter(interpreter)) {
-      return interpreter.calculateFromAnswers(answers);
+      return { ...interpreter.calculateFromAnswers(answers), userInterpretationMode };
     }
 
     // Default: sum scoreValues grouped by section
@@ -147,10 +170,21 @@ export class AssignmentScoreService implements IAssignmentScoreService {
       "none",
     );
 
+    // Optional test-specific clinical interpretation for psychologists.
+    const clinicalInterpretation = hasClinicalInterpretation(interpreter)
+      ? interpreter.buildClinicalInterpretation(
+          sectionScores,
+          totalScore,
+          attentionLevel,
+        )
+      : undefined;
+
     return {
       sectionScores,
       totalScore,
       attentionLevel,
+      clinicalInterpretation,
+      userInterpretationMode,
     };
   }
     private toAssignmentScoreDto(assignmentScore: {
@@ -159,6 +193,7 @@ export class AssignmentScoreService implements IAssignmentScoreService {
     percentile?: { toNumber(): number } | null;
     attentionLevel: string;
     interpretation?: string | null;
+    clinicalInterpretation?: string | null;
     details?: string | null;
   }): AssignmentScore {
     return {
@@ -167,6 +202,7 @@ export class AssignmentScoreService implements IAssignmentScoreService {
       percentile: assignmentScore.percentile?.toNumber() ?? null,
       attentionLevel: assignmentScore.attentionLevel as AttentionLevel,
       interpretation: assignmentScore.interpretation ?? null,
+      clinicalInterpretation: assignmentScore.clinicalInterpretation ?? null,
       details: assignmentScore.details ? JSON.parse(assignmentScore.details) : undefined,
     };
   }

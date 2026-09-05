@@ -20,9 +20,6 @@ import { AuthedUser } from "./auth";
  * - Cualquier otro caso es 403.
  */
 
-/** Pruebas cuyas respuestas crudas no se devuelven al propio evaluado. */
-const SENSITIVE_TEST_CODES = new Set(["DASS-21", "HAD"]);
-
 export type AssignmentAccess = {
   assignment: Assignment;
   /** El usuario autenticado es el evaluado. */
@@ -36,19 +33,6 @@ export interface AssignmentAccessDeps {
   assignmentRepo: Pick<IAssignmentRepo, "getAssignmentForId" | "getTestCodeByAssignmentId">;
   userRepo: Pick<IUserRepo, "findById">;
 }
-
-export const isSensitiveTestCode = (testCode: string | null): boolean =>
-  testCode !== null && SENSITIVE_TEST_CODES.has(testCode);
-
-/**
- * Determina si el evaluado debe ver las respuestas detalladas de la prueba.
- * Para las pruebas sensibles no se le devuelven al propio usuario; sí al
- * personal clínico.
- */
-export const detailedAnswersAllowedFor = (
-  access: AssignmentAccess,
-  testCode: string | null,
-): boolean => access.isClinician || !isSensitiveTestCode(testCode);
 
 export const createAssignmentAccessGuard = (deps: AssignmentAccessDeps) => {
   const resolveAccess = async (

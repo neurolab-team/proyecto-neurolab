@@ -3,6 +3,9 @@ import { ISectionInterpreter } from "../contracts/interpretation/ITestInterprete
 
 export class Dass21Interpreter implements ISectionInterpreter {
   readonly testCode = "DASS-21";
+  // El usuario solo ve su puntaje; el texto interpretativo por secciones
+  // queda como interpretación clínica para el psicólogo.
+  readonly userInterpretationMode = "scoreOnly" as const;
 
   private normalize(sectionName: string): string {
     return sectionName.toLowerCase();

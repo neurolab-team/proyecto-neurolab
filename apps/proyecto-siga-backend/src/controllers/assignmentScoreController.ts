@@ -11,7 +11,6 @@ import { AssignmentService } from "../services/assignment/assignmentService";
 import {
   AssignmentAccess,
   assignmentAccessGuard,
-  isSensitiveTestCode,
 } from "../middleware/assignmentAccess";
 
 export const AssignmentScoreController = Router();
@@ -26,10 +25,9 @@ const assignmentService =
 
 /**
  * Devuelve el puntaje con el nivel de detalle que corresponde a quien consulta.
- * El personal clínico ve el puntaje completo. Al propio evaluado se le oculta la
- * interpretación cuando el resultado requiere atención (para que la reciba de su
- * psicólogo y no de una pantalla), y se le marca si las respuestas detalladas
- * están restringidas por ser una prueba sensible.
+ * El personal clínico ve el puntaje completo, incluida su interpretación clínica.
+ * Al evaluado se le devuelve su propia interpretación (columna `interpretation`);
+ * nunca se le expone la interpretación clínica del psicólogo.
  */
 const buildScoreResponse = async (
   assignmentId: string,
@@ -41,18 +39,20 @@ const buildScoreResponse = async (
   if (!score) throw NotFound("Resultados no disponibles");
 
   if (access.isClinician) {
+    // El personal clínico recibe el score completo, incluida la
+    // clinicalInterpretation (texto clínico para el psicólogo).
     return score;
   }
 
   const testCode = await assignmentAccessGuard().getTestCode(assignmentId);
-  const isRestrictedForUser = score.attentionLevel === "high";
 
+  // Respuesta para el evaluado: ve su interpretación de usuario y sus
+  // respuestas detalladas. NUNCA se incluye clinicalInterpretation (reservada
+  // al psicólogo).
   return {
     assignmentId: score.assignmentId,
     testCode,
-    interpretation: isRestrictedForUser ? null : score.interpretation,
-    interpretationRestricted: isRestrictedForUser,
-    detailedAnswersRestricted: isSensitiveTestCode(testCode),
+    interpretation: score.interpretation,
   };
 };
 

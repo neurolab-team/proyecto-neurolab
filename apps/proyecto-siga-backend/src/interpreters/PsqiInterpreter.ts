@@ -10,6 +10,7 @@ export class PsqiInterpreter implements IRawAnswerInterpreter {
     sectionScores: SectionScore[];
     totalScore: number;
     attentionLevel: AttentionLevel;
+    clinicalInterpretation?: string;
   } {
     const byCode = new Map<string, AnswerWithDetails>();
     for (const a of answers) {
@@ -62,13 +63,6 @@ export class PsqiInterpreter implements IRawAnswerInterpreter {
 
     const totalScore = components.reduce((sum, c) => sum + c.score, 0);
     const { interpretation, attentionLevel } = this.interpretTotal(totalScore);
-
-    // const sectionScores: SectionScore[] = components.map((c) => ({
-    //   sectionName: c.name,
-    //   totalScore: c.score,
-    //   interpretation: c.score === 0 ? "Sin dificultad" : c.score === 1 ? "Leve" : c.score === 2 ? "Moderada" : "Severa",
-    //   attentionLevel: (c.score <= 1 ? "none" : c.score === 2 ? "medium" : "high") as AttentionLevel,
-    // }));
     const sectionScores: SectionScore[] = [{
       sectionName: "Puntuacion Global Calidad de Sueño de Pittsburgh",
       totalScore,
@@ -76,15 +70,43 @@ export class PsqiInterpreter implements IRawAnswerInterpreter {
       attentionLevel
     }]
 
-    // Add overall interpretation as context
-    // sectionScores.push({
-    //   sectionName: "Puntuación Global PSQI",
-    //   totalScore,
-    //   interpretation,
-    //   attentionLevel,
-    // });
+    const clinicalInterpretation = this.buildClinicalInterpretation(
+      components,
+      totalScore,
+      interpretation,
+      attentionLevel,
+    );
 
-    return { sectionScores, totalScore, attentionLevel };
+    return { sectionScores, totalScore, attentionLevel, clinicalInterpretation };
+  }
+
+  /**
+   * Interpretación clínica para el psicólogo (PSQI): desglose por componente
+   * (C1–C7) con su nivel de afectación, más la puntuación global.
+   */
+  protected buildClinicalInterpretation(
+    components: { name: string; score: number }[],
+    totalScore: number,
+    interpretation: string,
+    attentionLevel: AttentionLevel,
+  ): string {
+    const desglose = components
+      .map((c) => `${c.name}: ${this.componentSeverity(c.score)} (${c.score}/3)`)
+      .join("; ");
+
+    return (
+      `Evaluación PSQI (Índice de Calidad de Sueño de Pittsburgh). ` +
+      `Desglose por componente: ${desglose}. ` +
+      `Puntuación global: ${totalScore} — ${interpretation}. Nivel de atención: ${attentionLevel}.`
+    );
+  }
+
+  /** Severidad textual de un componente PSQI (0–3). */
+  protected componentSeverity(score: number): string {
+    if (score === 0) return "Sin dificultad";
+    if (score === 1) return "Leve";
+    if (score === 2) return "Moderada";
+    return "Severa";
   }
 
   protected interpretTotal(total: number): { interpretation: string; attentionLevel: AttentionLevel } {

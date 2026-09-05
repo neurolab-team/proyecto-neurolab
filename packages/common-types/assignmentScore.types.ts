@@ -21,6 +21,8 @@ export interface AssignmentScore {
   percentile?: number | null;
   attentionLevel: AttentionLevel;
   interpretation?: string | null;
+  /** Clinical interpretation for psychologists. Never exposed to the evaluated user. */
+  clinicalInterpretation?: string | null;
   details?: JsonValue;
 }
 
@@ -30,6 +32,7 @@ export interface CreateAssignmentScoreInput {
   percentile?: number | null;
   attentionLevel?: AttentionLevel;
   interpretation?: string | null;
+  clinicalInterpretation?: string | null;
   details?: JsonValue;
 }
 

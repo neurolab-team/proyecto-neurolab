@@ -13,7 +13,6 @@ import {
 } from "@packages/common-schemas/answer.schemas";
 import {
   assignmentAccessGuard,
-  detailedAnswersAllowedFor,
 } from "../middleware/assignmentAccess";
 
 // Private Routes
@@ -61,16 +60,7 @@ AnswersController.get(
     const id = CommonDtos.IdParam.parse(req.params).id;
     const guard = assignmentAccessGuard();
 
-    const access = await guard.requireReadAccess(req.user!, id);
-    const testCode = await guard.getTestCode(id);
-
-    if (!detailedAnswersAllowedFor(access, testCode)) {
-      return ok(
-        res,
-        [],
-        "Respuestas restringidas para este tipo de prueba",
-      );
-    }
+    await guard.requireReadAccess(req.user!, id);
 
     const answers = await answerService.getAnswersByAssignmentTest(id);
     return ok(res, answers, "Listado de respuestas");
@@ -83,16 +73,7 @@ AnswersController.get(
     const id = CommonDtos.IdParam.parse(req.params).id;
     const guard = assignmentAccessGuard();
 
-    const access = await guard.requireReadAccess(req.user!, id);
-    const testCode = await guard.getTestCode(id);
-
-    if (!detailedAnswersAllowedFor(access, testCode)) {
-      return ok(
-        res,
-        [],
-        "Respuestas detalladas restringidas para este tipo de prueba",
-      );
-    }
+    await guard.requireReadAccess(req.user!, id);
 
     const answers = await answerService.getDetailedAnswers(id);
     return ok(res, answers, "Respuestas detalladas");
@@ -105,16 +86,7 @@ AnswersController.get(
     const id = CommonDtos.IdParam.parse(req.params).id;
     const guard = assignmentAccessGuard();
 
-    const access = await guard.requireReadAccess(req.user!, id);
-    const testCode = await guard.getTestCode(id);
-
-    if (!detailedAnswersAllowedFor(access, testCode)) {
-      return ok(
-        res,
-        [],
-        "Respuestas restringidas para este tipo de prueba",
-      );
-    }
+    await guard.requireReadAccess(req.user!, id);
 
     const answers =
       await answerService.getAnswersByAssignmentTestWithDetails(id);

@@ -3,6 +3,9 @@ import { ISectionInterpreter } from "../contracts/interpretation/ITestInterprete
 
 export class HadInterpreter implements ISectionInterpreter {
   readonly testCode = "HAD";
+  // El usuario solo ve su puntaje; la interpretación por secciones queda
+  // reservada para el psicólogo (interpretación clínica).
+  readonly userInterpretationMode = "scoreOnly" as const;
 
   interpretSection(sectionName: string, score: number): { interpretation: string; attentionLevel: AttentionLevel } {
     if (score <= 7) return { interpretation: "Normal", attentionLevel: "none" };

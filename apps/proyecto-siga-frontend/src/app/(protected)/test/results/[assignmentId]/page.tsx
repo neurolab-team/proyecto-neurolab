@@ -16,8 +16,7 @@ type ScoreResults = {
   assignmentId: string;
   testCode?: string;
   interpretation?: string | null;
-  interpretationRestricted?: boolean;
-  detailedAnswersRestricted?: boolean;
+  clinicalInterpretation?: string | null;
   totalScore?: number;
   attentionLevel?: string;
   details?: { sections?: { sectionName: string; totalScore: number; interpretation: string; attentionLevel: string }[] };
@@ -51,9 +50,6 @@ export default function TestResultsPage() {
   const [error, setError] = useState<string | null>(null);
 
   const isPsychologist = user?.role === "psychologist" || user?.role === "admin";
-  const hideInterpretationForUser = Boolean(score?.interpretationRestricted);
-  const hideDetailedAnswersForUser = Boolean(score?.detailedAnswersRestricted);
-  const showRestrictedSummary = !isPsychologist && (hideInterpretationForUser || hideDetailedAnswersForUser);
 
   useEffect(() => {
     if (!assignmentId || typeof assignmentId !== "string" || authLoading) return;
@@ -153,23 +149,8 @@ export default function TestResultsPage() {
             </h1>
           </div>
 
-          {showRestrictedSummary && (
-            <div className="bg-white rounded-xl shadow-md p-6 mb-6 border-l-4 border-yellow-400">
-              <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-2">
-                Tranquilo tus resultados están siendo revisados
-              </h2>
-              <p className="text-gray-800 leading-relaxed">
-                {hideInterpretationForUser && hideDetailedAnswersForUser
-                  ? "La interpretación y el detalle de respuestas requieren revisión profesional antes de mostrarse."
-                  : hideInterpretationForUser
-                    ? "La interpretación requiere revisión profesional antes de mostrarse."
-                    : "El detalle de respuestas requiere revisión profesional antes de mostrarse."}
-              </p>
-            </div>
-          )}
-
           {/* Interpretation Banner */}
-          {score?.interpretation && !hideInterpretationForUser && (
+          {score?.interpretation && (
             <div className="bg-white rounded-xl shadow-md p-6 mb-6 border-l-4 border-primary-light">
               <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-2">
                 Interpretación
@@ -180,23 +161,15 @@ export default function TestResultsPage() {
             </div>
           )}
 
-          {/* Psychologist: Score Summary */}
-          {isPsychologist && score?.totalScore !== undefined && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-              <div className="bg-white rounded-xl shadow-md p-5">
-                <p className="text-sm text-gray-500 font-medium">Puntaje Total</p>
-                <p className="text-2xl font-bold text-primary-dark mt-1">
-                  {score.totalScore}
-                </p>
-              </div>
-              <div className="bg-white rounded-xl shadow-md p-5">
-                <p className="text-sm text-gray-500 font-medium">Nivel de Atención</p>
-                <span
-                  className={`inline-block mt-1 px-3 py-1 rounded-lg text-sm font-semibold ${attentionColors[score.attentionLevel || "none"]}`}
-                >
-                  {attentionLabels[score.attentionLevel || "none"]}
-                </span>
-              </div>
+          {/* Clinical Interpretation (psychologists only) */}
+          {isPsychologist && score?.clinicalInterpretation && (
+            <div className="bg-white rounded-xl shadow-md p-6 mb-6 border-l-4 border-indigo-500">
+              <h2 className="text-sm font-semibold text-indigo-600 uppercase tracking-wide mb-2">
+                Interpretación clínica
+              </h2>
+              <p className="text-gray-800 leading-relaxed whitespace-pre-line">
+                {score.clinicalInterpretation}
+              </p>
             </div>
           )}
 
@@ -241,7 +214,7 @@ export default function TestResultsPage() {
           )}
 
           {/* Answers Table */}
-          {!hideDetailedAnswersForUser && Object.keys(grouped).length > 0 && (
+          {Object.keys(grouped).length > 0 && (
             <div className="bg-white rounded-xl shadow-md p-6">
               <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4">
                 Respuestas
