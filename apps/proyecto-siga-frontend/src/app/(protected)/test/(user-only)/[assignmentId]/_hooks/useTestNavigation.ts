@@ -11,6 +11,26 @@ function isConditionMet(
   const cond = question.condition;
   if (!cond) return true;
 
+  // Variante múltiple: se muestra si en CUALQUIERA de las preguntas de `anyOf`
+  // la opción marcada tiene un `value` numérico >= `showWhenValueAtLeast`.
+  if ("anyOf" in cond) {
+    return cond.anyOf.some((depCode) => {
+      const depQuestion = questions.find((q) => q.code === depCode);
+      if (!depQuestion) return false;
+
+      const selectedOptionId = answers[depQuestion.questionId];
+      if (!selectedOptionId) return false;
+
+      const selectedOption = depQuestion.questionOption.find(
+        (o) => o.questionOptionId === selectedOptionId,
+      );
+      const value = Number(selectedOption?.value);
+      return Number.isFinite(value) && value >= cond.showWhenValueAtLeast;
+    });
+  }
+
+  // Variante clásica: se muestra salvo que la opción elegida en `dependsOn`
+  // tenga la etiqueta `showWhenNot`.
   const depQuestion = questions.find((q) => q.code === cond.dependsOn);
   if (!depQuestion) return true;
 
@@ -54,7 +74,13 @@ function buildPages(questions: Question[], answers: Record<string, string>): Nav
 function getConditionKeys(questions: Question[]): string[] {
   const codes = new Set<string>();
   for (const q of questions) {
-    if (q.condition?.dependsOn) codes.add(q.condition.dependsOn);
+    const cond = q.condition;
+    if (!cond) continue;
+    if ("anyOf" in cond) {
+      for (const c of cond.anyOf) codes.add(c);
+    } else if (cond.dependsOn) {
+      codes.add(cond.dependsOn);
+    }
   }
   const ids: string[] = [];
   for (const q of questions) {

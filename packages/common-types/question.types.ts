@@ -30,13 +30,22 @@ export interface QuestionMetadata {
     amPmRequired?: boolean;
 }
 
+export type QuestionCondition =
+  // Forma clásica: se muestra salvo que la opción elegida en `dependsOn`
+  // tenga la etiqueta `showWhenNot`.
+  | { dependsOn: string; showWhenNot: string }
+  // Se muestra cuando en CUALQUIERA de las preguntas de `anyOf` la opción
+  // marcada tenga un `value` numérico mayor o igual a `showWhenValueAtLeast`.
+  // (Se usa `value` porque el `scoreValue` no se expone al frontend.)
+  | { anyOf: string[]; showWhenValueAtLeast: number };
+
 export interface Question {
     questionId: string;
     code?: string;
     prompt?: string;
     questionType?: QuestionType;
     required?: boolean;
-    condition?: { dependsOn: string; showWhenNot: string } | null;
+    condition?: QuestionCondition | null;
     metadata?: QuestionMetadata | null;
     questionOption: QuestionOption[];
 }

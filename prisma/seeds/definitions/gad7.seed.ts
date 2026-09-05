@@ -91,6 +91,30 @@ export const gad7Seed: TestSeedDefinition = {
               sectionCode: "ansiedad",
               options: OPTIONS,
               metadata: {group: "GAD-ANSIETY-PROBLEMS",},
-        },
+    },
+    {
+      code: "GAD7-9",
+      prompt: "Si marcó cualquier problema, qué tan difícil le han hecho estos problemas para hacer su trabajo, ocúpese de las cosas en ¿O se llevan bien con otras personas?",
+      type: "single_choice",
+      sectionCode: "ansiedad",
+      options: OPTIONS,
+      required: false,
+      condition: {
+        anyOf: ["GAD7-1", "GAD7-2", "GAD7-3", "GAD7-4", "GAD7-5", "GAD7-6", "GAD7-8"],
+        showWhenValueAtLeast: 1,
+      },
+    },
+    {
+      code: "GAD7-10",
+      prompt: "¿Cuándo comenzaron los síntomas?",
+      type: "open_text",
+      sectionCode: "ansiedad",
+      options: [],
+      required: false,
+      condition: {
+        anyOf: ["GAD7-1", "GAD7-2", "GAD7-3", "GAD7-4", "GAD7-5", "GAD7-6", "GAD7-8"],
+        showWhenValueAtLeast: 1,
+      },
+    }
   ]
 };

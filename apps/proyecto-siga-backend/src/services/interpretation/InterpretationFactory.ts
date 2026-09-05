@@ -6,6 +6,8 @@ import { PsqiInterpreter } from "../../interpreters/PsqiInterpreter";
 import { EpworthInterpreter } from "../../interpreters/EpworthInterpreter";
 import { MunichInterpreter } from "../../interpreters/MunichInterpreter";
 import { Phq9Interpreter } from "../../interpreters/Phq9Interpreter";
+import { Who5Interpreter } from "../../interpreters/Who5Interpreter";
+import { Gad7Interpreter } from "../../interpreters/Gad7Interpreter";
 
 @injectable()
 export class InterpretationFactory {
@@ -26,6 +28,8 @@ export class InterpretationFactory {
     this.register("EPWORTH", new EpworthInterpreter());
     this.register("MUNICH", new MunichInterpreter());
     this.register("PHQ9", new Phq9Interpreter());
+    this.register("WHO5", new Who5Interpreter());
+    this.register("GAD7", new Gad7Interpreter());
     // Register more interpreters here as they are created:
     // this.register("PHQ-9", new Phq9Interpreter());
   }
