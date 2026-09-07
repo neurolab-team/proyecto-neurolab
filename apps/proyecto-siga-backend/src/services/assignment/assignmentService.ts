@@ -11,7 +11,9 @@ import { PrismaQuestion } from "@packages/common-types/test.types";
 import { IAssignmentService } from "../../contracts/assignment/IassignmentService";
 import { IAssignmentRepo } from "../../contracts/assignment/IassignmentRepo";
 import { ITestRepo } from "../../contracts/test/ItestRepo";
+import { IUserRepo } from "../../contracts/user/IuserRepo";
 import { BadRequest, NotFound } from "../../utils/httpError";
+import { logger } from "../../utils/logger";
 import { TransactionManager } from "../transaction/transactionManager";
 
 const questionCodeCollator = new Intl.Collator("es", {
@@ -37,6 +39,8 @@ export class AssignmentService implements IAssignmentService {
     private readonly assignmentRepo: IAssignmentRepo,
     @inject("TestRepo")
     private readonly testRepo: ITestRepo,
+    @inject("UserRepo")
+    private readonly userRepo: IUserRepo,
     @inject("TransactionManager")
     private readonly txManager: TransactionManager,
   ) {}
@@ -76,10 +80,21 @@ export class AssignmentService implements IAssignmentService {
     userId: string,
     tx?: Prisma.TransactionClient,
   ): Promise<void> {
+    const adminId = await this.userRepo.findFirstAdminId(tx);
+
+    if (!adminId) {
+      logger.warn(
+        "No existe ningun administrador; las pruebas iniciales quedaran autoasignadas",
+        { userId },
+      );
+    }
+
+    const assignedById = adminId ?? userId;
+
     for (const { testCode, testId } of INITIAL_TEST_IDS) {
       const assignment: Prisma.assignmentCreateInput = {
         assignedBy: {
-          connect: { userId: userId },
+          connect: { userId: assignedById },
         },
         assignedTo: {
           connect: { userId: userId },

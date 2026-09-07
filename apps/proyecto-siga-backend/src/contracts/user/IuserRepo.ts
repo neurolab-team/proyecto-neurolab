@@ -91,6 +91,7 @@ export interface IUserRepo {
   findActivePsychologistsWithStudentsCount(
     tx?: Prisma.TransactionClient,
   ): Promise<PsychologistLoadRecord[]>;
+  findFirstAdminId(tx?: Prisma.TransactionClient): Promise<string | null>;
   delete(id: string, tx?: Prisma.TransactionClient): Promise<void>;
   count(
     where: Prisma.userWhereInput,

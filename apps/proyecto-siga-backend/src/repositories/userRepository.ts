@@ -1,6 +1,6 @@
 import { Prisma, user } from '@packages/libs/prisma'
 import prisma from '@packages/libs/prisma'
-import { IUserRepo, PsychologistLoadRecord } from '../contracts/user/IuserRepo' 
+import { IUserRepo, PsychologistLoadRecord } from '../contracts/user/IuserRepo'
 
 export class UserRepository implements IUserRepo {
   async findById(id: string, tx = prisma): Promise<user | null> {
@@ -168,6 +168,24 @@ export class UserRepository implements IUserRepo {
         }
         return left.createdAt.getTime() - right.createdAt.getTime()
       })
+  }
+
+  async findFirstAdminId(tx = prisma): Promise<string | null> {
+    const activeAdmin = await tx.user.findFirst({
+      where: { role: 'admin', isActive: true },
+      orderBy: { createdAt: 'asc' },
+      select: { userId: true },
+    })
+
+    if (activeAdmin) return activeAdmin.userId
+
+    const anyAdmin = await tx.user.findFirst({
+      where: { role: 'admin' },
+      orderBy: { createdAt: 'asc' },
+      select: { userId: true },
+    })
+
+    return anyAdmin?.userId ?? null
   }
 
   async delete(id: string, tx = prisma): Promise<void> {
