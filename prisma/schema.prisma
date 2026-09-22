@@ -29,6 +29,13 @@ model user {
   assignedPsychologistAt DateTime?
   followUpAt             DateTime?
 
+  // Encuesta externa de usabilidad (Google Forms) disparada al completar las
+  // 3 pruebas de sueño. "PromptedAt" = se disparó (se mandó el correo y se
+  // debe mostrar el modal); "ClickedAt" = el usuario abrió el link, deja de
+  // insistirse.
+  usabilitySurveyPromptedAt DateTime?
+  usabilitySurveyClickedAt  DateTime?
+
   // relations
   assignedPsychologist user?        @relation("psychologistAssignments", fields: [assignedPsychologistId], references: [userId], onDelete: NoAction, onUpdate: NoAction)
   assignedStudents     user[]       @relation("psychologistAssignments")
@@ -115,6 +122,10 @@ model assignment {
   completedAt DateTime?
   reviewedAt  DateTime?
   createdAt   DateTime  @default(now())
+
+  consentStatus      String? // "accepted" | "declined" | null = pendiente
+  consentRespondedAt DateTime?
+  consentVersion     String?
 
   assignedBy user             @relation("assignedBy", fields: [assignedById], references: [userId], onDelete: NoAction, onUpdate: NoAction)
   assignedTo user             @relation("assignedTo", fields: [assignedToId], references: [userId], onDelete: NoAction, onUpdate: NoAction)

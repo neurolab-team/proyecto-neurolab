@@ -5,15 +5,30 @@ import { Router } from "express";
 import { wrap } from "../middleware/async";
 import { ok } from "../utils/jsonResponse";
 import { IAnswerService } from "../contracts/answer/IanswerService";
-import { NotFound } from "../utils/httpError";
+import { Forbidden, NotFound } from "../utils/httpError";
 import { created } from "../utils/jsonResponse";
 import {
   CreateAnswerDto,
   CreateManyAnswersDto,
 } from "@packages/common-schemas/answer.schemas";
 import {
+  AssignmentAccess,
   assignmentAccessGuard,
 } from "../middleware/assignmentAccess";
+
+/**
+ * Sin consentimiento informado aceptado no se guardan respuestas, sin
+ * importar por dónde haya llegado la petición (UI o llamada directa a la
+ * API). El gate real de "no puedes responder sin consentir" vive aquí, no
+ * solo en el frontend.
+ */
+const requireAcceptedConsent = (access: AssignmentAccess) => {
+  if (access.assignment.consentStatus !== "accepted") {
+    throw Forbidden(
+      "Debes aceptar el consentimiento informado antes de responder esta prueba",
+    );
+  }
+};
 
 // Private Routes
 export const AnswersController = Router();
@@ -99,10 +114,11 @@ AnswersController.post(
   wrap(async (req: AuthedRequest, res) => {
     const input = CreateAnswerDto.parse(req.body);
 
-    await assignmentAccessGuard().requireOwnership(
+    const access = await assignmentAccessGuard().requireOwnership(
       req.user!,
       input.assignmentId,
     );
+    requireAcceptedConsent(access);
 
     const answer = await answerService.createAnswer({
       assignmentId: input.assignmentId,
@@ -119,10 +135,11 @@ AnswersController.post(
   wrap(async (req: AuthedRequest, res) => {
     const input = CreateManyAnswersDto.parse(req.body);
 
-    await assignmentAccessGuard().requireOwnership(
+    const access = await assignmentAccessGuard().requireOwnership(
       req.user!,
       input.assignmentId,
     );
+    requireAcceptedConsent(access);
 
     const transformedInput = {
       assignmentId: input.assignmentId,

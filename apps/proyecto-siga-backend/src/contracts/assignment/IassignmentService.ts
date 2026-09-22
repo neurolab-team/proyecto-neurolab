@@ -12,10 +12,12 @@ export interface IAssignmentService {
     getAssignmentsWithTestsByUserId(userId:string): Promise<AssignmentWithTestsDataResponse[] | null>;
     assignInitialTestsToUser(userId:string, tx?:Prisma.TransactionClient): Promise<void>;
     markAssignmentAsCompleted(assignmentId:string): Promise<assignment | null>;
+    checkAndTriggerUsabilitySurvey(userId: string): Promise<void>;
     markAssignmentAsReviewed(
       psychologistId: string,
       assignmentId: string,
     ): Promise<assignment | null>;
+    submitConsent(assignmentId: string, accepted: boolean): Promise<assignment | null>;
     getPsychologistAssignableTests(): Promise<PsychologistAssignableTest[]>;
     bulkAssignByPsychologist(
       psychologistId: string,

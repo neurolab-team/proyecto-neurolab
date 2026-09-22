@@ -2,11 +2,14 @@ import { useState, useEffect } from "react";
 import { testService } from "@/services/test/test";
 import { Question } from "@packages/common-types/question.types";
 
+type ConsentStatus = "accepted" | "declined" | null;
+
 export const useTestData = (assignmentId: string) => {
   const [questions, setQuestions] = useState<Question[]>([]);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState<string | null>(null);
   const [testCode, setTestCode] = useState("");
+  const [consentStatus, setConsentStatus] = useState<ConsentStatus>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -23,6 +26,7 @@ export const useTestData = (assignmentId: string) => {
         setTitle(data.title);
         setDescription(data.description ?? null);
         setTestCode(data.testCode ?? "");
+        setConsentStatus(data.consentStatus ?? null);
       })
       .catch((err) => {
         const message =
@@ -32,5 +36,5 @@ export const useTestData = (assignmentId: string) => {
       .finally(() => setIsLoading(false));
   }, [assignmentId]);
 
-  return { questions, title, description, testCode, isLoading, error };
+  return { questions, title, description, testCode, consentStatus, isLoading, error };
 };

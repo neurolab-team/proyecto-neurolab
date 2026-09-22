@@ -98,6 +98,7 @@ AssignmentScoreController.post(
     const assignmentScore =
       await assignmentScoreService.createAssignmentScore(assignmentId);
     await assignmentService.markAssignmentAsCompleted(assignmentId);
+    await assignmentService.checkAndTriggerUsabilitySurvey(req.user!.userId);
     return created(res, assignmentScore, "Puntaje de la asignación creado");
   }),
 );

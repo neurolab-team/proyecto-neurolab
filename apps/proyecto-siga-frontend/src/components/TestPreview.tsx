@@ -27,6 +27,13 @@ export interface TestPreviewData {
   metadata: TestPreviewMetadata[];
   steps: TestPreviewStep[];
   assignmentId: string;
+  /**
+   * Estado del consentimiento informado de la asignación. `null` = todavía
+   * pendiente (el modal de consentimiento se muestra por encima de esta
+   * página); mientras no sea "accepted" el CTA para comenzar queda
+   * bloqueado.
+   */
+  consentStatus?: "accepted" | "declined" | null;
 }
 
 const defaultSteps: TestPreviewStep[] = [
@@ -121,18 +128,37 @@ export default function TestPreview({ data }: { data: TestPreviewData }) {
 
             {/* CTA */}
             <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center">
-              <Link
-                href={`/test/${data.assignmentId}`}
-                className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[#102D69] to-[#00A0B7] px-7 py-3 text-sm font-bold text-white hover:shadow-lg transition-all duration-300"
-              >
-                Comenzar prueba
-                <ArrowRight className="h-4 w-4" />
-              </Link>
-              <p className="text-xs text-gray-400">
-                Al comenzar aceptas el{' '}
-                <span className="text-gray-600 underline">manejo confidencial</span>{' '}
-                de tus respuestas.
-              </p>
+              {data.consentStatus === 'declined' ? (
+                <p className="text-sm font-medium text-red-600">
+                  Indicaste que no deseas participar en esta valoración. Si cambias de
+                  opinión, contacta al equipo del proyecto.
+                </p>
+              ) : data.consentStatus === 'accepted' ? (
+                <>
+                  <Link
+                    href={`/test/${data.assignmentId}`}
+                    className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[#102D69] to-[#00A0B7] px-7 py-3 text-sm font-bold text-white hover:shadow-lg transition-all duration-300"
+                  >
+                    Comenzar prueba
+                    <ArrowRight className="h-4 w-4" />
+                  </Link>
+                  <p className="text-xs text-gray-400">
+                    Al comenzar aceptas el{' '}
+                    <span className="text-gray-600 underline">manejo confidencial</span>{' '}
+                    de tus respuestas.
+                  </p>
+                </>
+              ) : (
+                <button
+                  type="button"
+                  disabled
+                  aria-disabled="true"
+                  className="inline-flex items-center gap-2 rounded-full bg-gray-200 px-7 py-3 text-sm font-bold text-gray-400 cursor-not-allowed"
+                >
+                  Comenzar prueba
+                  <ArrowRight className="h-4 w-4" />
+                </button>
+              )}
             </div>
           </section>
         </div>
@@ -144,7 +170,8 @@ export default function TestPreview({ data }: { data: TestPreviewData }) {
             <Shield className="mb-3 h-5 w-5 text-[#102D69]" />
             <p className="mb-1 font-semibold text-gray-800">Confidencialidad</p>
             <p className="text-sm text-gray-600">
-              Solo el equipo de psicología de Permanencia tiene acceso a tus respuestas. Tus profesores y compañeros no verán nada.
+              Tus respuestas son confidenciales. Solo el equipo de NeuroLab ITM puede verlas; tus profesores y compañeros no tendrán acceso a ellas.<br/>
+              Si identificamos que tu vida o la de otra persona puede estar en riesgo, podremos contactarte o activar la ruta de atención de la institución para ayudarte.
             </p>
           </div>
 
@@ -153,8 +180,8 @@ export default function TestPreview({ data }: { data: TestPreviewData }) {
             <Leaf className="mb-3 h-5 w-5 text-amber-700" />
             <p className="mb-1 font-semibold text-gray-800">¿Te sientes en crisis ahora?</p>
             <p className="text-sm text-gray-600">
-              Si necesitas hablar con alguien de inmediato, contacta a la{' '}
-              <span className="text-gray-800 underline">línea de apoyo psicológico ITM</span>. Disponible 24/7.
+              Acércate a Enfermería del ITM (6:00 a.m. – 10:00 p.m.), {" "}
+              donde te atenderán profesionales en Psicología, o <span className="text-gray-800 underline"> escribe a acercarse@itm.edu.co. </span>
             </p>
           </div>
         </aside>

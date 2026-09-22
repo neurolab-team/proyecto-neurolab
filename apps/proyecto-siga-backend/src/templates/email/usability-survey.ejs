@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <title>Neurolab - Encuesta de usabilidad</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style type="text/css">
+      /* Base */
+      body {
+        margin: 0;
+        padding: 0;
+        min-width: 100%;
+        font-family: Arial, sans-serif;
+        font-size: 16px;
+        line-height: 1.5;
+        background-color: #fafafa;
+        color: #222222;
+      }
+      a {
+        color: #00a0b7;
+        text-decoration: none;
+      }
+      h1 {
+        font-size: 24px;
+        font-weight: 700;
+        line-height: 1.25;
+        margin-top: 0;
+        margin-bottom: 15px;
+        text-align: center;
+      }
+      p {
+        margin-top: 0;
+        margin-bottom: 24px;
+      }
+      table td {
+        vertical-align: top;
+      }
+      /* Layout */
+      .email-wrapper {
+        max-width: 600px;
+        margin: 0 auto;
+      }
+      .email-header {
+        background: linear-gradient(135deg, #102d69 0%, #00a0b7 100%);
+        padding: 32px 24px;
+        color: #ffffff;
+      }
+      .email-body {
+        padding: 32px 24px;
+        background-color: #ffffff;
+      }
+      .email-footer {
+        background-color: #f6f6f6;
+        padding: 24px;
+        font-size: 14px;
+        color: #666666;
+        text-align: center;
+      }
+      /* Button Container */
+      .button-container {
+        text-align: center;
+        margin: 30px 0;
+      }
+      /* Primary Button */
+      .button-primary {
+        display: inline-block;
+        background: linear-gradient(135deg, #102d69 0%, #00a0b7 100%);
+        color: #ffffff !important;
+        font-size: 18px;
+        font-weight: 700;
+        text-align: center;
+        text-decoration: none;
+        padding: 16px 48px;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(16, 45, 105, 0.3);
+      }
+      /* Alternative link style */
+      .verification-link {
+        display: block;
+        margin: 20px 0;
+        padding: 15px;
+        background-color: #f0f7ff;
+        border: 2px dashed #00a0b7;
+        border-radius: 8px;
+        text-align: center;
+        word-break: break-all;
+        font-size: 14px;
+        color: #00a0b7;
+      }
+      .warning-text {
+        color: #666666;
+        font-size: 14px;
+        font-style: italic;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="email-wrapper">
+      <div class="email-header">
+        <h1>📝 Ayúdanos a mejorar Neurolab</h1>
+      </div>
+      <div class="email-body">
+        <p>Hola <strong><%= name %></strong>,</p>
+        <p>
+          Ya completaste las tres pruebas de caracterización del sueño del
+          proyecto <strong>MATELAB II - Ecopermanencia</strong>. Antes de que
+          la plataforma pase a producción, nos gustaría conocer tu experiencia
+          navegando el sitio: qué tan claro fue, si tuviste errores técnicos y
+          qué mejorarías.
+        </p>
+        <p>
+          Es una encuesta corta y tus respuestas se usarán de forma anónima
+          en el informe institucional del proyecto.
+        </p>
+
+        <!-- Botón principal -->
+        <div class="button-container">
+          <a href="<%= surveyUrl %>" class="button-primary" target="_blank" rel="noopener noreferrer">
+            Responder encuesta de usabilidad
+          </a>
+        </div>
+
+        <!-- Link alternativo por si el botón no funciona -->
+        <p style="font-size: 14px; color: #666666; text-align: center; margin-top: 30px;">
+          ¿No funciona el botón? Copia y pega este enlace en tu navegador:
+        </p>
+        <div class="verification-link">
+          <a href="<%= surveyUrl %>" style="color: #00a0b7;">
+            <%= surveyUrl %>
+          </a>
+        </div>
+
+        <p class="warning-text" style="margin-top: 30px;">
+          Si ya la respondiste, puedes ignorar este correo.
+        </p>
+      </div>
+      <div class="email-footer">
+        <p>
+          ¿Tienes preguntas? No dudes en contactarnos en<br />
+          <a href="mailto:soporte@neurolab.com">soporte@neurolab.com</a>
+        </p>
+        <p style="margin-top: 16px; color: #999999; font-size: 12px">
+          © <%= new Date().getFullYear() %> Neurolab. Todos los derechos
+          reservados.
+        </p>
+      </div>
+    </div>
+  </body>
+</html>

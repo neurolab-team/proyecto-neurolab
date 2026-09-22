@@ -9,4 +9,5 @@ export interface IAuthService {
     newPassword: string,
   ): Promise<void>;
   resetPassword(userId: string, newPassword: string): Promise<void>;
+  markUsabilitySurveyClicked(userId: string): Promise<void>;
 }

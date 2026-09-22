@@ -8,10 +8,13 @@ import {
   PsychologistAssignableTest,
 } from "@packages/common-types/assignment.types";
 import { PrismaQuestion } from "@packages/common-types/test.types";
+import { CURRENT_CONSENT_VERSION, ConsentStatus } from "@packages/common-types/consent.types";
+import { USABILITY_SURVEY_TRIGGER_TEST_CODES } from "@packages/common-types/usabilitySurvey.types";
 import { IAssignmentService } from "../../contracts/assignment/IassignmentService";
 import { IAssignmentRepo } from "../../contracts/assignment/IassignmentRepo";
 import { ITestRepo } from "../../contracts/test/ItestRepo";
 import { IUserRepo } from "../../contracts/user/IuserRepo";
+import { IUsabilitySurveyEmailService } from "../../contracts/mail/IusabilitySurveyEmailService";
 import { BadRequest, NotFound } from "../../utils/httpError";
 import { logger } from "../../utils/logger";
 import { TransactionManager } from "../transaction/transactionManager";
@@ -43,6 +46,8 @@ export class AssignmentService implements IAssignmentService {
     private readonly userRepo: IUserRepo,
     @inject("TransactionManager")
     private readonly txManager: TransactionManager,
+    @inject("UsabilitySurveyEmailService")
+    private readonly usabilitySurveyEmailService: IUsabilitySurveyEmailService,
   ) {}
 
   markAssignmentAsCompleted(assignmentId: string): Promise<assignment | null> {
@@ -51,6 +56,53 @@ export class AssignmentService implements IAssignmentService {
     };
 
     return this.assignmentRepo.updateAssignmentStatus(assignmentId, updatedData);
+  }
+
+  /**
+   * Al completar una prueba, revisa si con esa ya están las 3 pruebas de
+   * sueño (EPWORTH, PSQI, MUNICH) completadas para el usuario. Si es así y
+   * todavía no se le había disparado, marca el flag (para que el frontend
+   * muestre el modal en cada sesión hasta que haga clic) y manda el correo
+   * de respaldo con el link a la encuesta externa.
+   *
+   * Es "fire and forget" respecto al flujo principal: un fallo aquí no debe
+   * tumbar la creación del puntaje ni el cierre de la prueba que el usuario
+   * sí completó.
+   */
+  async checkAndTriggerUsabilitySurvey(userId: string): Promise<void> {
+    try {
+      const user = await this.userRepo.findById(userId);
+      if (!user || user.usabilitySurveyPromptedAt) {
+        return;
+      }
+
+      const assignments = await this.assignmentRepo.getAssignmentsWithTestsByUserId(userId);
+      const completedTestCodes = new Set(
+        (assignments ?? [])
+          .filter((a) => a.status === "completed")
+          .map((a) => a.test.testCode?.toUpperCase())
+          .filter((code): code is string => !!code),
+      );
+
+      const allTriggerTestsCompleted = USABILITY_SURVEY_TRIGGER_TEST_CODES.every(
+        (code) => completedTestCodes.has(code),
+      );
+
+      if (!allTriggerTestsCompleted) {
+        return;
+      }
+
+      await this.userRepo.update(userId, { usabilitySurveyPromptedAt: new Date() });
+      await this.usabilitySurveyEmailService.sendUsabilitySurveyEmail(
+        user.email,
+        user.name || user.email,
+      );
+    } catch (error) {
+      logger.error(
+        "[AssignmentService] fallo disparando la encuesta de usabilidad",
+        { userId, error },
+      );
+    }
   }
 
   async markAssignmentAsReviewed(
@@ -74,6 +126,19 @@ export class AssignmentService implements IAssignmentService {
       assignmentId,
       assignment.reviewedAt || new Date(),
     );
+  }
+
+  async submitConsent(
+    assignmentId: string,
+    accepted: boolean,
+  ): Promise<assignment | null> {
+    const updatedData: Prisma.assignmentUpdateInput = {
+      consentStatus: (accepted ? "accepted" : "declined") satisfies ConsentStatus,
+      consentRespondedAt: new Date(),
+      consentVersion: CURRENT_CONSENT_VERSION,
+    };
+
+    return this.assignmentRepo.updateAssignmentConsent(assignmentId, updatedData);
   }
 
   async assignInitialTestsToUser(
@@ -248,6 +313,7 @@ export class AssignmentService implements IAssignmentService {
       testCode: test.testCode ?? "UNKNOWN",
       title: test.title,
       description: test.description ?? null,
+      consentStatus: (assignment.consentStatus as ConsentStatus | null) ?? null,
       question: orderedQuestions.map((q) => ({
         questionId: q.questionId,
         code: q.code ?? null,

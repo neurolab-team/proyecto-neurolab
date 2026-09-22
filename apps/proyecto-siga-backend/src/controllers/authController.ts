@@ -147,6 +147,15 @@ AuthController.get(
   }),
 );
 
+AuthController.patch(
+  "/usability-survey/click",
+  auth,
+  wrap(async (req: AuthedRequest, res) => {
+    await authService.markUsabilitySurveyClicked(req.user!.userId);
+    return ok(res, null, "Registrado");
+  }),
+);
+
 AuthController.put(
   "/change-password",
   auth,

@@ -152,7 +152,7 @@ export default function TestResultsPage() {
           {/* Interpretation Banner */}
           {score?.interpretation && (
             <div className="bg-white rounded-xl shadow-md p-6 mb-6 border-l-4 border-primary-light">
-              <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-2">
+              <h2 className="text-2xl font-bold text-primary-dark mb-2">
                 Interpretación
               </h2>
               <p className="text-gray-800 leading-relaxed">
@@ -216,12 +216,12 @@ export default function TestResultsPage() {
           {/* Answers Table */}
           {Object.keys(grouped).length > 0 && (
             <div className="bg-white rounded-xl shadow-md p-6">
-              <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4">
+              <h2 className="text-2xl font-bold text-primary-dark mb-4">
                 Respuestas
               </h2>
               {Object.entries(grouped).map(([sectionName, sectionAnswers]) => (
                 <div key={sectionName} className="mb-6 last:mb-0">
-                  <h3 className="text-base font-semibold text-primary-dark mb-3 border-b border-gray-200 pb-2">
+                  <h3 className="text-lg font-semibold text-primary-dark mb-3 border-b border-gray-200 pb-2">
                     {sectionName}
                   </h3>
                   <div className="overflow-x-auto">

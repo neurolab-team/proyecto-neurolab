@@ -9,7 +9,10 @@ import { assignmentAccessGuard } from "../middleware/assignmentAccess";
 import { CommonDtos } from "../shared/validators";
 import { Forbidden } from "../utils/httpError";
 import { IUserRepo } from "../contracts/user/IuserRepo";
-import { BulkAssignPsychologistTestDto } from "@packages/common-schemas/assignment.schemas";
+import {
+  AssignmentConsentDto,
+  BulkAssignPsychologistTestDto,
+} from "@packages/common-schemas/assignment.schemas";
 
 export const AssignmentController = Router();
 
@@ -71,6 +74,22 @@ AssignmentController.get(
 
     const assignment = await assignmentService.getAssignmentById(assignmentId);
     return ok(res, assignment, "Detalle de la asignación");
+  }),
+);
+
+AssignmentController.patch(
+  "/:assignmentId/consent",
+  auth,
+  wrap(async (req: AuthedRequest, res) => {
+    const { assignmentId } = CommonDtos.AssignmentIdParam.parse(req.params);
+    const { accepted } = AssignmentConsentDto.parse(req.body);
+
+    // Solo el evaluado decide su propio consentimiento; ni un psicólogo ni
+    // un admin pueden aceptar/rechazar en su nombre.
+    await assignmentAccessGuard().requireOwnership(req.user!, assignmentId);
+
+    const assignment = await assignmentService.submitConsent(assignmentId, accepted);
+    return ok(res, assignment, "Consentimiento registrado");
   }),
 );
 
