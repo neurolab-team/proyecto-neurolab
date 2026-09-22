@@ -26,6 +26,12 @@ export interface User {
   assignedPsychologist?: BasicUserReference | null
   assignedPsychologistAt?: Date | string | null
   followUpAt?: Date | string | null
+  /**
+   * true mientras haya que mostrarle el modal de la encuesta externa de
+   * usabilidad (ya completó las 3 pruebas de sueño y no ha hecho clic en el
+   * link todavía). false si no aplica o ya la abrió.
+   */
+  usabilitySurveyPending?: boolean
 }
 
 export interface CreateUserInput {

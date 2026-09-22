@@ -33,6 +33,18 @@ const TIMING_EQUALIZER_HASH = bcrypt.hashSync(
   resolveSaltRounds(),
 );
 
+/**
+ * true mientras haya que mostrarle al usuario el modal de la encuesta de
+ * usabilidad: ya se disparó (completó las 3 pruebas de sueño) pero todavía
+ * no hizo clic en el link.
+ */
+function computeUsabilitySurveyPending(user: {
+  usabilitySurveyPromptedAt?: Date | null;
+  usabilitySurveyClickedAt?: Date | null;
+}): boolean {
+  return Boolean(user.usabilitySurveyPromptedAt) && !user.usabilitySurveyClickedAt;
+}
+
 @injectable()
 export class AuthService implements IAuthService {
   constructor(
@@ -61,6 +73,7 @@ export class AuthService implements IAuthService {
         passwordChangedAt: user.passwordChangedAt || undefined,
         lastLogin: user.lastLogin,
         verifiedEmail: user.verifiedEmail ,
+        usabilitySurveyPending: user.usabilitySurveyPending,
       },
     };
   }
@@ -117,6 +130,7 @@ export class AuthService implements IAuthService {
       passwordChangedAt: user.passwordChangedAt || undefined,
       verifiedEmail: user.verifiedEmail ,
       lastLogin: user.lastLogin || undefined,
+      usabilitySurveyPending: computeUsabilitySurveyPending(user),
     };
   }
 
@@ -173,6 +187,10 @@ export class AuthService implements IAuthService {
     await this.applyNewPassword(user.userId, user.email, newPassword);
   }
 
+  async markUsabilitySurveyClicked(userId: string): Promise<void> {
+    await this.userRepo.update(userId, { usabilitySurveyClickedAt: new Date() });
+  }
+
   async resetPassword(userId: string, newPassword: string): Promise<void> {
     const user = await this.userRepo.findById(userId);
     if (!user) {
@@ -221,6 +239,8 @@ export class AuthService implements IAuthService {
     mustChangePassword: boolean;
     verifiedEmail: boolean;
     isActive: boolean;
+    usabilitySurveyPromptedAt?: Date | null;
+    usabilitySurveyClickedAt?: Date | null;
   }): UserProfile {
     return {
       userId: user.userId,
@@ -236,6 +256,7 @@ export class AuthService implements IAuthService {
       mustChangePassword: user.mustChangePassword,
       verifiedEmail: user.verifiedEmail,
       isActive: user.isActive,
+      usabilitySurveyPending: computeUsabilitySurveyPending(user),
     };
   }
 }

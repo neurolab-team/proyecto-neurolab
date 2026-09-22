@@ -62,4 +62,11 @@ export const assignmentService = {
     );
     return response.data;
   },
+  submitConsent: async (assignmentId: string, accepted: boolean) => {
+    const response = await apiClient.patch<BaseResponse<null>>(
+      `/api/assignments/${assignmentId}/consent`,
+      { accepted },
+    );
+    return response.data;
+  },
 };

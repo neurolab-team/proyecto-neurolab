@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { redirect } from "next/navigation";
 import { getCurrentUserFromSession } from "@/libs/server/authSession";
 import PasswordChangeGate from "@/components/auth/PasswordChangeGate";
+import UsabilitySurveyPrompt from "@/components/auth/UsabilitySurveyPrompt";
 
 type ProtectedLayoutProps = {
   children: ReactNode;
@@ -18,5 +19,10 @@ export default async function ProtectedLayout({ children }: ProtectedLayoutProps
     return <PasswordChangeGate />;
   }
 
-  return <>{children}</>;
+  return (
+    <>
+      <UsabilitySurveyPrompt pending={user.usabilitySurveyPending ?? false} />
+      {children}
+    </>
+  );
 }

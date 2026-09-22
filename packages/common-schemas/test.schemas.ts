@@ -22,6 +22,7 @@ export const testDataDtoSchema = z.object({
   title: z.string(),
   description: z.string().nullable().optional(),
   question: z.array(testQuestionDtoSchema),
+  consentStatus: z.enum(['accepted', 'declined']).nullable().optional(),
 });
 
 export const publicTestCardSchema = z.object({

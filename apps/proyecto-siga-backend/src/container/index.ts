@@ -18,6 +18,7 @@ import { SessionService } from '../services/session/sessionService'
 import { PasswordResetService } from '../services/passwordReset/passwordResetService'
 import { PasswordResetRepository } from '../repositories/passwordResetRepository'
 import { PasswordResetEmailService } from '../services/mail/passwordResetEmailService'
+import { UsabilitySurveyEmailService } from '../services/mail/usabilitySurveyEmailService'
 import { AssignmentRepository } from '../repositories/assignmentRepository'
 import { AssignmentService } from '../services/assignment/assignmentService'
 import { TestRepository } from '../repositories/testRepository'
@@ -54,6 +55,7 @@ container.register<IEmailProvider>("EmailProvider", {
 container.register("MailService", { useClass: MailService })
 container.register("EmailVerificationService",{useClass: EmailVerificationService})
 container.register("PasswordResetEmailService",{useClass: PasswordResetEmailService})
+container.register("UsabilitySurveyEmailService",{useClass: UsabilitySurveyEmailService})
 container.register("AssignmentService",{useClass:AssignmentService})
 container.register("AnswerService",{useClass: AnswerService})
 container.register("AssignmentScoreService",{useClass:AssignmentScoreService})

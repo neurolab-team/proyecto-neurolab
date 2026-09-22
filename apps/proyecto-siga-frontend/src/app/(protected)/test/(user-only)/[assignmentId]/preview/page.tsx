@@ -1,9 +1,14 @@
 "use client";
+import { useState } from 'react';
 import { useParams } from 'next/navigation';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import TestPreview, { TestPreviewData } from '@/components/TestPreview';
+import InformedConsentModal from '@/components/modal/consent/InformedConsentModal';
 import { useTestData } from '../_hooks/useTestData';
+import { assignmentService } from '@/services/assignment/assignment';
+import { notify } from '@/libs/toastService';
+import { getApiErrorMessage } from '@/libs/getApiErrorMessage';
 import {
   getTestPreviewMetadata,
   buildTestPreviewMetadataItems,
@@ -28,8 +33,30 @@ export default function TestPreviewPage() {
   const params = useParams<{ assignmentId: string }>();
   const assignmentId = params?.assignmentId ?? '';
 
-  const { questions, title, description, testCode, isLoading, error } =
+  const { questions, title, description, testCode, consentStatus, isLoading, error } =
     useTestData(assignmentId);
+
+  // Sobrescribe el valor que vino del servidor en cuanto el usuario decide,
+  // para no depender de un refetch para reflejar su elección.
+  const [consentOverride, setConsentOverride] = useState<'accepted' | 'declined' | null>(null);
+  const [isSubmittingConsent, setIsSubmittingConsent] = useState(false);
+  const effectiveConsentStatus = consentOverride ?? consentStatus;
+
+  const handleConsentDecision = async (accepted: boolean) => {
+    setIsSubmittingConsent(true);
+    try {
+      await assignmentService.submitConsent(assignmentId, accepted);
+      setConsentOverride(accepted ? 'accepted' : 'declined');
+    } catch (err) {
+      const message = getApiErrorMessage(
+        err,
+        'No se pudo registrar tu decisión. Intenta de nuevo.',
+      );
+      notify.error(Array.isArray(message) ? message.join(' ') : message);
+    } finally {
+      setIsSubmittingConsent(false);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -59,7 +86,7 @@ export default function TestPreviewPage() {
   const metadata = buildTestPreviewMetadataItems(presentation, questions.length);
 
   const data: TestPreviewData = {
-    category: 'ESCALA CLÍNICA',
+    category: 'ESCALA',
     title: title || 'Vista previa de la prueba',
     description:
       description ??
@@ -67,6 +94,7 @@ export default function TestPreviewPage() {
     metadata,
     steps: PREVIEW_STEPS,
     assignmentId,
+    consentStatus: effectiveConsentStatus,
   };
 
   return (
@@ -76,6 +104,12 @@ export default function TestPreviewPage() {
         <TestPreview data={data} />
       </main>
       <Footer />
+      <InformedConsentModal
+        isOpen={effectiveConsentStatus == null}
+        isSubmitting={isSubmittingConsent}
+        onAccept={() => handleConsentDecision(true)}
+        onDecline={() => handleConsentDecision(false)}
+      />
     </div>
   );
 }

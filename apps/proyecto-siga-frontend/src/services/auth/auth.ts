@@ -28,6 +28,10 @@ export const authService = {
     await apiClient.put("/api/auth/change-password", payload);
   },
 
+  async markUsabilitySurveyClicked(): Promise<void> {
+    await apiClient.patch("/api/auth/usability-survey/click");
+  },
+
   async forgotPassword(payload: ForgotPasswordInput): Promise<BaseResponse<null>> {
     const response = await apiClient.post<BaseResponse<null>>(
       "/api/auth/forgot-password",

@@ -1,6 +1,7 @@
 import LoginModal from "../auth/LoginModal";
 import RegisterModal from "../auth/RegisterModal";
 import ChangePasswordModal from "../auth/ChangePasswordModal";
+import UsabilitySurveyModal from "../usability/UsabilitySurveyModal";
 import { useModal } from "../../../hooks/useModal";
 
 export default function ModalRoot() {
@@ -22,6 +23,8 @@ export default function ModalRoot() {
       return <LoginModal isOpen onClose={closeModal} />;
     case "changePassword":
       return <ChangePasswordModal isOpen onClose={closeModal} />;
+    case "usabilitySurvey":
+      return <UsabilitySurveyModal isOpen onClosed={closeModal} />;
     default:
       return null;
   }
