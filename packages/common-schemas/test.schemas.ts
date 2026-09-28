@@ -22,6 +22,9 @@ export const testDataDtoSchema = z.object({
   title: z.string(),
   description: z.string().nullable().optional(),
   question: z.array(testQuestionDtoSchema),
+  /** false = la prueba no pertenece a ningún estudio y no pide consentimiento. */
+  requiresConsent: z.boolean().optional(),
+  /** Decisión vigente del estudio; null = pendiente (o la versión cambió). */
   consentStatus: z.enum(['accepted', 'declined']).nullable().optional(),
 });
 

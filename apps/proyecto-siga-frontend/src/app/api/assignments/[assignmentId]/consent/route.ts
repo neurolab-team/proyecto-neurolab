@@ -10,6 +10,8 @@ type RouteContext = { params: Promise<{ assignmentId: string }> };
 
 type ConsentPayload = {
   accepted: boolean;
+  allowsSleepTips?: boolean;
+  allowsStudyInvites?: boolean;
 };
 
 export async function PATCH(request: Request, context: RouteContext) {

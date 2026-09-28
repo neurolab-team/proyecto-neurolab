@@ -5,7 +5,6 @@ export type Assignment = {
     status: string;
     assignmentId: string;
     assignedToId: string;
-    consentStatus: ConsentStatus | string | null;
 }
 export type AssignmentWithTestsDataResponse = {
     assignmentId: string;

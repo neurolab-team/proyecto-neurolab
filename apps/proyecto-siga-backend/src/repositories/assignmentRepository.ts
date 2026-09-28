@@ -365,22 +365,10 @@ export class AssignmentRepository implements IAssignmentRepo {
         testId: true,
         assignedToId: true,
         status: true,
-        consentStatus: true,
       },
       where: {
         assignmentId,
       },
-    });
-  }
-
-  updateAssignmentConsent(
-    assignmentId: string,
-    data: Prisma.assignmentUpdateInput,
-  ): Promise<assignment> {
-    const { consentStatus, consentRespondedAt, consentVersion } = data;
-    return prisma.assignment.update({
-      where: { assignmentId },
-      data: { consentStatus, consentRespondedAt, consentVersion },
     });
   }
 

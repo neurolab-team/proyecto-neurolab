@@ -11,6 +11,7 @@ import {
   PsychologistDashboardStats,
   PsychologistDashboardFeed,
 } from "@packages/common-types/psychologist.types";
+import type { StudyConsentDecision } from "@packages/common-types/consent.types";
 
 export const assignmentService = {
   getAllTests: async (
@@ -62,10 +63,21 @@ export const assignmentService = {
     );
     return response.data;
   },
-  submitConsent: async (assignmentId: string, accepted: boolean) => {
-    const response = await apiClient.patch<BaseResponse<null>>(
+  /**
+   * Registra la decisión de consentimiento del estudio al que pertenece la
+   * prueba de la asignación (aplica a todas las pruebas del estudio).
+   */
+  submitConsent: async (
+    assignmentId: string,
+    decision: {
+      accepted: boolean;
+      allowsSleepTips?: boolean;
+      allowsStudyInvites?: boolean;
+    },
+  ) => {
+    const response = await apiClient.patch<BaseResponse<StudyConsentDecision>>(
       `/api/assignments/${assignmentId}/consent`,
-      { accepted },
+      decision,
     );
     return response.data;
   },

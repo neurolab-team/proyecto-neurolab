@@ -1,11 +1,9 @@
 import LandingSection from "./LandingSection";
 import { COLORS} from "./landingContent";
-import { ArrowRight} from "lucide-react";
 
 export default function BenefitsSection() {
   return (
     <LandingSection id="info" background="surface">
-      {/* Top row */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start mb-16">
         <h2
           className="text-4xl lg:text-5xl font-extrabold leading-tight"

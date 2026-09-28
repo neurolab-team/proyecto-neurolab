@@ -8,13 +8,18 @@ import {
   PsychologistAssignableTest,
 } from "@packages/common-types/assignment.types";
 import { PrismaQuestion } from "@packages/common-types/test.types";
-import { CURRENT_CONSENT_VERSION, ConsentStatus } from "@packages/common-types/consent.types";
+import {
+  getStudyCodeForTest,
+  StudyConsentDecision,
+} from "@packages/common-types/consent.types";
+import { AssignmentConsentInput } from "@packages/common-schemas/assignment.schemas";
 import { USABILITY_SURVEY_TRIGGER_TEST_CODES } from "@packages/common-types/usabilitySurvey.types";
 import { IAssignmentService } from "../../contracts/assignment/IassignmentService";
 import { IAssignmentRepo } from "../../contracts/assignment/IassignmentRepo";
 import { ITestRepo } from "../../contracts/test/ItestRepo";
 import { IUserRepo } from "../../contracts/user/IuserRepo";
 import { IUsabilitySurveyEmailService } from "../../contracts/mail/IusabilitySurveyEmailService";
+import { IStudyConsentService } from "../../contracts/studyConsent/IstudyConsentService";
 import { BadRequest, NotFound } from "../../utils/httpError";
 import { logger } from "../../utils/logger";
 import { TransactionManager } from "../transaction/transactionManager";
@@ -48,6 +53,8 @@ export class AssignmentService implements IAssignmentService {
     private readonly txManager: TransactionManager,
     @inject("UsabilitySurveyEmailService")
     private readonly usabilitySurveyEmailService: IUsabilitySurveyEmailService,
+    @inject("StudyConsentService")
+    private readonly studyConsentService: IStudyConsentService,
   ) {}
 
   markAssignmentAsCompleted(assignmentId: string): Promise<assignment | null> {
@@ -128,17 +135,32 @@ export class AssignmentService implements IAssignmentService {
     );
   }
 
+  /**
+   * Registra la decisión de consentimiento del estudio al que pertenece la
+   * prueba de la asignación. Aplica a todas las pruebas del estudio, no solo
+   * a esta asignación.
+   */
   async submitConsent(
     assignmentId: string,
-    accepted: boolean,
-  ): Promise<assignment | null> {
-    const updatedData: Prisma.assignmentUpdateInput = {
-      consentStatus: (accepted ? "accepted" : "declined") satisfies ConsentStatus,
-      consentRespondedAt: new Date(),
-      consentVersion: CURRENT_CONSENT_VERSION,
-    };
+    userId: string,
+    input: AssignmentConsentInput,
+  ): Promise<StudyConsentDecision> {
+    const testCode = await this.assignmentRepo.getTestCodeByAssignmentId(assignmentId);
+    const studyCode = getStudyCodeForTest(testCode);
 
-    return this.assignmentRepo.updateAssignmentConsent(assignmentId, updatedData);
+    if (!studyCode) {
+      throw BadRequest("Esta prueba no requiere consentimiento informado");
+    }
+
+    return this.studyConsentService.submit(userId, studyCode, input, {
+      assignmentId,
+      testCode,
+    });
+  }
+
+  async requireAcceptedConsent(assignmentId: string, userId: string): Promise<void> {
+    const testCode = await this.assignmentRepo.getTestCodeByAssignmentId(assignmentId);
+    await this.studyConsentService.requireAcceptedForTest(userId, testCode);
   }
 
   async assignInitialTestsToUser(
@@ -309,11 +331,17 @@ export class AssignmentService implements IAssignmentService {
       return questionCodeCollator.compare(codeA, codeB);
     });
 
+    const consent = await this.studyConsentService.getConsentStateForTest(
+      assignment.assignedToId,
+      test.testCode ?? null,
+    );
+
     const formattedData: TestDataResponse = {
       testCode: test.testCode ?? "UNKNOWN",
       title: test.title,
       description: test.description ?? null,
-      consentStatus: (assignment.consentStatus as ConsentStatus | null) ?? null,
+      requiresConsent: consent.requiresConsent,
+      consentStatus: consent.decision?.status ?? null,
       question: orderedQuestions.map((q) => ({
         questionId: q.questionId,
         code: q.code ?? null,

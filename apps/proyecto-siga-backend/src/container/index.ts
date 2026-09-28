@@ -32,6 +32,8 @@ import { PsychologistStudentsQueryService } from '../modules/psychologist/psycho
 import { PsychologistDashboardQueryService } from '../modules/psychologist/psychologistDashboardQuery'
 import { TransactionManager } from '../services/transaction/transactionManager'
 import { HealthService } from '../services/health/healthService'
+import { StudyConsentService } from '../services/studyConsent/studyConsentService'
+import { StudyConsentRepository } from '../repositories/studyConsentRepository'
 
 
 //register dependencies - service
@@ -64,6 +66,7 @@ container.register("PsychologistStudentsQueryService",{useClass:PsychologistStud
 container.register("PsychologistDashboardQueryService",{useClass:PsychologistDashboardQueryService})
 container.register("PublicTestService",{useClass: PublicTestService})
 container.register("HealthService",{useClass: HealthService})
+container.register("StudyConsentService",{useClass: StudyConsentService})
 //register dependencies - repository
 container.register("TokenCacheRepo",{useClass:TokenCacheRepository})
 container.register("PasswordResetRepo",{useClass:PasswordResetRepository})
@@ -72,5 +75,6 @@ container.register("AssignmentRepo",{useClass:AssignmentRepository})
 container.register("TestRepo",{useClass:TestRepository})
 container.register("AnswerRepo",{useClass:AnswerRepository})
 container.register("AssignmentScoreRepo",{useClass:AssignmentScoreRepository})
+container.register("StudyConsentRepo",{useClass:StudyConsentRepository})
 
 export default container

@@ -1,8 +1,7 @@
-import { ShieldCheck, CheckCircle2, Clock, Lock, BadgeCheck, GraduationCap, type LucideIcon } from "lucide-react";
+import { Lock, BadgeCheck, GraduationCap, type LucideIcon } from "lucide-react";
 
 /**
  * Contenido y tokens centralizados de la landing pública.
- *
  * Mantener aquí los textos, colores y datos de cada sección evita duplicación
  * entre componentes (DRY) y facilita re-themear o editar copy sin tocar el JSX.
  */
@@ -27,7 +26,6 @@ export const HERO = {
     "En este espacio encontrarás instrumentos de valoración del sueño que te ayudarán a conocer mejor tus hábitos y la forma en que estás descansando. Tómate unos minutos, responde con calma y descubre más sobre tu sueño.",
 } as const;
 
-// --- Sellos de confianza (hero) ---
 export type TrustBadge = { icon: LucideIcon; label: string };
 
 export const TRUST_BADGES: TrustBadge[] = [
@@ -36,7 +34,6 @@ export const TRUST_BADGES: TrustBadge[] = [
   { icon: GraduationCap, label: "Para estudiantes ITM" },
 ];
 
-// --- Beneficios / garantías ---
 export type Benefit = {
   icon: LucideIcon;
   iconBg: string;
@@ -44,7 +41,6 @@ export type Benefit = {
   description: string;
 };
 
-// --- Pasos (cómo funciona) ---
 export type Step = {
   number: string;
   title: string;

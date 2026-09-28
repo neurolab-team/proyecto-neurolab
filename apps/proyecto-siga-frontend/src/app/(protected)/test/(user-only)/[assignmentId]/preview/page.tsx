@@ -4,7 +4,9 @@ import { useParams } from 'next/navigation';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import TestPreview, { TestPreviewData } from '@/components/TestPreview';
-import InformedConsentModal from '@/components/modal/consent/InformedConsentModal';
+import InformedConsentModal, {
+  ConsentOptionalAuthorizations,
+} from '@/components/modal/consent/InformedConsentModal';
 import { useTestData } from '../_hooks/useTestData';
 import { assignmentService } from '@/services/assignment/assignment';
 import { notify } from '@/libs/toastService';
@@ -33,20 +35,43 @@ export default function TestPreviewPage() {
   const params = useParams<{ assignmentId: string }>();
   const assignmentId = params?.assignmentId ?? '';
 
-  const { questions, title, description, testCode, consentStatus, isLoading, error } =
-    useTestData(assignmentId);
+  const {
+    questions,
+    title,
+    description,
+    testCode,
+    consentStatus,
+    requiresConsent,
+    isLoading,
+    error,
+  } = useTestData(assignmentId);
 
   // Sobrescribe el valor que vino del servidor en cuanto el usuario decide,
   // para no depender de un refetch para reflejar su elección.
   const [consentOverride, setConsentOverride] = useState<'accepted' | 'declined' | null>(null);
   const [isSubmittingConsent, setIsSubmittingConsent] = useState(false);
-  const effectiveConsentStatus = consentOverride ?? consentStatus;
+  // Permite reabrir el modal cuando el usuario rechazó y cambia de opinión.
+  const [isReviewingConsent, setIsReviewingConsent] = useState(false);
 
-  const handleConsentDecision = async (accepted: boolean) => {
+  // Las pruebas que no pertenecen a un estudio no piden consentimiento.
+  const effectiveConsentStatus = requiresConsent
+    ? consentOverride ?? consentStatus
+    : 'accepted';
+  const isConsentModalOpen =
+    requiresConsent && (effectiveConsentStatus == null || isReviewingConsent);
+
+  const handleConsentDecision = async (
+    accepted: boolean,
+    authorizations?: ConsentOptionalAuthorizations,
+  ) => {
     setIsSubmittingConsent(true);
     try {
-      await assignmentService.submitConsent(assignmentId, accepted);
+      await assignmentService.submitConsent(assignmentId, {
+        accepted,
+        ...authorizations,
+      });
       setConsentOverride(accepted ? 'accepted' : 'declined');
+      setIsReviewingConsent(false);
     } catch (err) {
       const message = getApiErrorMessage(
         err,
@@ -95,6 +120,7 @@ export default function TestPreviewPage() {
     steps: PREVIEW_STEPS,
     assignmentId,
     consentStatus: effectiveConsentStatus,
+    onReviewConsent: () => setIsReviewingConsent(true),
   };
 
   return (
@@ -105,9 +131,9 @@ export default function TestPreviewPage() {
       </main>
       <Footer />
       <InformedConsentModal
-        isOpen={effectiveConsentStatus == null}
+        isOpen={!isLoading && !error && isConsentModalOpen}
         isSubmitting={isSubmittingConsent}
-        onAccept={() => handleConsentDecision(true)}
+        onAccept={(authorizations) => handleConsentDecision(true, authorizations)}
         onDecline={() => handleConsentDecision(false)}
       />
     </div>
