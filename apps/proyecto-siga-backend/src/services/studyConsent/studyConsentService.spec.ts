@@ -106,7 +106,7 @@ describe("StudyConsentService", () => {
       status: "accepted",
       allowsSleepTips: true,
       allowsStudyInvites: false,
-    }, CONTEXT);
+    });
   });
 
   it("guarda desde qué asignación y prueba se tomó la decisión", async () => {

@@ -83,28 +83,6 @@ export default function TestPreviewPage() {
     }
   };
 
-  // Sobrescribe el valor que vino del servidor en cuanto el usuario decide,
-  // para no depender de un refetch para reflejar su elección.
-  const [consentOverride, setConsentOverride] = useState<'accepted' | 'declined' | null>(null);
-  const [isSubmittingConsent, setIsSubmittingConsent] = useState(false);
-  const effectiveConsentStatus = consentOverride ?? consentStatus;
-
-  const handleConsentDecision = async (accepted: boolean) => {
-    setIsSubmittingConsent(true);
-    try {
-      await assignmentService.submitConsent(assignmentId, accepted);
-      setConsentOverride(accepted ? 'accepted' : 'declined');
-    } catch (err) {
-      const message = getApiErrorMessage(
-        err,
-        'No se pudo registrar tu decisión. Intenta de nuevo.',
-      );
-      notify.error(Array.isArray(message) ? message.join(' ') : message);
-    } finally {
-      setIsSubmittingConsent(false);
-    }
-  };
-
   if (isLoading) {
     return (
       <div className="min-h-screen flex flex-col">
