@@ -17,6 +17,20 @@ import {
   assignmentAccessGuard,
 } from "../middleware/assignmentAccess";
 
+/**
+ * Sin consentimiento informado aceptado no se guardan respuestas, sin
+ * importar por dónde haya llegado la petición (UI o llamada directa a la
+ * API). El gate real de "no puedes responder sin consentir" vive aquí, no
+ * solo en el frontend.
+ */
+const requireAcceptedConsent = (access: AssignmentAccess) => {
+  if (access.assignment.consentStatus !== "accepted") {
+    throw Forbidden(
+      "Debes aceptar el consentimiento informado antes de responder esta prueba",
+    );
+  }
+};
+
 // Private Routes
 export const AnswersController = Router();
 const answerService = container.resolve<IAnswerService>("AnswerService");
