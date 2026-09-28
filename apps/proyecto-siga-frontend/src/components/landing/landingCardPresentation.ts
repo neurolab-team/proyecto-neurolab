@@ -22,7 +22,7 @@ export type CardPresentation = {
 const PRESENTATION_BY_TEST_CODE: Record<string, CardPresentation> = {
   EPWORTH: {
     categoryLabel: "SUEÑO Y RITMOS CIRCADIANOS",
-    scaleName: "Escala de Somnolencia Diurna de Epworth (ESS)",
+    scaleName: "",
     accentColor: "#1E5FA8",
     bgColor: "#DBEAFE",
     tagline: "¿Cómo está tu descanso en época de estudio?",
@@ -54,10 +54,10 @@ const PRESENTATION_BY_TEST_CODE: Record<string, CardPresentation> = {
   },
   MUNICH: {
     categoryLabel: "SUEÑO Y RITMOS CIRCADIANOS",
-    scaleName: "Cronotipo Munich (MCTQ)",
+    scaleName: "Cuestionario de Cronotipo Munich (MCTQ)",
     accentColor: "#B5642E",
     bgColor: "#FEF3C7",
-    tagline: "Descubre tu cronotipo y ritmo biológico.",
+    tagline: "Descubre tu cronotipo y tus patrones de sueño.",
     highlightWord: "cronotipo",
   },
 };

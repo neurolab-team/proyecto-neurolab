@@ -9,13 +9,12 @@ export default function BenefitsSection() {
           className="text-4xl lg:text-5xl font-extrabold leading-tight"
           style={{ color: COLORS.ink }}
         >
-          Una conversación contigo mism@, basada en instrumentos reconocidos
+          Una herramienta para conocer mejor tu sueño
         </h2>
         <div>
           <p className="text-base text-slate-600 leading-relaxed mb-5">
-            No es un examen ni un diagnóstico. Son escalas reconocidas que ayudan al
-            equipo de psicología a entender cómo estás y a acompañarte mejor. Tú
-            respondes; ell@s leen e interpretan contigo.
+            No es un examen ni un diagnóstico. Sus resultados son orientativos y están pensados para ayudarte a
+            comprender mejor tus hábitos de sueño
           </p>
         </div>
       </div>

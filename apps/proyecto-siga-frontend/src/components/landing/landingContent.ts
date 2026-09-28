@@ -20,8 +20,8 @@ export const COLORS = {
 // --- Hero ---
 export const HERO = {
   eyebrow: "Neurolab - ITM",
-  titleLine1: "Conoce cómo,",
-  titleLine2: "duermes.",
+  titleLine1: "Conoce cómo duermes",
+  titleLine2: "a tu ritmo",
   description:
     "En este espacio encontrarás instrumentos de valoración del sueño que te ayudarán a conocer mejor tus hábitos y la forma en que estás descansando. Tómate unos minutos, responde con calma y descubre más sobre tu sueño.",
 } as const;
@@ -54,21 +54,21 @@ export const STEPS: Step[] = [
   {
     number: "PASO 01",
     title: "Regístrate",
-    description: "Crea tu cuenta y accede a los instrumentos disponibles.",
+    description: "Crea tu cuenta para acceder a tu valoración del sueño.",
     dotColor: COLORS.primary,
     dotFilled: false,
   },
   {
     number: "PASO 02",
     title: "Responde",
-    description: "Tómate unos minutos y responde con calma.",
+    description: "Completa los cuestionarios sobre tus patrones de sueño, cronotipo y somnolencia diurna.",
     dotColor: COLORS.primary,
     dotFilled: false,
   },
   {
     number: "PASO 03",
     title: "Conoce",
-    description: "Descubre información sobre tu sueño, tus hábitos de descanso y tus ritmos circadianos.",
+    description: "Consulta información sobre tus patrones de sueño, tu cronotipo y tu somnolencia diurna.",
     descriptionColor: COLORS.green,
     dotColor: COLORS.green,
     dotFilled: true,
