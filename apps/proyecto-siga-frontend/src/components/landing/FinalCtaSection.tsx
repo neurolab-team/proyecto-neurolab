@@ -36,7 +36,7 @@ export default function FinalCtaSection() {
           <p className="text-xs text-blue-200">
             ¿Problemas para entrar?{" "}
             <a href="#" className="underline hover:text-white transition-colors">
-              Escríbele a Permanencia
+              Escríbele a Neurolab
             </a>
             .
           </p>

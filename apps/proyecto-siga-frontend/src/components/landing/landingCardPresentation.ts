@@ -22,7 +22,7 @@ export type CardPresentation = {
 const PRESENTATION_BY_TEST_CODE: Record<string, CardPresentation> = {
   EPWORTH: {
     categoryLabel: "SUEÑO Y RITMOS CIRCADIANOS",
-    scaleName: "Escala de Epworth",
+    scaleName: "Escala de Somnolencia Diurna de Epworth (ESS)",
     accentColor: "#1E5FA8",
     bgColor: "#DBEAFE",
     tagline: "¿Cómo está tu descanso en época de estudio?",
@@ -30,10 +30,10 @@ const PRESENTATION_BY_TEST_CODE: Record<string, CardPresentation> = {
   },
   PSQI: {
     categoryLabel: "SUEÑO Y RITMOS CIRCADIANOS",
-    scaleName: "Pittsburgh (PSQI)",
+    scaleName: "Índice de Calidad de Sueño de Pittsburgh (PSQI)",
     accentColor: "#2B7A9C",
     bgColor: "#E0F2FE",
-    tagline: "¿Cómo es la calidad de tu sueño esta semana?",
+    tagline: "¿Cómo ha sido la calidad de tu sueño durante el último mes?",
     highlightWord: "calidad",
   },
   "DASS-21": {

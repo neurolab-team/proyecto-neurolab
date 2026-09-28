@@ -20,20 +20,20 @@ export const COLORS = {
 
 // --- Hero ---
 export const HERO = {
-  eyebrow: "Permanencia · ITM",
-  titleLine1: "Conoce cómo estás,",
-  titleLine2: "a tu ritmo.",
+  eyebrow: "Neurolab - ITM",
+  titleLine1: "Conoce cómo,",
+  titleLine2: "duermes.",
   description:
-    "El Sistema de Autoevaluación reúne las pruebas psicológicas que te asigna Permanencia en un solo lugar. Respóndelas con calma, mira tu evolución y conversa con tu psicólog@ cuando lo necesites.",
+    "En este espacio encontrarás instrumentos de valoración del sueño que te ayudarán a conocer mejor tus hábitos y la forma en que estás descansando. Tómate unos minutos, responde con calma y descubre más sobre tu sueño.",
 } as const;
 
 // --- Sellos de confianza (hero) ---
 export type TrustBadge = { icon: LucideIcon; label: string };
 
 export const TRUST_BADGES: TrustBadge[] = [
-  { icon: Lock, label: "Confidencial" },
-  { icon: BadgeCheck, label: "Pruebas validadas" },
-  { icon: GraduationCap, label: "Gratis para estudiantes" },
+  { icon: Lock, label: "Privado" },
+  { icon: BadgeCheck, label: "Instrumentos con respaldo cientifico" },
+  { icon: GraduationCap, label: "Para estudiantes ITM" },
 ];
 
 // --- Beneficios / garantías ---
@@ -43,30 +43,6 @@ export type Benefit = {
   title: string;
   description: string;
 };
-
-export const BENEFITS: Benefit[] = [
-  {
-    icon: ShieldCheck,
-    iconBg: COLORS.primary,
-    title: "Totalmente confidencial",
-    description:
-      "Solo el equipo de psicología ve tus respuestas. Tus profesores y compañeros, nunca.",
-  },
-  {
-    icon: CheckCircle2,
-    iconBg: COLORS.purple,
-    title: "Pruebas validadas",
-    description:
-      "Escalas clínicas reconocidas (Epworth, HAD, DASS-21) adaptadas y usadas en contextos universitarios.",
-  },
-  {
-    icon: Clock,
-    iconBg: COLORS.green,
-    title: "A tu propio ritmo",
-    description:
-      "Pausa y continúa cuando quieras. Tus respuestas se guardan automáticamente.",
-  },
-];
 
 // --- Pasos (cómo funciona) ---
 export type Step = {
@@ -81,22 +57,22 @@ export type Step = {
 export const STEPS: Step[] = [
   {
     number: "PASO 01",
-    title: "Recibes tu asignación",
-    description: "Permanencia te asigna las pruebas según tu programa o tu solicitud.",
+    title: "Regístrate",
+    description: "Crea tu cuenta y accede a los instrumentos disponibles.",
     dotColor: COLORS.primary,
     dotFilled: false,
   },
   {
     number: "PASO 02",
-    title: "Respondes con calma",
-    description: "Una pregunta a la vez, sin distracciones. Pausa y vuelve cuando quieras.",
+    title: "Responde",
+    description: "Tómate unos minutos y responde con calma.",
     dotColor: COLORS.primary,
     dotFilled: false,
   },
   {
     number: "PASO 03",
-    title: "Revisas y conversas",
-    description: "Ves tu resultado y, si quieres, agendas con tu psicólog@.",
+    title: "Conoce",
+    description: "Descubre información sobre tu sueño, tus hábitos de descanso y tus ritmos circadianos.",
     descriptionColor: COLORS.green,
     dotColor: COLORS.green,
     dotFilled: true,
