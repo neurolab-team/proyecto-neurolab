@@ -2,7 +2,7 @@ import { PrismaClient, Prisma } from "@prisma/generated";
 import { PrismaMssql } from "@prisma/adapter-mssql";
 
 export { Prisma };
-export type { user, test, testSection, question, questionOption, assignment, answer, assignmentScore } from "@prisma/generated";
+export type { user, test, testSection, question, questionOption, assignment, answer, assignmentScore, studyConsent } from "@prisma/generated";
 
 declare global {
   namespace globalThis {

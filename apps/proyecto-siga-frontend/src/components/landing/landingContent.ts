@@ -1,8 +1,7 @@
-import { ShieldCheck, CheckCircle2, Clock, Lock, BadgeCheck, GraduationCap, type LucideIcon } from "lucide-react";
+import { Lock, BadgeCheck, GraduationCap, type LucideIcon } from "lucide-react";
 
 /**
  * Contenido y tokens centralizados de la landing pública.
- *
  * Mantener aquí los textos, colores y datos de cada sección evita duplicación
  * entre componentes (DRY) y facilita re-themear o editar copy sin tocar el JSX.
  */
@@ -21,13 +20,12 @@ export const COLORS = {
 // --- Hero ---
 export const HERO = {
   eyebrow: "Neurolab - ITM",
-  titleLine1: "Conoce cómo,",
-  titleLine2: "duermes.",
+  titleLine1: "Conoce cómo duermes",
+  titleLine2: "a tu ritmo",
   description:
     "En este espacio encontrarás instrumentos de valoración del sueño que te ayudarán a conocer mejor tus hábitos y la forma en que estás descansando. Tómate unos minutos, responde con calma y descubre más sobre tu sueño.",
 } as const;
 
-// --- Sellos de confianza (hero) ---
 export type TrustBadge = { icon: LucideIcon; label: string };
 
 export const TRUST_BADGES: TrustBadge[] = [
@@ -36,7 +34,6 @@ export const TRUST_BADGES: TrustBadge[] = [
   { icon: GraduationCap, label: "Para estudiantes ITM" },
 ];
 
-// --- Beneficios / garantías ---
 export type Benefit = {
   icon: LucideIcon;
   iconBg: string;
@@ -44,7 +41,6 @@ export type Benefit = {
   description: string;
 };
 
-// --- Pasos (cómo funciona) ---
 export type Step = {
   number: string;
   title: string;
@@ -58,21 +54,21 @@ export const STEPS: Step[] = [
   {
     number: "PASO 01",
     title: "Regístrate",
-    description: "Crea tu cuenta y accede a los instrumentos disponibles.",
+    description: "Crea tu cuenta para acceder a tu valoración del sueño.",
     dotColor: COLORS.primary,
     dotFilled: false,
   },
   {
     number: "PASO 02",
     title: "Responde",
-    description: "Tómate unos minutos y responde con calma.",
+    description: "Completa los cuestionarios sobre tus patrones de sueño, cronotipo y somnolencia diurna.",
     dotColor: COLORS.primary,
     dotFilled: false,
   },
   {
     number: "PASO 03",
     title: "Conoce",
-    description: "Descubre información sobre tu sueño, tus hábitos de descanso y tus ritmos circadianos.",
+    description: "Consulta información sobre tus patrones de sueño, tu cronotipo y tu somnolencia diurna.",
     descriptionColor: COLORS.green,
     dotColor: COLORS.green,
     dotFilled: true,

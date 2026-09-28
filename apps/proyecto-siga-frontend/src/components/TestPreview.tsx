@@ -34,6 +34,8 @@ export interface TestPreviewData {
    * bloqueado.
    */
   consentStatus?: "accepted" | "declined" | null;
+  /** Reabre el consentimiento para que el usuario pueda cambiar su decisión. */
+  onReviewConsent?: () => void;
 }
 
 const defaultSteps: TestPreviewStep[] = [
@@ -129,10 +131,20 @@ export default function TestPreview({ data }: { data: TestPreviewData }) {
             {/* CTA */}
             <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center">
               {data.consentStatus === 'declined' ? (
-                <p className="text-sm font-medium text-red-600">
-                  Indicaste que no deseas participar en esta valoración. Si cambias de
-                  opinión, contacta al equipo del proyecto.
-                </p>
+                <div className="flex flex-col items-start gap-3">
+                  <p className="text-sm font-medium text-red-600">
+                    Indicaste que no deseas participar en esta valoración.
+                  </p>
+                  {data.onReviewConsent && (
+                    <button
+                      type="button"
+                      onClick={data.onReviewConsent}
+                      className="rounded-full border border-[#102D69] px-5 py-2 text-sm font-semibold text-[#102D69] hover:bg-[#102D69]/5 transition-colors"
+                    >
+                      Cambiar mi decisión
+                    </button>
+                  )}
+                </div>
               ) : data.consentStatus === 'accepted' ? (
                 <>
                   <Link
@@ -163,9 +175,7 @@ export default function TestPreview({ data }: { data: TestPreviewData }) {
           </section>
         </div>
 
-        {/* Right Column */}
         <aside className="flex flex-col gap-6">
-          {/* Confidentiality Card */}
           <div className="rounded-xl bg-blue-50/60 p-6">
             <Shield className="mb-3 h-5 w-5 text-[#102D69]" />
             <p className="mb-1 font-semibold text-gray-800">Confidencialidad</p>
@@ -175,7 +185,6 @@ export default function TestPreview({ data }: { data: TestPreviewData }) {
             </p>
           </div>
 
-          {/* Crisis Card */}
           <div className="rounded-xl bg-amber-50/60 p-6">
             <Leaf className="mb-3 h-5 w-5 text-amber-700" />
             <p className="mb-1 font-semibold text-gray-800">¿Te sientes en crisis ahora?</p>

@@ -1,30 +1,42 @@
+import { useEffect, useState } from "react";
 import ModalShell from "../core/ModalShell";
 import {
   INFORMED_CONSENT_ACKNOWLEDGEMENT,
-  INFORMED_CONSENT_CLOSING_PARAGRAPHS,
-  INFORMED_CONSENT_FOLLOW_UP_ITEMS,
-  INFORMED_CONSENT_FOLLOW_UP_INTRO,
-  INFORMED_CONSENT_FOLLOW_UP_TITLE,
-  INFORMED_CONSENT_PARAGRAPHS,
-  INFORMED_CONSENT_QUESTIONNAIRES,
+  INFORMED_CONSENT_INTRO,
+  INFORMED_CONSENT_OPTIONAL_SLEEP_TIPS,
+  INFORMED_CONSENT_OPTIONAL_STUDY_INVITES,
+  INFORMED_CONSENT_OPTIONAL_TITLE,
+  INFORMED_CONSENT_SECTIONS,
   INFORMED_CONSENT_SUBTITLE,
   INFORMED_CONSENT_TITLE,
 } from "../../../libs/informedConsent";
 
+export type ConsentOptionalAuthorizations = {
+  allowsSleepTips: boolean;
+  allowsStudyInvites: boolean;
+};
+
 interface InformedConsentModalProps {
   isOpen: boolean;
   isSubmitting: boolean;
-  onAccept: () => void;
+  onAccept: (authorizations: ConsentOptionalAuthorizations) => void;
   onDecline: () => void;
 }
 
+const CHECKBOX_CLASS =
+  "mt-0.5 h-5 w-5 shrink-0 rounded border-2 border-gray-300 text-[#102D69] focus:ring-[#2a4d8f] cursor-pointer disabled:cursor-not-allowed";
+
 /**
- * Consentimiento informado obligatorio antes de responder una prueba.
+ * Consentimiento informado obligatorio antes de responder las pruebas de un
+ * estudio. Se responde una vez por estudio, no por prueba.
  *
  * A diferencia de los demás modales, este no se puede cerrar con la "X" ni
  * haciendo clic afuera: el usuario debe elegir explícitamente "Acepto
  * participar" o "No acepto participar". Es una decisión, no un aviso que se
  * pueda descartar sin leer.
+ *
+ * Las autorizaciones opcionales arrancan desmarcadas (opt-in explícito) y
+ * solo se envían si acepta participar.
  */
 export default function InformedConsentModal({
   isOpen,
@@ -32,6 +44,16 @@ export default function InformedConsentModal({
   onAccept,
   onDecline,
 }: InformedConsentModalProps) {
+  const [allowsSleepTips, setAllowsSleepTips] = useState(false);
+  const [allowsStudyInvites, setAllowsStudyInvites] = useState(false);
+
+  useEffect(() => {
+    if (isOpen) {
+      setAllowsSleepTips(false);
+      setAllowsStudyInvites(false);
+    }
+  }, [isOpen]);
+
   return (
     <ModalShell
       isOpen={isOpen}
@@ -49,38 +71,61 @@ export default function InformedConsentModal({
       </div>
 
       <div className="px-8 pb-6 overflow-y-auto text-sm leading-relaxed text-gray-700 flex flex-col gap-4">
-        {INFORMED_CONSENT_PARAGRAPHS.map((paragraph, i) => (
+        {INFORMED_CONSENT_INTRO.map((paragraph, i) => (
           <p key={`p-${i}`}>{paragraph}</p>
         ))}
 
-        <div>
-          <p className="mb-2">Durante la actividad responderá tres cuestionarios:</p>
-          <ul className="list-disc pl-5 flex flex-col gap-1">
-            {INFORMED_CONSENT_QUESTIONNAIRES.map((item, i) => (
-              <li key={`q-${i}`}>{item}</li>
+        {INFORMED_CONSENT_SECTIONS.map((section) => (
+          <section key={section.title}>
+            <p className="mb-2 font-semibold text-gray-800">{section.title}</p>
+            {section.lead && <p className="mb-2">{section.lead}</p>}
+            {section.items && (
+              <ul className="list-disc pl-5 flex flex-col gap-1">
+                {section.items.map((item, i) => (
+                  <li key={`${section.title}-i-${i}`}>{item}</li>
+                ))}
+              </ul>
+            )}
+            {section.paragraphs?.map((paragraph, i) => (
+              <p key={`${section.title}-p-${i}`} className="mt-2">
+                {paragraph}
+              </p>
             ))}
-          </ul>
-        </div>
-
-        {INFORMED_CONSENT_CLOSING_PARAGRAPHS.map((paragraph, i) => (
-          <p key={`c-${i}`}>{paragraph}</p>
+          </section>
         ))}
-
-        <div>
-          <p className="mb-2 font-semibold text-gray-800">
-            {INFORMED_CONSENT_FOLLOW_UP_TITLE}
-          </p>
-          <p className="mb-2">{INFORMED_CONSENT_FOLLOW_UP_INTRO}</p>
-          <ul className="list-disc pl-5 flex flex-col gap-1">
-            {INFORMED_CONSENT_FOLLOW_UP_ITEMS.map((item, i) => (
-              <li key={`f-${i}`}>{item}</li>
-            ))}
-          </ul>
-        </div>
 
         <p className="font-semibold text-gray-800">
           {INFORMED_CONSENT_ACKNOWLEDGEMENT}
         </p>
+
+        <fieldset className="rounded-lg border border-gray-200 bg-gray-50 p-4 flex flex-col gap-3">
+          <legend className="px-1 text-sm font-semibold text-gray-800">
+            {INFORMED_CONSENT_OPTIONAL_TITLE}
+          </legend>
+          <label className="flex items-start gap-3 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={allowsSleepTips}
+              onChange={(e) => setAllowsSleepTips(e.target.checked)}
+              disabled={isSubmitting}
+              className={CHECKBOX_CLASS}
+            />
+            <span>{INFORMED_CONSENT_OPTIONAL_SLEEP_TIPS}</span>
+          </label>
+          <label className="flex items-start gap-3 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={allowsStudyInvites}
+              onChange={(e) => setAllowsStudyInvites(e.target.checked)}
+              disabled={isSubmitting}
+              className={CHECKBOX_CLASS}
+            />
+            <span>{INFORMED_CONSENT_OPTIONAL_STUDY_INVITES}</span>
+          </label>
+          <p className="text-xs text-gray-500">
+            Solo se guardan si selecciona “Acepto participar”.
+          </p>
+        </fieldset>
       </div>
 
       <div className="px-8 py-5 border-t border-gray-100 flex flex-col sm:flex-row gap-3 sm:justify-end bg-gray-50 rounded-b-xl">
@@ -94,7 +139,7 @@ export default function InformedConsentModal({
         </button>
         <button
           type="button"
-          onClick={onAccept}
+          onClick={() => onAccept({ allowsSleepTips, allowsStudyInvites })}
           disabled={isSubmitting}
           className="px-5 py-2.5 rounded-full text-sm font-bold text-white bg-gradient-to-r from-[#102D69] to-[#00A0B7] hover:shadow-lg transition-all disabled:opacity-50"
         >

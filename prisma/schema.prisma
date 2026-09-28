@@ -42,6 +42,7 @@ model user {
   createdTests         test[]       @relation("testCreatedBy")
   assignmentsTo        assignment[] @relation("assignedTo")
   assignmentsBy        assignment[] @relation("assignedBy")
+  studyConsents        studyConsent[]
   @@index([assignedPsychologistId])
   @@map("user")
 }
@@ -123,6 +124,9 @@ model assignment {
   reviewedAt  DateTime?
   createdAt   DateTime  @default(now())
 
+  // DEPRECADO: el consentimiento ahora vive en `studyConsent` (uno por
+  // estudio, no por prueba). Se conservan solo como respaldo de la migración
+  // 20260928000000_add_study_consents; se eliminarán en una migración posterior.
   consentStatus      String? // "accepted" | "declined" | null = pendiente
   consentRespondedAt DateTime?
   consentVersion     String?
@@ -166,4 +170,32 @@ model assignmentScore {
 
   @@index([attentionLevel])
   @@map("assignmentScores")
+}
+
+// Consentimiento informado por estudio (p. ej. las 3 pruebas de sueño de
+// MATELAB II). Es de solo inserción: cada decisión del usuario es una fila
+// nueva y la vigente es la más reciente por (userId, studyCode). Así queda la
+// trazabilidad de qué aceptó, cuándo, sobre qué versión del texto y desde qué
+// prueba. Si la decisión es idéntica a la vigente no se inserta otra fila.
+//
+// `assignmentId` y `testCode` son una foto del contexto, sin FK a propósito:
+// el registro de consentimiento debe sobrevivir aunque la asignación o la
+// prueba se eliminen.
+model studyConsent {
+  studyConsentId     String   @id @default(uuid()) @db.UniqueIdentifier
+  userId             String   @db.UniqueIdentifier
+  studyCode          String   @db.NVarChar(50)
+  version            String   @db.NVarChar(50)
+  status             String   @db.NVarChar(20) // "accepted" | "declined"
+  allowsSleepTips    Boolean  @default(false)
+  allowsStudyInvites Boolean  @default(false)
+  source             String   @default("user") @db.NVarChar(50) // "user" | "migrated_from_assignment"
+  assignmentId       String?  @db.UniqueIdentifier // asignación desde la que se decidió
+  testCode           String?  @db.NVarChar(50) // prueba desde la que se decidió
+  respondedAt        DateTime @default(now())
+
+  user user @relation(fields: [userId], references: [userId], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([userId, studyCode, respondedAt])
+  @@map("studyConsents")
 }

@@ -10,6 +10,7 @@ export const useTestData = (assignmentId: string) => {
   const [description, setDescription] = useState<string | null>(null);
   const [testCode, setTestCode] = useState("");
   const [consentStatus, setConsentStatus] = useState<ConsentStatus>(null);
+  const [requiresConsent, setRequiresConsent] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -27,6 +28,7 @@ export const useTestData = (assignmentId: string) => {
         setDescription(data.description ?? null);
         setTestCode(data.testCode ?? "");
         setConsentStatus(data.consentStatus ?? null);
+        setRequiresConsent(data.requiresConsent ?? true);
       })
       .catch((err) => {
         const message =
@@ -36,5 +38,14 @@ export const useTestData = (assignmentId: string) => {
       .finally(() => setIsLoading(false));
   }, [assignmentId]);
 
-  return { questions, title, description, testCode, consentStatus, isLoading, error };
+  return {
+    questions,
+    title,
+    description,
+    testCode,
+    consentStatus,
+    requiresConsent,
+    isLoading,
+    error,
+  };
 };

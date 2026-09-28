@@ -21,7 +21,7 @@ export default function FinalCtaSection() {
           </h2>
 
           <p className="text-base text-blue-100 max-w-md leading-relaxed">
-            Inicia sesión con tu cuenta institucional y encuentra tus pruebas asignadas.
+            Inicia sesión con tu cuenta institucional
           </p>
 
           <button

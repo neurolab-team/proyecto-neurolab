@@ -82,14 +82,18 @@ AssignmentController.patch(
   auth,
   wrap(async (req: AuthedRequest, res) => {
     const { assignmentId } = CommonDtos.AssignmentIdParam.parse(req.params);
-    const { accepted } = AssignmentConsentDto.parse(req.body);
+    const input = AssignmentConsentDto.parse(req.body);
 
     // Solo el evaluado decide su propio consentimiento; ni un psicólogo ni
     // un admin pueden aceptar/rechazar en su nombre.
     await assignmentAccessGuard().requireOwnership(req.user!, assignmentId);
 
-    const assignment = await assignmentService.submitConsent(assignmentId, accepted);
-    return ok(res, assignment, "Consentimiento registrado");
+    const decision = await assignmentService.submitConsent(
+      assignmentId,
+      req.user!.userId,
+      input,
+    );
+    return ok(res, decision, "Consentimiento registrado");
   }),
 );
 
