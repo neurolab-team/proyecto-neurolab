@@ -34,8 +34,8 @@ export default function StepsSection() {
           Cómo funciona
         </h2>
         <p className="text-base text-slate-500 leading-relaxed pt-2">
-          Tres pasos simples, sin complicaciones. Desde que recibes una prueba
-          hasta que conversas tus resultados con un profesional.
+          Conoce los instrumentos disponibles para valorar diferentes aspectos de tu sueño y tus ritmos circadianos.
+          Selecciona uno para comenzar.
         </p>
       </div>
 

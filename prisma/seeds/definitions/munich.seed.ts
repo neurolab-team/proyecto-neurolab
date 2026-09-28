@@ -6,7 +6,7 @@ export const munichSeed: TestSeedDefinition = {
   title: "Cuestionario de Cronotipo de Munich",
   audience: "user",
   description:
-    "Esta es una prueba que permite identificar el cronotipo de una persona",
+    "Conoce tus horarios habituales de sueño y vigilia y descubre tu cronotipo a partir de tus patrones de sueño.",
   sections: [
     { code: "dias_laborales", name: "Dias Laborales" },
     { code: "dias_no_laborales", name: "Dias No Laborales" },
