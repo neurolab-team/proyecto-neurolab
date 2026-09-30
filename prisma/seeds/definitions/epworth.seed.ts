@@ -28,7 +28,7 @@ export const epworthSeed: TestSeedDefinition = {
   title: "Escala de Somnolencia Diurna de Epworth (ESS)",
   audience: "user",
   description:
-    "Conoce qué tan probable es que te quedes dormido en diferentes situaciones de la vida cotidiana.",
+    "Esta escala evalúa la probabilidad de quedarse dormido en ocho situaciones cotidianas. No hay respuestas correctas o incorrectas; responde según tu experiencia habitual.",
   sections: [{ code: "problemas_sueno", name: "Problemas de sueño" }],
   questions: [
     {

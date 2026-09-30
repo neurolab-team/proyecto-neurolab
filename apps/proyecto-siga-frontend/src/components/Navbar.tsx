@@ -106,7 +106,7 @@ export default function Navbar() {
                     onClick={() => handleNavigation("/panel/assignmentTest")}
                     className="text-white hover:bg-white/10 px-4 py-2 rounded-lg transition-all duration-300 text-sm font-medium border border-white/30 shadow-md hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0"
                   >
-                    Mis Pruebas
+                    Mis cuestionarios
                   </button>
                 )}
 

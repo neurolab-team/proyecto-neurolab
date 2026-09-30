@@ -15,21 +15,7 @@ import {
   getTestPreviewMetadata,
   buildTestPreviewMetadataItems,
 } from '@/components/testPreview/testPreviewPresentation';
-
-const PREVIEW_STEPS = [
-  {
-    title: 'Lee cada situación con calma.',
-    description: 'Piensa en cómo te has sentido recientemente, no solo en este instante.',
-  },
-  {
-    title: 'Elige la opción que mejor te describa.',
-    description: 'Si nunca has estado en esa situación, imagina cómo reaccionarías.',
-  },
-  {
-    title: 'Puedes pausar y volver.',
-    description: 'Tus respuestas se guardan automáticamente. Vuelve cuando quieras.',
-  },
-];
+import { getTestReferences } from '@/components/testPreview/testReferences';
 
 export default function TestPreviewPage() {
   const params = useParams<{ assignmentId: string }>();
@@ -117,8 +103,8 @@ export default function TestPreviewPage() {
       description ??
       'Lee con atención las instrucciones antes de comenzar. No hay respuestas correctas ni incorrectas.',
     metadata,
-    steps: PREVIEW_STEPS,
     assignmentId,
+    references: getTestReferences(testCode),
     consentStatus: effectiveConsentStatus,
     onReviewConsent: () => setIsReviewingConsent(true),
   };

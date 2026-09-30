@@ -14,11 +14,11 @@ export const INFORMED_CONSENT_VERSION = CURRENT_CONSENT_VERSION;
 export const INFORMED_CONSENT_TITLE = "Consentimiento informado";
 
 export const INFORMED_CONSENT_SUBTITLE =
-  "Caracterización de hábitos y características del sueño";
+  "Valoración de hábitos y patrones de sueño";
 
 export const INFORMED_CONSENT_INTRO: string[] = [
-  "Usted está invitado(a) a participar voluntariamente en esta valoración de hábitos y características del sueño, desarrollada por el ITM en el marco del proyecto MATELAB II – Ecopermanencia, bajo la responsabilidad de la Profª. Gloria Duque.",
-  "Dormir bien hace parte de nuestro bienestar y puede influir en cómo nos sentimos y nos desenvolvemos durante el día. Esta valoración es una oportunidad para hacer una pausa, conocer mejor sus hábitos de sueño y reflexionar sobre sus características de descanso, especialmente durante los primeros semestres de su proceso académico.",
+  "Usted está invitado(a) a participar voluntariamente en esta valoración de hábitos y patrones de sueño, desarrollada por el ITM en el marco del proyecto MATELAB II – Ecopermanencia.",
+  "Dormir bien hace parte de nuestro bienestar y puede influir en cómo nos sentimos y nos desenvolvemos durante el día. Esta valoración es una oportunidad para hacer una pausa, conocer mejor sus hábitos de sueño y reflexionar sobre su descanso, especialmente durante el proceso de adaptación a la vida universitaria.",
 ];
 
 export type InformedConsentSection = {
@@ -33,12 +33,12 @@ export const INFORMED_CONSENT_SECTIONS: InformedConsentSection[] = [
     title: "¿En qué consiste?",
     lead: "Responderá tres cuestionarios (10 a 17 minutos aprox.):",
     items: [
-      "Índice de Calidad de Sueño de Pittsburgh (PSQI): evalúa aspectos relacionados con la calidad y características del sueño.",
-      "Escala de Somnolencia de Epworth: permite identificar el nivel de somnolencia durante el día.",
-      "Cuestionario de Cronotipo: permite conocer la preferencia por determinados horarios de actividad y descanso.",
+      "Índice de Calidad de Sueño de Pittsburgh (PSQI): evalúa diferentes aspectos de la calidad del sueño durante el último mes.",
+      "Escala de Somnolencia de Epworth: evalúa la probabilidad de quedarse dormido en diferentes situaciones durante el día.",
+      "Cuestionario de Cronotipo de Munich: recoge información sobre sus horarios de sueño para conocer aspectos relacionados con su cronotipo",
     ],
     paragraphs: [
-      "Los resultados son descriptivos y orientadores; no constituyen un diagnóstico médico ni psicológico.",
+      "Los resultados son orientativos; no constituyen un diagnóstico médico o psicológico ni sustituyen una valoración profesional.",
     ],
   },
   {
@@ -49,7 +49,7 @@ export const INFORMED_CONSENT_SECTIONS: InformedConsentSection[] = [
   },
   {
     title: "Contacto posterior (opcional)",
-    lead: "Si lo autoriza, podremos escribirle a su correo institucional para:",
+    lead: "Si lo autoriza, podremos contactarlo a través de su correo institucional para enviarle recomendaciones generales sobre hábitos de sueño o invitarlo a otros estudios relacionados. Cualquier nuevo estudio requerirá un consentimiento independiente.",
     items: [
       "Enviarle recomendaciones generales para mejorar sus hábitos de sueño.",
       "Invitarle a otros estudios sobre el sueño, como la medición con MotionWatch (dispositivo similar a un reloj que se usa en la muñeca). Recibir la invitación no le obliga a participar; si le interesa, se le dará la información completa y se le pedirá un nuevo consentimiento.",
@@ -65,10 +65,10 @@ export const INFORMED_CONSENT_SECTIONS: InformedConsentSection[] = [
 ];
 
 export const INFORMED_CONSENT_ACKNOWLEDGEMENT =
-  "Al seleccionar “Acepto participar”, usted confirma que ha leído y comprendido esta información y que autoriza voluntariamente su participación en la valoración.";
+  "Al seleccionar “Acepto participar”, confirma que ha leído y comprendido esta información y acepta participar voluntariamente.";
 
 export const INFORMED_CONSENT_OPTIONAL_TITLE =
-  "Autorizaciones opcionales (puede participar sin marcarlas)";
+  "Autorizaciones opcionales";
 
 export const INFORMED_CONSENT_OPTIONAL_SLEEP_TIPS =
   "Autorizo recibir recomendaciones sobre mis hábitos de sueño por correo electrónico.";

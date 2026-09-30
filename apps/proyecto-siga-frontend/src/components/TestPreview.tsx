@@ -7,7 +7,12 @@ import {
   Shield,
   Leaf,
   LucideIcon,
+  UserRound,
 } from 'lucide-react';
+import {
+  TestReferences,
+  REFERENCE_KIND_LABEL,
+} from '@/components/testPreview/testReferences';
 
 export interface TestPreviewMetadata {
   icon: LucideIcon;
@@ -15,18 +20,14 @@ export interface TestPreviewMetadata {
   label: string;
 }
 
-export interface TestPreviewStep {
-  title: string;
-  description: string;
-}
-
 export interface TestPreviewData {
   category: string;
   title: string;
   description: string;
   metadata: TestPreviewMetadata[];
-  steps: TestPreviewStep[];
   assignmentId: string;
+  /** Referencias bibliográficas de la prueba; si no hay, no se muestra la sección. */
+  references?: TestReferences | null;
   /**
    * Estado del consentimiento informado de la asignación. `null` = todavía
    * pendiente (el modal de consentimiento se muestra por encima de esta
@@ -38,23 +39,8 @@ export interface TestPreviewData {
   onReviewConsent?: () => void;
 }
 
-const defaultSteps: TestPreviewStep[] = [
-  {
-    title: 'Lee cada situación con calma.',
-    description: 'Piensa en cómo te has sentido recientemente, no solo en este instante.',
-  },
-  {
-    title: 'Elige la opción que mejor te describa.',
-    description: 'Si nunca has estado en esa situación, imagina cómo reaccionarías.',
-  },
-  {
-    title: 'Puedes pausar y volver.',
-    description: 'Tus respuestas se guardan automáticamente. Vuelve cuando quieras.',
-  },
-];
-
 export default function TestPreview({ data }: { data: TestPreviewData }) {
-  const steps = data.steps.length > 0 ? data.steps : defaultSteps;
+  const references = data.references?.items.length ? data.references : null;
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -107,24 +93,15 @@ export default function TestPreview({ data }: { data: TestPreviewData }) {
 
             {/* Steps */}
             <h2 id="instructions-heading" className="mb-4 text-sm font-semibold text-[#102D69]">
-              Cómo responder
+              Instrucciones
             </h2>
-            <ol className="flex flex-col gap-4">
-              {steps.map((step, i) => (
-                <li key={i} className="flex gap-4">
-                  <span
-                    aria-hidden="true"
-                    className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-blue-50 text-sm font-semibold text-[#102D69]"
-                  >
-                    {i + 1}
-                  </span>
-                  <div>
-                    <p className="font-semibold text-gray-800">{step.title}</p>
-                    <p className="text-sm text-gray-500">{step.description}</p>
-                  </div>
-                </li>
-              ))}
-            </ol>
+            <div className="flex flex-col gap-4">
+                <div className="flex gap-4">
+                    <p className="text-sm text-gray-500">
+                        las siguientes preguntas se refieren a su forma habitual de dormir únicamente durante el último mes, en promedio. Sus respuestas intentarán ajustarse de la manera más exacta a lo ocurrido durante la mayoría de los días y noches del último mes. Por favor, intente responder a todas las preguntas.
+                    </p>
+                </div>
+            </div>
 
             <hr className="my-6 border-dashed border-gray-200" />
 
@@ -151,14 +128,9 @@ export default function TestPreview({ data }: { data: TestPreviewData }) {
                     href={`/test/${data.assignmentId}`}
                     className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[#102D69] to-[#00A0B7] px-7 py-3 text-sm font-bold text-white hover:shadow-lg transition-all duration-300"
                   >
-                    Comenzar prueba
+                    Comenzar Cuestionario
                     <ArrowRight className="h-4 w-4" />
                   </Link>
-                  <p className="text-xs text-gray-400">
-                    Al comenzar aceptas el{' '}
-                    <span className="text-gray-600 underline">manejo confidencial</span>{' '}
-                    de tus respuestas.
-                  </p>
                 </>
               ) : (
                 <button
@@ -167,7 +139,7 @@ export default function TestPreview({ data }: { data: TestPreviewData }) {
                   aria-disabled="true"
                   className="inline-flex items-center gap-2 rounded-full bg-gray-200 px-7 py-3 text-sm font-bold text-gray-400 cursor-not-allowed"
                 >
-                  Comenzar prueba
+                  Comenzar Cuestionario
                   <ArrowRight className="h-4 w-4" />
                 </button>
               )}
@@ -180,8 +152,7 @@ export default function TestPreview({ data }: { data: TestPreviewData }) {
             <Shield className="mb-3 h-5 w-5 text-[#102D69]" />
             <p className="mb-1 font-semibold text-gray-800">Confidencialidad</p>
             <p className="text-sm text-gray-600">
-              Tus respuestas son confidenciales. Solo el equipo de NeuroLab ITM puede verlas; tus profesores y compañeros no tendrán acceso a ellas.<br/>
-              Si identificamos que tu vida o la de otra persona puede estar en riesgo, podremos contactarte o activar la ruta de atención de la institución para ayudarte.
+              Tus respuestas serán tratadas de forma confidencial por el ITM y estarán protegidas de acuerdo con la Política de Tratamiento de Datos Personales de la institución. Tus profesores y compañeros no tendrán acceso a tus respuestas individuales.
             </p>
           </div>
 
@@ -193,6 +164,41 @@ export default function TestPreview({ data }: { data: TestPreviewData }) {
               donde te atenderán profesionales en Psicología, o <span className="text-gray-800 underline"> escribe a acercarse@itm.edu.co. </span>
             </p>
           </div>
+          {references && (
+            <div className="rounded-xl bg-cyan-50/60 p-6">
+              <UserRound className="mb-3 h-5 w-5 text-[#00A0B7]" />
+              <p className="mb-1 font-semibold text-gray-800">Referencias del instrumento</p>
+              {references.summary && (
+                <p className="mb-3 text-sm text-gray-600">{references.summary}</p>
+              )}
+              <div className="flex flex-col gap-3">
+                {references.items.map((item) => (
+                  <div key={item.citation}>
+                    <p className="mb-0.5 text-[11px] font-medium uppercase tracking-widest text-gray-400">
+                      {REFERENCE_KIND_LABEL[item.kind]}
+                    </p>
+                    {item.note && <p className="text-xs text-gray-600">{item.note}</p>}
+                    <p className="text-xs text-gray-500">
+                      {item.citation}
+                      {item.doi && (
+                        <>
+                          {' '}
+                          <a
+                            href={`https://doi.org/${item.doi}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="break-all text-[#00A0B7] underline hover:text-[#102D69]"
+                          >
+                            https://doi.org/{item.doi}
+                          </a>
+                        </>
+                      )}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </aside>
       </div>
     </div>

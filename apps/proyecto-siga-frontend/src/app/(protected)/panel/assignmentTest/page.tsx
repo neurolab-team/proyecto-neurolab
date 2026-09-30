@@ -65,7 +65,7 @@ const AssignmentTestPanel = () => {
   };
 
   const actionButtonClasses =
-    "bg-gradient-to-r from-[#102D69] to-[#00A0B7] text-white px-4 py-2.5 rounded-lg font-bold hover:shadow-md transition-all duration-300 w-full sm:w-auto";
+    "bg-gradient-to-r from-[#102D69] to-[#00A0B7] text-white px-3 py-2.5 rounded-lg font-bold hover:shadow-md transition-all duration-300 w-full sm:w-auto";
 
   const renderAction = (test: AssignedTest) => {
     if (["assigned", "in_progress"].includes(test.status)) {
@@ -78,8 +78,8 @@ const AssignmentTestPanel = () => {
           <button className={actionButtonClasses}>
             {hasLocalProgress(test.assignmentId) ||
             test.status === "in_progress"
-              ? "Continuar Prueba"
-              : "Comenzar Prueba"}
+              ? "Continua Cuestionario"
+              : "Comenzar Cuestionario"}
           </button>
         </Link>
       );
@@ -116,10 +116,10 @@ const AssignmentTestPanel = () => {
             <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6 sm:mb-8">
               <div>
                 <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-[#102D69] mb-1 sm:mb-2">
-                  Mis Pruebas Asignadas
+                  Mi valoración del sueño
                 </h1>
                 <p className="text-sm sm:text-base text-gray-600">
-                  Pruebas pendientes y completadas.
+                  Cuestionarios pendientes y completados.
                 </p>
               </div>
             </div>
