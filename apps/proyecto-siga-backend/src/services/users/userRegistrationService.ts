@@ -11,6 +11,13 @@ import { TransactionManager } from "../transaction/transactionManager";
 import { checkPassword } from "../../security/passwordPolicy";
 import { generateSecurePassword } from "../../security/passwordGenerator";
 import { isOfLegalAge, MINIMUM_REGISTRATION_AGE } from "@packages/common-schemas/age";
+import {
+  isValidStudentSemester,
+  MAX_SEMESTER,
+  MIN_SEMESTER,
+  NOT_APPLICABLE_SEMESTER,
+  resolveSemester,
+} from "@packages/common-schemas/semester";
 
 @injectable()
 export class UserRegistrationService {
@@ -59,6 +66,12 @@ export class UserRegistrationService {
       );
     }
 
+    if (input.userType === "itmStudent" && !isValidStudentSemester(input.semester)) {
+      throw BadRequest(
+        `Selecciona un semestre entre ${MIN_SEMESTER} y ${MAX_SEMESTER}`,
+      );
+    }
+
     const passwordErrors = await checkPassword(input.password ?? "", email);
     if (passwordErrors.length > 0) {
       throw BadRequest(passwordErrors.join(". "));
@@ -75,6 +88,7 @@ export class UserRegistrationService {
           name: input.name ?? "",
           role: input.role,
           userType: input.userType,
+          semester: resolveSemester(input.userType, input.semester),
           gender: input.gender,
           birthDate: input.birthDate ? new Date(input.birthDate) : undefined,
           password: hashedPassword,
@@ -115,6 +129,8 @@ export class UserRegistrationService {
           name: input.name ?? "",
           role: input.role,
           userType: input.userType,
+          // Las cuentas de staff nunca son estudiantes.
+          semester: NOT_APPLICABLE_SEMESTER,
           gender: input.gender,
           birthDate: input.birthDate ? new Date(input.birthDate) : undefined,
           password: hashedPassword,

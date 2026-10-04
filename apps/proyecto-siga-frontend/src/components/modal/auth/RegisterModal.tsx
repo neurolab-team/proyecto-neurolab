@@ -1,33 +1,14 @@
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useMutation } from "@tanstack/react-query";
-import Link from "next/link";
+import { UserRole } from "@packages/common-types/user.types";
 import { usersService } from "../../../services/users/users";
-import { notify } from "../../../libs/toastService";
-import { UserRole, UserType } from "@packages/common-types/user.types";
 import ModalShell from "../core/ModalShell";
-import FormErrorBanner from "../../FormErrorBanner";
-import PasswordInput from "../../PasswordInput";
 import { getApiErrorMessage } from "../../../libs/getApiErrorMessage";
-import {
-  getMaxBirthDateForMinimumAge,
-  passwordRequirements,
-  validateMinimumAge,
-  validatePasswordStrength,
-} from "../../../libs/authFormValidation";
-
-type RegisterFormData = {
-  userType: UserType;
-  name: string;
-  email: string;
-  userNumber: string;
-  gender?: string;
-  birthDate: string;
-  password?: string;
-  /** Solo para validación en el formulario; no se envía al backend. */
-  confirmPassword?: string;
-  role?: UserRole;
-  acceptedDataPolicy?: boolean;
-};
+import { RegisterFormData } from "./registerForm";
+import RegisterPersonalInfoView from "./views/RegisterPersonalInfoView";
+import RegisterAccessDataView from "./views/RegisterAccessDataView";
+import RegisterSuccessView from "./views/RegisterSuccessView";
 
 interface RegisterModalProps {
   isOpen: boolean;
@@ -36,67 +17,100 @@ interface RegisterModalProps {
   onSuccess?: () => void;
 }
 
+type RegisterStep = "personal" | "access" | "success";
+
+const STEP_HEADINGS: Record<"personal" | "access", string> = {
+  personal: "Paso 1 de 2: Información Personal",
+  access: "Paso 2 de 2: Datos de Acceso",
+};
+
+/**
+ * Contenedor del registro. Orquesta un flujo progresivo de dos pasos
+ * (información personal → datos de acceso) más un estado de éxito, y delega
+ * cada pantalla a una vista presentacional en `./views`.
+ *
+ * El estado del formulario vive en un único `useForm`, así volver al paso
+ * anterior no pierde lo ya escrito.
+ */
 export default function RegisterModal({
   isOpen,
   onClose,
   isAdminMode = false,
   onSuccess,
 }: RegisterModalProps) {
+  const [step, setStep] = useState<RegisterStep>("personal");
+  const [registeredEmail, setRegisteredEmail] = useState("");
 
-  const validateEmail = (email: string, type: UserType | null) => {
-    if (!type) return "";
-    if (type === "itmStudent" && !email.endsWith("@correo.itm.edu.co")) {
-      return "Los estudiantes deben usar correo @correo.itm.edu.co";
-    }
-    if (type === "itmEmployee" && !email.endsWith("@itm.edu.co")) {
-      return "Los empleados deben usar correo @itm.edu.co";
-    }
-    return "";
-  };
   const {
     register,
     handleSubmit,
     watch,
-    getValues,
+    trigger,
     formState: { errors },
   } = useForm<RegisterFormData>({
+    // Valida al salir del campo y luego en cada cambio: el usuario ve el error
+    // sin que aparezca mientras aún está escribiendo por primera vez.
+    mode: "onTouched",
+    // Sin tipo de usuario por defecto: debe elegirlo explícitamente, para no
+    // registrar a nadie con un tipo que no seleccionó.
     defaultValues: {
-      userType: "external",
+      role: isAdminMode ? "psychologist" : undefined,
     },
   });
 
-  const userType = watch("userType", "external");
+  const personalStepFields: (keyof RegisterFormData)[] = isAdminMode
+    ? ["userType", "role", "name", "userNumber", "gender"]
+    : ["userType", "name", "userNumber", "semester", "birthDate", "gender", "acceptedDataPolicy"];
 
   const signupMutation = useMutation({
     mutationFn: async (data: RegisterFormData) => {
-      // confirmPassword solo valida el formulario: nunca viaja al backend.
-      const { confirmPassword: _confirmPassword, ...payload } = data;
+      // confirmPassword y confirmEmail solo validan el formulario: nunca viajan
+      // al backend.
+      const {
+        confirmPassword: _confirmPassword,
+        confirmEmail: _confirmEmail,
+        ...payload
+      } = data;
+      // Si eligió estudiante, escribió el semestre y luego cambió de tipo, no
+      // se envía: el backend guarda "N/A".
+      if (payload.userType !== "itmStudent") delete payload.semester;
 
       if (isAdminMode) {
-        const userData = {
+        return usersService.create({
           ...payload,
           role: (payload.role || "user") as UserRole,
-        };
-        return usersService.create(userData);
-      } else {
-        return usersService.register(payload);
+        });
       }
-    },
 
-    onSuccess: () => {
-      notify.success(
-        isAdminMode
-          ? "Usuario creado. Se envio una contrasena temporal al correo."
-          : "Registro completado correctamente.",
-      );
+      return usersService.register(payload);
+    },
+    onSuccess: (_response, variables) => {
+      setRegisteredEmail(variables.email.trim());
+      setStep("success");
       onSuccess?.();
-      onClose();
     },
   });
 
-  const onSubmit = (data: RegisterFormData) => {
-    signupMutation.mutate(data);
+  const handleNext = async () => {
+    const isStepValid = await trigger(personalStepFields, {
+      shouldFocus: true,
+    });
+    if (isStepValid) setStep("access");
   };
+
+  const handleFinalSubmit = handleSubmit(
+    (data) => {
+      signupMutation.mutate(data);
+    },
+    (validationErrors) => {
+      // Si algo del paso 1 quedó inválido (por ejemplo, tras editar y volver),
+      // se regresa a ese paso para que el campo con error sea visible.
+      const hasPersonalStepError = personalStepFields.some(
+        (field) => validationErrors[field],
+      );
+      if (hasPersonalStepError) setStep("personal");
+    },
+  );
 
   if (!isOpen) return null;
 
@@ -104,339 +118,85 @@ export default function RegisterModal({
     <ModalShell
       isOpen={isOpen}
       onClose={onClose}
-      backdropClassName="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-2 sm:p-4 z-50"
-      panelClassName="bg-white rounded-2xl sm:rounded-3xl shadow-2xl w-full max-w-2xl max-h-[95vh] sm:max-h-[90vh] overflow-y-auto relative"
-      closeButtonClassName="absolute top-3 right-3 sm:top-4 sm:right-4 text-white hover:text-gray-200 z-10"
+      backdropClassName="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-2 sm:p-4"
+      panelClassName="relative flex max-h-[95vh] w-full max-w-2xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl sm:max-h-[90vh] sm:rounded-3xl"
+      closeButtonClassName="absolute right-3 top-3 z-10 rounded-full p-1 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600 sm:right-4 sm:top-4"
     >
-      <div className="bg-gradient-to-r from-[#001d4e] via-[#102D69] to-[#2a4d8f] text-white p-6 sm:p-8 text-center relative">
-        <div className="w-16 h-16 sm:w-20 sm:h-20 bg-white rounded-full mx-auto mb-3 sm:mb-4 flex items-center justify-center">
-          <svg
-            className="w-10 h-10 sm:w-12 sm:h-12 text-[#102D69]"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
+      {step !== "success" && (
+        <div className="border-b border-gray-100 px-5 pb-4 pt-6 sm:px-8">
+          <div className="flex flex-col gap-3 pr-8 sm:flex-row sm:items-start sm:justify-between">
+            <div className="flex items-center gap-3">
+              <div>
+                <h2 className="text-lg font-bold leading-tight text-[#102D69] sm:text-xl">
+                  {isAdminMode
+                    ? "Crear Cuenta de Usuario"
+                    : "Registra tu cuenta"}
+                </h2>
+                <p className="text-xs text-gray-500">
+                  Instituto Tecnológico Metropolitano
+                </p>
+              </div>
+            </div>
+
+            <p className="text-xs font-semibold text-[#2a4d8f] sm:whitespace-nowrap sm:text-right">
+              {STEP_HEADINGS[step]}
+            </p>
+          </div>
+
+          <div
+            className="mt-4 h-1.5 w-full overflow-hidden rounded-full bg-gray-100"
+            role="progressbar"
+            aria-label="Progreso del registro"
+            aria-valuemin={1}
+            aria-valuemax={2}
+            aria-valuenow={step === "personal" ? 1 : 2}
+            aria-valuetext={STEP_HEADINGS[step]}
           >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+            <span
+              className="block h-full rounded-full bg-gradient-to-r from-[#102D69] to-[#00A0B7] transition-all duration-300"
+              style={{ width: step === "personal" ? "50%" : "100%" }}
             />
-          </svg>
+          </div>
         </div>
-        <h1 className="text-2xl sm:text-3xl font-bold mb-2">
-          Registro de Usuario
-        </h1>
-        <p className="text-sm sm:text-base text-blue-100">
-          Sistema de Autoevaluación - ITM
-        </p>
-      </div>
+      )}
 
-      <div className="p-4 sm:p-6 lg:p-8">
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
-              Tipo de usuario *
-            </label>
-            <select
-              className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-opacity-50 focus:ring-[#2a4d8f] focus:border-[#2a4d8f] transition-all appearance-none bg-white cursor-pointer text-gray-700 font-medium"
-              {...register("userType", {
-                required: "Este campo es obligatorio",
-              })}
-            >
-              <option value="itmStudent">
-                Estudiante ITM (@correo.itm.edu.co)
-              </option>
-              <option value="itmEmployee">Empleado ITM (@itm.edu.co)</option>
-              <option value="external">Usuario Externo</option>
-            </select>
-          </div>
+      {step === "personal" && (
+        <RegisterPersonalInfoView
+          register={register}
+          errors={errors}
+          userType={watch("userType")}
+          isAdminMode={isAdminMode}
+          onNext={handleNext}
+        />
+      )}
 
-          {isAdminMode && (
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Rol del usuario *
-              </label>
-              <select
-                className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-opacity-50 focus:ring-[#2a4d8f] focus:border-[#2a4d8f] transition-all appearance-none bg-white cursor-pointer text-gray-700 font-medium"
-                {...register("role", {
-                  required: isAdminMode ? "Este campo es obligatorio" : false,
-                })}
-              >
-                <option value="psychologist">Psicólogo</option>
-                <option value="admin">Administrador</option>
-              </select>
-              {errors.role && (
-                <p className="text-red-500 text-sm mt-1">
-                  {errors.role.message}
-                </p>
-              )}
-            </div>
-          )}
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
-              Correo electrónico *
-              {userType === "itmStudent" && (
-                <span className="text-[#00A0B7]"> (@correo.itm.edu.co)</span>
-              )}
-              {userType === "itmEmployee" && (
-                <span className="text-[#00A0B7]"> (@itm.edu.co)</span>
-              )}
-            </label>
-            <input
-              type="email"
-              {...register("email", {
-                required: "Este campo es obligatorio",
-                validate: (value) => {
-                  const emailError = validateEmail(value, userType);
-                  return emailError || true;
-                },
-              })}
-              className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-opacity-50 focus:ring-[#2a4d8f] focus:border-[#2a4d8f] transition-all"
-              placeholder={`correo@${userType === "itmStudent" ?
-                 "correo.itm.edu.co" : userType === "itmEmployee"
-                 ? "itm.edu.co" : "ejemplo.com"}`}
-            />
-            {errors.email && (
-              <p className="text-red-500 text-sm mt-1">
-                {errors.email.message}
-              </p>
-            )}
-          </div>
+      {step === "access" && (
+        <RegisterAccessDataView
+          register={register}
+          errors={errors}
+          watch={watch}
+          isAdminMode={isAdminMode}
+          onBack={() => setStep("personal")}
+          onSubmit={handleFinalSubmit}
+          isSubmitting={signupMutation.isPending}
+          errorMessage={
+            signupMutation.isError
+              ? getApiErrorMessage(
+                  signupMutation.error,
+                  "No fue posible completar el registro.",
+                )
+              : null
+          }
+        />
+      )}
 
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
-              Nombre completo *
-            </label>
-            <input
-              type="text"
-              {...register("name", {
-                required: "Este campo es obligatorio",
-              })}
-              className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-opacity-50 focus:ring-[#2a4d8f] focus:border-[#2a4d8f] transition-all"
-              placeholder="Ingresa tu nombre completo"
-            />
-            {errors.name && (
-              <p className="text-red-500 text-sm mt-1">{errors.name.message}</p>
-            )}
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Número de identificación *
-              </label>
-              <input
-                type="text"
-                inputMode="numeric"
-                autoComplete="off"
-                {...register("userNumber", {
-                  required: "Este campo es obligatorio",
-                })}
-                className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-opacity-50 focus:ring-[#2a4d8f] focus:border-[#2a4d8f] transition-all"
-                placeholder="123456789"
-              />
-              {errors.userNumber && (
-                <p className="text-red-500 text-sm mt-1">
-                  {errors.userNumber.message}
-                </p>
-              )}
-            </div>
-
-            {!isAdminMode && (
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Fecha de nacimiento *
-                </label>
-                <input
-                  type="date"
-                  max={getMaxBirthDateForMinimumAge()}
-                  {...register("birthDate", {
-                    required: "Este campo es obligatorio",
-                    validate: validateMinimumAge,
-                  })}
-                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-opacity-50 focus:ring-[#2a4d8f] focus:border-[#2a4d8f] transition-all"
-                />
-                {errors.birthDate && (
-                  <p className="text-red-500 text-sm mt-1">
-                    {errors.birthDate.message}
-                  </p>
-                )}
-              </div>
-            )}
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Género
-              </label>
-              <select
-                {...register("gender", {
-                  required: "Este campo es obligatorio",
-                })}
-                className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-opacity-50 focus:ring-[#2a4d8f] focus:border-[#2a4d8f] transition-all appearance-none bg-white cursor-pointer text-gray-700 font-medium"
-              >
-                <option value="">Seleccionar</option>
-                <option value="M">Masculino</option>
-                <option value="F">Femenino</option>
-                <option value="O">Otro</option>
-              </select>
-            </div>
-          </div>
-
-          {!isAdminMode && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label
-                  htmlFor="register-password"
-                  className="block text-sm font-semibold text-gray-700 mb-2"
-                >
-                  Contraseña *
-                </label>
-                <PasswordInput
-                  id="register-password"
-                  autoComplete="new-password"
-                  aria-describedby="register-password-requirements"
-                  {...register("password", {
-                    required: "Este campo es obligatorio",
-                    minLength: {
-                      value: passwordRequirements.minLength,
-                      message: passwordRequirements.minLengthMessage,
-                    },
-                    validate: validatePasswordStrength,
-                    // Revalida la confirmación al editar la contraseña, para que
-                    // no quede un "no coinciden" obsoleto tras corregir arriba.
-                    deps: ["confirmPassword"],
-                  })}
-                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-opacity-50 focus:ring-[#2a4d8f] focus:border-[#2a4d8f] transition-all"
-                  placeholder="********"
-                />
-                {errors.password && (
-                  <p className="text-red-500 text-sm mt-1">
-                    {errors.password.message}
-                  </p>
-                )}
-              </div>
-
-              <div>
-                <label
-                  htmlFor="register-confirm-password"
-                  className="block text-sm font-semibold text-gray-700 mb-2"
-                >
-                  Confirmar contraseña *
-                </label>
-                <PasswordInput
-                  id="register-confirm-password"
-                  autoComplete="new-password"
-                  {...register("confirmPassword", {
-                    required: "Confirma tu contraseña",
-                    validate: (value) =>
-                      value === getValues("password") ||
-                      "Las contraseñas no coinciden",
-                  })}
-                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-opacity-50 focus:ring-[#2a4d8f] focus:border-[#2a4d8f] transition-all"
-                  placeholder="********"
-                />
-                {errors.confirmPassword && (
-                  <p className="text-red-500 text-sm mt-1">
-                    {errors.confirmPassword.message}
-                  </p>
-                )}
-              </div>
-
-              <p
-                id="register-password-requirements"
-                className="sm:col-span-2 text-xs text-gray-500"
-              >
-                {passwordRequirements.helperText} Usa el ícono del ojo para
-                verificar lo que escribiste.
-              </p>
-            </div>
-          )}
-
-          <div className="bg-gradient-to-r from-blue-50 to-cyan-50 border-2 border-blue-200 rounded-xl p-4">
-            <div className="flex items-start space-x-3">
-              <svg
-                className="w-6 h-6 text-blue-600 flex-shrink-0 mt-0.5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-              </svg>
-              <p className="text-sm text-blue-800">
-                <strong>Nota:</strong>{" "}
-                {isAdminMode
-                  ? "Se generará una contraseña temporal "
-                  : "Se generará un link de verificación "}
-                que será enviada a tu correo electrónico.
-              </p>
-            </div>
-          </div>
-
-          {!isAdminMode && (
-            <div>
-              <label className="flex items-start space-x-3 cursor-pointer">
-                <input
-                  type="checkbox"
-                  {...register("acceptedDataPolicy", {
-                    required:
-                      "Debes aceptar la política de tratamiento de datos personales",
-                  })}
-                  className="mt-1 h-5 w-5 rounded border-2 border-gray-300 text-[#102D69] focus:ring-[#2a4d8f] cursor-pointer"
-                />
-                <span className="text-sm text-gray-700">
-                  He leído y acepto la{" "}
-                  <Link
-                    href="/data-protection-policy"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="font-semibold text-[#102D69] underline hover:text-[#2a4d8f]"
-                  >
-                    Política de Tratamiento de Datos Personales
-                  </Link>
-                  , y autorizo el tratamiento de mis datos, incluyendo los
-                  resultados de las pruebas de autoevaluación, conforme a la
-                  Ley 1581 de 2012. *
-                </span>
-              </label>
-              {errors.acceptedDataPolicy && (
-                <p className="text-red-500 text-sm mt-1">
-                  {errors.acceptedDataPolicy.message}
-                </p>
-              )}
-            </div>
-          )}
-
-          <FormErrorBanner message={signupMutation.isError ? getApiErrorMessage(signupMutation.error, 'No fue posible completar el registro.') : null} />
-
-          <button
-            type="submit"
-            disabled={signupMutation.isPending}
-            className="w-full bg-gradient-to-r from-[#001d4e] via-[#102D69] to-[#2a4d8f] text-white py-3.5 sm:py-4 rounded-xl font-bold text-base sm:text-lg hover:shadow-2xl transform hover:scale-[1.02] transition-all duration-300 flex items-center justify-center space-x-2"
-          >
-            <span>
-              {signupMutation.isPending ? "Cargando..." : "Registrarse"}
-            </span>
-            <svg
-              className="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M13 7l5 5m0 0l-5 5m5-5H6"
-              />
-            </svg>
-          </button>
-        </form>
-      </div>
+      {step === "success" && (
+        <RegisterSuccessView
+          email={registeredEmail}
+          isAdminMode={isAdminMode}
+          onAcknowledge={onClose}
+        />
+      )}
     </ModalShell>
   );
 }

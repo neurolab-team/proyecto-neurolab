@@ -90,6 +90,9 @@ export function StudentsListPanel({
                   <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
                     {student.completedTestsCount}/{student.assignedTestsCount} pruebas
                   </span>
+                  <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
+                    Semestre: {student.semester}
+                  </span>
                 </div>
 
                 <div className="mt-4 space-y-1 text-sm text-slate-600">

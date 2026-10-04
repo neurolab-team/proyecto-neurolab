@@ -78,6 +78,7 @@ export function StudentDetailPanel({
                       : "Externo"
                 }
               />
+              <StatPill label="Semestre" value={studentDetail.semester} />
               <StatPill label="Edad" value={studentDetail.age ?? "Sin dato"} />
               <StatPill label="Asignado" value={formatDateLabel(studentDetail.assignedAt)} />
               <StatPill

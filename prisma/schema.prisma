@@ -16,6 +16,8 @@ model user {
   gender                 String?
   birthDate              DateTime?
   userType               String    @default("external")
+  // Semestre académico: "1".."10" para estudiantes ITM, "N/A" para el resto.
+  semester               String    @default("N/A") @db.NVarChar(10)
   role                   String
   isActive               Boolean   @default(false)
   lastLogin              DateTime?

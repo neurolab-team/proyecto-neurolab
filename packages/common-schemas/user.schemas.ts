@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { isOfLegalAge, MINIMUM_REGISTRATION_AGE } from "./age";
+import { isValidStudentSemester, MAX_SEMESTER, MIN_SEMESTER } from "./semester";
 
 const userTypes = ["itmStudent", "itmEmployee", "external"] as const;
 const staffRoles = ["psychologist", "admin"] as const;
@@ -57,11 +58,18 @@ export const RegisterDto = z.object({
       message: `Debes ser mayor de ${MINIMUM_REGISTRATION_AGE} años para registrarte`,
     }),
   gender: z.string().optional(),
+  semester: z.string().trim().optional(),
   password: z.string().min(6).optional(),
   acceptedDataPolicy: z.literal(true, {
     error: "Debes aceptar la política de tratamiento de datos personales",
   }),
-});
+}).refine(
+  (input) => input.userType !== "itmStudent" || isValidStudentSemester(input.semester),
+  {
+    path: ["semester"],
+    message: `Selecciona un semestre entre ${MIN_SEMESTER} y ${MAX_SEMESTER}`,
+  },
+);
 
 export const ResendVerificationDto = z.object({
   email: z

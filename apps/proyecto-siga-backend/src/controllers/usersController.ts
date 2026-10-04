@@ -237,6 +237,7 @@ PublicUsersController.post(
       name: input.name,
       userNumber: input.userNumber,
       userType: input.userType,
+      semester: input.semester,
       birthDate: input.birthDate,
       gender: input.gender,
       password: input.password,

@@ -33,6 +33,7 @@ export type PsychologistStudentSummary = {
   email: string;
   userNumber: string;
   userType: UserType;
+  semester: string;
   gender?: string | null;
   age: number | null;
   assignedAt: string | null;
@@ -97,6 +98,7 @@ export type PsychologistStudentResultExportRow = {
   studentEmail: string;
   studentCode: string;
   userType: UserType;
+  semester: string;
   testId: string;
   testTitle: string;
   assignmentStatus: string;

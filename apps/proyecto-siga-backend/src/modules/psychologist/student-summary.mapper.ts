@@ -223,6 +223,7 @@ export function buildStudentSummary(
     email: record.email,
     userNumber: record.userNumber,
     userType: record.userType as UserType,
+    semester: record.semester,
     gender: record.gender,
     age: calculateAge(record.birthDate),
     assignedAt: toDateString(record.assignedPsychologistAt),

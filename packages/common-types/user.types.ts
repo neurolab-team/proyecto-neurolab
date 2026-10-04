@@ -14,6 +14,8 @@ export interface User {
   name: string 
   role: UserRole
   userType: UserType
+  /** "1".."10" para estudiantes ITM; "N/A" para el resto. */
+  semester: string
   gender?: string | '' 
   birthDate?: Date | string
   lastLogin?: Date | string
@@ -42,6 +44,8 @@ export interface CreateUserInput {
   birthDate?: string
   role: UserRole
   userType: UserType
+  /** Solo para estudiantes ITM; en otro caso se guarda "N/A". */
+  semester?: string
   password?: string
   acceptedDataPolicy?: boolean
 }

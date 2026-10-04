@@ -259,6 +259,7 @@ export class PsychologistStudentsQueryService {
           studentEmail: student.email,
           studentCode: student.userNumber,
           userType: student.userType as UserType,
+          semester: student.semester,
           testId: assignment.test.testId,
           testTitle: assignment.test.title,
           assignmentStatus: assignment.status,
