@@ -124,13 +124,6 @@ model assignment {
   reviewedAt  DateTime?
   createdAt   DateTime  @default(now())
 
-  // DEPRECADO: el consentimiento ahora vive en `studyConsent` (uno por
-  // estudio, no por prueba). Se conservan solo como respaldo de la migración
-  // 20260928000000_add_study_consents; se eliminarán en una migración posterior.
-  consentStatus      String? // "accepted" | "declined" | null = pendiente
-  consentRespondedAt DateTime?
-  consentVersion     String?
-
   assignedBy user             @relation("assignedBy", fields: [assignedById], references: [userId], onDelete: NoAction, onUpdate: NoAction)
   assignedTo user             @relation("assignedTo", fields: [assignedToId], references: [userId], onDelete: NoAction, onUpdate: NoAction)
   test       test             @relation(fields: [testId], references: [testId], onDelete: Cascade, onUpdate: NoAction)

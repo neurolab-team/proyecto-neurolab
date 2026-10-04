@@ -1,11 +1,8 @@
-import { ConsentStatus } from "./consent.types";
-
 export type Assignment = {
     testId: string;
     status: string;
     assignmentId: string;
     assignedToId: string;
-    consentStatus: ConsentStatus | string | null;
 }
 export type AssignmentWithTestsDataResponse = {
     assignmentId: string;
@@ -19,7 +16,6 @@ export type AssignmentWithTestsDataResponse = {
     dueAt?: Date | null;
     startedAt?: Date | null;
     status: string;
-    consentStatus?: ConsentStatus | string | null;
 }
 
 export type PsychologistAssignableTest = {
