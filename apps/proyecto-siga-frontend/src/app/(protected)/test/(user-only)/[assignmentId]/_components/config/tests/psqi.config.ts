@@ -2,7 +2,7 @@ import { TestConfig } from '../testConfig.types';
 
 export const psqiConfig: TestConfig = {
   testCode: 'PSQI',
-  displayName: 'Test Índice de Calidad de Sueño de Pittsburgh',
+  displayName: 'Instrumento de Índice de Calidad de Sueño de Pittsburgh',
   colors: {
     primary: '#0B3A66',
     primaryDark: '#082B4D',

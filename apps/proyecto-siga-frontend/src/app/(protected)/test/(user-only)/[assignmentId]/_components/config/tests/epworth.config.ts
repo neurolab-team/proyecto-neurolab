@@ -2,7 +2,7 @@ import { TestConfig } from '../testConfig.types';
 
 export const epworthConfig: TestConfig = {
   testCode: 'EPWORTH',
-  displayName: 'Test Escala de Somnolencia Diurna de Epworth',
+  displayName: 'Instrumento Escala de Somnolencia Diurna de Epworth',
   colors: {
     primary: '#0B3A66',
     primaryDark: '#082B4D',

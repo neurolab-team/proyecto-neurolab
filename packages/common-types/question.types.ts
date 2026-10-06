@@ -19,6 +19,10 @@ export interface QuestionMetadata {
     group?: string;
     groupHeader?: string;
 
+    // Pregunta de seguimiento: se muestra en la misma página que la pregunta
+    // con este `code`, debajo de ella, sin numeración propia y sin diseño en bloque.
+    followUpOf?: string;
+
     // Aviso/instrucción mostrado sobre el prompt de una pregunta individual,
     // independiente de la agrupación en bloque.
     notice?: QuestionNotice;

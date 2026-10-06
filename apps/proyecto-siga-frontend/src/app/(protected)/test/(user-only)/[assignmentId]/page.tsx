@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useTest } from "./_hooks/useTest";
 import { QuestionRendererFactory } from "./_components/QuestionRendererFactory";
 import { GroupedBlockRenderer } from "./_components/renderers/GroupedBlockRenderer";
+import { FollowUpQuestion } from "./_components/renderers/FollowUpQuestion";
 import { TestProgress } from "./_components/TestProgress";
 import { TestNavigation } from "./_components/TestNavigation";
 import { getTestConfig } from "./_components/config/testConfigRegistry";
@@ -88,13 +89,24 @@ export default function TestPage() {
                     exit="exit"
                   >
                     {currentPage.type === "single" ? (
-                      <QuestionRendererFactory
-                        question={currentPage.question}
-                        current={currentQuestionNumber}
-                        selectedValue={selectedValue}
-                        onOptionSelect={actions.selectAnswer}
-                        testConfig={testConfig}
-                      />
+                      <>
+                        <QuestionRendererFactory
+                          question={currentPage.question}
+                          current={currentQuestionNumber}
+                          selectedValue={selectedValue}
+                          onOptionSelect={actions.selectAnswer}
+                          testConfig={testConfig}
+                        />
+                        {currentPage.followUps.map((followUp) => (
+                          <FollowUpQuestion
+                            key={followUp.questionId}
+                            question={followUp}
+                            selectedValue={actions.getSelectedValue(followUp.questionId)}
+                            onOptionSelect={actions.selectAnswer}
+                            testConfig={testConfig}
+                          />
+                        ))}
+                      </>
                     ) : (
                       <GroupedBlockRenderer
                         questions={currentPage.questions}

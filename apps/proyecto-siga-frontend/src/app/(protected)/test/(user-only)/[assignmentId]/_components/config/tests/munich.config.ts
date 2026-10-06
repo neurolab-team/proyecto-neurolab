@@ -2,7 +2,7 @@ import { TestConfig } from '../testConfig.types';
 
 export const munichConfig: TestConfig = {
   testCode: 'PSQI',
-  displayName: 'Test Cronotipo Munich',
+  displayName: 'Instrumento Cronotipo Munich',
   colors: {
     primary: '#0B3A66',
     primaryDark: '#082B4D',

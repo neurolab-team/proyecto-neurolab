@@ -1,7 +1,9 @@
 import { useState, useCallback, useMemo, useRef } from "react";
 import { Question } from "@packages/common-types/question.types";
 
-type NavPage = { type: "single"; question: Question } | { type: "group"; questions: Question[]; groupHeader: string };
+type NavPage =
+  | { type: "single"; question: Question; followUps: Question[] }
+  | { type: "group"; questions: Question[]; groupHeader: string };
 
 function isConditionMet(
   question: Question,
@@ -48,7 +50,13 @@ function buildPages(questions: Question[], answers: Record<string, string>): Nav
   const pages: NavPage[] = [];
   const grouped = new Set<string>();
 
+  // Las preguntas de seguimiento viajan en la página de su pregunta padre.
+  const visibleCodes = new Set(visible.map((q) => q.code));
+  const isAttachedFollowUp = (q: Question) =>
+    !!q.metadata?.followUpOf && visibleCodes.has(q.metadata.followUpOf);
+
   for (const q of visible) {
+    if (isAttachedFollowUp(q)) continue;
     const group = q.metadata?.group;
     if (group) {
       if (grouped.has(group)) continue;
@@ -61,7 +69,11 @@ function buildPages(questions: Question[], answers: Record<string, string>): Nav
         groupHeader: headerQ?.metadata?.groupHeader ?? "",
       });
     } else {
-      pages.push({ type: "single", question: q });
+      pages.push({
+        type: "single",
+        question: q,
+        followUps: visible.filter((fq) => fq.metadata?.followUpOf === q.code),
+      });
     }
   }
   return pages;

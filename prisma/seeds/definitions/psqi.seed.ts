@@ -1,3 +1,4 @@
+import { group } from "node:console";
 import { TestSeedDefinition, SeedOption } from "../types";
 
 const FREQ_OPTIONS: SeedOption[] = [
@@ -28,7 +29,7 @@ export const psqiSeed: TestSeedDefinition = {
     {
       code: "PSQI-1",
       prompt:
-        "Durante el último mes, seleccione su hora habitual de acostarse (formato HH:MM AM/PM)",
+        "¿A qué hora se acostó normalmente por la noche? Seleccione la hora habitual en que se acuesta: /___/___/",
       type: "time_input",
       sectionCode: "habitos_sueno",
       options: [],
@@ -42,7 +43,7 @@ export const psqiSeed: TestSeedDefinition = {
     {
       code: "PSQI-2",
       prompt:
-        "¿Cuánto tiempo habrá tardado en dormirse normalmente las noches del último mes?",
+        "¿Cuánto tiempo se demoró en quedarse dormido en promedio?",
       type: "single_choice",
       sectionCode: "habitos_sueno",
       options: [
@@ -54,8 +55,7 @@ export const psqiSeed: TestSeedDefinition = {
     },
     {
       code: "PSQI-3",
-      prompt:
-        "Durante el último mes, seleccione su hora habitual de levantarse por la mañana (formato HH:MM AM/PM)",
+      prompt:"¿A qué hora se levantó habitualmente por la mañana? Seleccione la hora habitual de levantarse: /___/___/",
       type: "time_input",
       sectionCode: "habitos_sueno",
       options: [],
@@ -69,7 +69,7 @@ export const psqiSeed: TestSeedDefinition = {
     {
       code: "PSQI-4",
       prompt:
-        "¿Cuántas horas calcula que habrá dormido verdaderamente cada noche durante el último mes?",
+        "¿Cuántas horas durmió cada noche? (El tiempo puede ser diferente al que usted permanezca en la cama.) Seleccione las horas que crea que durmió: /___/___/",
       type: "single_choice",
       sectionCode: "habitos_sueno",
       options: [
@@ -80,15 +80,18 @@ export const psqiSeed: TestSeedDefinition = {
       ],
     },
     {
-      code: "PSQI-5",
+      code: "PSQI-4.1",
       prompt: "¿Cuántas horas duerme exactamente?",
       type: "numeric",
       sectionCode: "habitos_sueno",
       options: [],
+      metadata: {
+        followUpOf: "PSQI-4",
+      }
     },
     // — Problemas de sueño —
     {
-      code: "PSQI-6.1",
+      code: "PSQI-5.1",
       prompt: "No poder quedarse dormido en la primera media hora",
       type: "single_choice",
       sectionCode: "problemas_sueno",
@@ -100,7 +103,7 @@ export const psqiSeed: TestSeedDefinition = {
       },
     },
     {
-      code: "PSQI-6.2",
+      code: "PSQI-5.2",
       prompt: "Despertarse durante la noche o de madrugada",
       type: "single_choice",
       sectionCode: "problemas_sueno",
@@ -108,7 +111,7 @@ export const psqiSeed: TestSeedDefinition = {
       metadata: { group: "PSQI-SLEEP-PROBLEMS" },
     },
     {
-      code: "PSQI-6.3",
+      code: "PSQI-5.3",
       prompt: "Tener que levantarse para ir al baño",
       type: "single_choice",
       sectionCode: "problemas_sueno",
@@ -116,7 +119,7 @@ export const psqiSeed: TestSeedDefinition = {
       metadata: { group: "PSQI-SLEEP-PROBLEMS" },
     },
     {
-      code: "PSQI-6.4",
+      code: "PSQI-5.4",
       prompt: "No poder respirar bien",
       type: "single_choice",
       sectionCode: "problemas_sueno",
@@ -124,7 +127,7 @@ export const psqiSeed: TestSeedDefinition = {
       metadata: { group: "PSQI-SLEEP-PROBLEMS" },
     },
     {
-      code: "PSQI-6.5",
+      code: "PSQI-5.5",
       prompt: "Toser o roncar ruidosamente",
       type: "single_choice",
       sectionCode: "problemas_sueno",
@@ -132,7 +135,7 @@ export const psqiSeed: TestSeedDefinition = {
       metadata: { group: "PSQI-SLEEP-PROBLEMS" },
     },
     {
-      code: "PSQI-6.6",
+      code: "PSQI-5.6",
       prompt: "Sentir frío",
       type: "single_choice",
       sectionCode: "problemas_sueno",
@@ -140,7 +143,7 @@ export const psqiSeed: TestSeedDefinition = {
       metadata: { group: "PSQI-SLEEP-PROBLEMS" },
     },
     {
-      code: "PSQI-6.7",
+      code: "PSQI-5.7",
       prompt: "Sentir calor",
       type: "single_choice",
       sectionCode: "problemas_sueno",
@@ -148,7 +151,7 @@ export const psqiSeed: TestSeedDefinition = {
       metadata: { group: "PSQI-SLEEP-PROBLEMS" },
     },
     {
-      code: "PSQI-6.8",
+      code: "PSQI-5.8",
       prompt: "Tener malos sueños o pesadillas",
       type: "single_choice",
       sectionCode: "problemas_sueno",
@@ -156,7 +159,7 @@ export const psqiSeed: TestSeedDefinition = {
       metadata: { group: "PSQI-SLEEP-PROBLEMS" },
     },
     {
-      code: "PSQI-6.9",
+      code: "PSQI-5.9",
       prompt: "Tener dolores",
       type: "single_choice",
       sectionCode: "problemas_sueno",
@@ -164,16 +167,50 @@ export const psqiSeed: TestSeedDefinition = {
       metadata: { group: "PSQI-SLEEP-PROBLEMS" },
     },
     {
-      code: "PSQI-6.10",
-      prompt: "Otras razones (descripción)",
+      code: "PSQI-5.10",
+      prompt: "Otras razones (por favor, descríbalas)",
       type: "open_text",
       sectionCode: "problemas_sueno",
       options: [],
       metadata: { group: "PSQI-SLEEP-PROBLEMS" },
     },
-    // — Calidad del sueño —
     {
-      code: "PSQI-7",
+          code: "PSQI-6",
+          prompt:
+            "Durante el último mes, ¿cuántas veces ha tomado medicinas (recetadas por el medico o por su cuenta) para dormir?",
+          type: "single_choice",
+          sectionCode: "medicacion",
+          options: FREQ_OPTIONS,
+    },
+    {
+          code: "PSQI-7",
+          prompt:
+            "Durante el último mes, ¿cuántas veces ha tenido problemas para  permanecer despierto mientras conducía, comía, trabajaba, estudiaba o desarrollaba alguna otra actividad social",
+          type: "single_choice",
+          sectionCode: "disfuncion_diurna",
+          options: [
+            { label: "Nada problematico", value: "0", scoreValue: 0 },
+            { label: "Sólo ligeramente problemático", value: "1", scoreValue: 1 },
+            { label: "Moderadamente problemático", value: "2", scoreValue: 2 },
+            { label: "Muy problemático", value: "3", scoreValue: 3 }
+
+          ],
+    },
+    {
+          code: "PSQI-8",
+          prompt:
+            "Durante el último mes, ¿qué tan problemático fue mantener el entusiasmo para realizar actividades como conducir, comer, trabajar, estudiar o alguna actividad social?",
+          type: "single_choice",
+          sectionCode: "disfuncion_diurna",
+          options: [
+            { label: "Nada problemático", value: "0", scoreValue: 0 },
+            { label: "Sólo ligeramente problemático", value: "1", scoreValue: 1 },
+            { label: "Moderadamente problemático", value: "2", scoreValue: 2 },
+            { label: "Muy problemático", value: "3", scoreValue: 3 },
+          ],
+    },
+    {
+      code: "PSQI-9",
       prompt:
         "Durante el último mes, ¿cómo calificaría en conjunto la calidad de su sueño?",
       type: "single_choice",
@@ -185,40 +222,8 @@ export const psqiSeed: TestSeedDefinition = {
         { label: "Muy mala", value: "3", scoreValue: 3 },
       ],
     },
-    // — Medicación —
-    {
-      code: "PSQI-8",
-      prompt:
-        "Durante el último mes, ¿cuántas veces ha tomado medicinas (recetadas o por su cuenta) para dormir?",
-      type: "single_choice",
-      sectionCode: "medicacion",
-      options: FREQ_OPTIONS,
-    },
-    // — Disfunción diurna —
-    {
-      code: "PSQI-9",
-      prompt:
-        "Durante el último mes, ¿cuántas veces ha tenido problemas para permanecer despierto mientras realizaba actividades?",
-      type: "single_choice",
-      sectionCode: "disfuncion_diurna",
-      options: FREQ_OPTIONS,
-    },
     {
       code: "PSQI-10",
-      prompt:
-        "Durante el último mes, ¿qué tan problemático fue mantener el entusiasmo para hacer sus actividades?",
-      type: "single_choice",
-      sectionCode: "disfuncion_diurna",
-      options: [
-        { label: "Nada problemático", value: "0", scoreValue: 0 },
-        { label: "Sólo ligeramente problemático", value: "1", scoreValue: 1 },
-        { label: "Moderadamente problemático", value: "2", scoreValue: 2 },
-        { label: "Muy problemático", value: "3", scoreValue: 3 },
-      ],
-    },
-    // — Entorno —
-    {
-      code: "PSQI-11",
       prompt: "¿Tiene usted pareja o compañero/a de habitación?",
       type: "single_choice",
       sectionCode: "entorno",
@@ -245,16 +250,15 @@ export const psqiSeed: TestSeedDefinition = {
         },
       ],
     },
-    // — Observaciones del acompañante —
     {
-      code: "PSQI-12.1",
+      code: "PSQI-11.1",
       prompt: "Ronquidos ruidosos",
       type: "single_choice",
       sectionCode: "observaciones_pareja",
       options: FREQ_OPTIONS,
       required: false,
       condition: {
-        dependsOn: "PSQI-11",
+        dependsOn: "PSQI-10",
         showWhenNot: "No tengo pareja ni compañero/a de habitación",
       },
       metadata: {
@@ -264,53 +268,53 @@ export const psqiSeed: TestSeedDefinition = {
       },
     },
     {
-      code: "PSQI-12.2",
+      code: "PSQI-11.2",
       prompt: "Grandes pausas entre respiraciones mientras duerme",
       type: "single_choice",
       sectionCode: "observaciones_pareja",
       options: FREQ_OPTIONS,
       required: false,
       condition: {
-        dependsOn: "PSQI-11",
+        dependsOn: "PSQI-10",
         showWhenNot: "No tengo pareja ni compañero/a de habitación",
       },
       metadata: { group: "PSQI-PARTNER-OBS" },
     },
     {
-      code: "PSQI-12.3",
+      code: "PSQI-11.3",
       prompt: "Sacudidas o espasmos de piernas mientras duerme",
       type: "single_choice",
       sectionCode: "observaciones_pareja",
       options: FREQ_OPTIONS,
       required: false,
       condition: {
-        dependsOn: "PSQI-11",
+        dependsOn: "PSQI-10",
         showWhenNot: "No tengo pareja ni compañero/a de habitación",
       },
       metadata: { group: "PSQI-PARTNER-OBS" },
     },
     {
-      code: "PSQI-12.4",
+      code: "PSQI-11.4",
       prompt: "Episodios de desorientación o confusión mientras duerme",
       type: "single_choice",
       sectionCode: "observaciones_pareja",
       options: FREQ_OPTIONS,
       required: false,
       condition: {
-        dependsOn: "PSQI-11",
+        dependsOn: "PSQI-10",
         showWhenNot: "No tengo pareja ni compañero/a de habitación",
       },
       metadata: { group: "PSQI-PARTNER-OBS" },
     },
     {
-      code: "PSQI-12.5",
+      code: "PSQI-11.5",
       prompt: "Otros inconvenientes mientras duerme (describa)",
       type: "open_text",
       sectionCode: "observaciones_pareja",
       options: [],
       required: false,
       condition: {
-        dependsOn: "PSQI-11",
+        dependsOn: "PSQI-10",
         showWhenNot: "No tengo pareja ni compañero/a de habitación",
       },
       metadata: { group: "PSQI-PARTNER-OBS" },

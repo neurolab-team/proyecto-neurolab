@@ -110,10 +110,10 @@ export class PsqiInterpreter implements IRawAnswerInterpreter {
   }
 
   protected interpretTotal(total: number): { interpretation: string; attentionLevel: AttentionLevel } {
-    if (total < 5) return { interpretation: "Sin problemas de sueño", attentionLevel: "none" };
-    if (total < 8) return { interpretation: "Merece atención médica", attentionLevel: "low" };
-    if (total < 15) return { interpretation: "Merece atención y tratamiento médico", attentionLevel: "medium" };
-    return { interpretation: "Se trata de un problema de sueño", attentionLevel: "high" };
+    if (total < 5) return { interpretation: "Tus respuestas indican una calidad del sueño favorable durante el último mes.", attentionLevel: "none" };
+    if (total < 8) return { interpretation: "Tus respuestas indican algunos aspectos de tu sueño a los que conviene prestar atención. Observa tus hábitos de sueño y cómo estas dificultades pueden estar influyendo en tu bienestar y en tus actividades diarias", attentionLevel: "low" };
+    if (total < 15) return { interpretation: "Tus respuestas indican varias dificultades relacionadas con tu sueño durante el último mes. Si estas dificultades son frecuentes o afectan tu bienestar o tus actividades diarias, considera consultar a un profesional de salud.", attentionLevel: "medium" };
+    return { interpretation: "Tus respuestas indican alteraciones importantes en diferentes aspectos de tu sueño. Te recomendamos consultar a un profesional de salud para recibir una valoración adecuada.", attentionLevel: "high" };
   }
 
   protected calcHoursInBed(

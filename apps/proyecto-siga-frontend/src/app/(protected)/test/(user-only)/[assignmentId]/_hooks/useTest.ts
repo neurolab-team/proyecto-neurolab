@@ -36,11 +36,11 @@ export const useTest = (assignmentId: string) => {
 
   const isPageAnswered = (() => {
     if (!currentPage) return false;
-    if (currentPage.type === "single") {
-      const val = getSelectedValue(currentPage.question.questionId);
-      return val !== null && val.trim() !== '';
-    }
-    return currentPage.questions
+    const pageQuestions =
+      currentPage.type === "single"
+        ? [currentPage.question, ...currentPage.followUps]
+        : currentPage.questions;
+    return pageQuestions
       .filter((q) => q.required !== false)
       .every((q) => {
         const val = getSelectedValue(q.questionId);
