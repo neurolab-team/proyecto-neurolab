@@ -5,7 +5,6 @@ import {
   ArrowLeft,
   ArrowRight,
   Shield,
-  Leaf,
   LucideIcon,
   UserRound,
 } from 'lucide-react';
@@ -155,15 +154,15 @@ export default function TestPreview({ data }: { data: TestPreviewData }) {
               Tus respuestas serán tratadas de forma confidencial por el ITM y estarán protegidas de acuerdo con la Política de Tratamiento de Datos Personales de la institución. Tus profesores y compañeros no tendrán acceso a tus respuestas individuales.
             </p>
           </div>
-
-          <div className="rounded-xl bg-amber-50/60 p-6">
+          {/*TODO: Mover al home proximamente */}
+          {/*<div className="rounded-xl bg-amber-50/60 p-6">
             <Leaf className="mb-3 h-5 w-5 text-amber-700" />
             <p className="mb-1 font-semibold text-gray-800">¿Te sientes en crisis ahora?</p>
             <p className="text-sm text-gray-600">
               Acércate a Enfermería del ITM (6:00 a.m. – 10:00 p.m.), {" "}
               donde te atenderán profesionales en Psicología, o <span className="text-gray-800 underline"> escribe a acercarse@itm.edu.co. </span>
             </p>
-          </div>
+          </div>*/}
           {references && (
             <div className="rounded-xl bg-cyan-50/60 p-6">
               <UserRound className="mb-3 h-5 w-5 text-[#00A0B7]" />
@@ -175,21 +174,21 @@ export default function TestPreview({ data }: { data: TestPreviewData }) {
                 {references.items.map((item) => (
                   <div key={item.citation}>
                     <p className="mb-0.5 text-[11px] font-medium uppercase tracking-widest text-gray-400">
-                      {REFERENCE_KIND_LABEL[item.kind]}
+                      {item.label ?? REFERENCE_KIND_LABEL[item.kind]}
                     </p>
                     {item.note && <p className="text-xs text-gray-600">{item.note}</p>}
                     <p className="text-xs text-gray-500">
                       {item.citation}
-                      {item.doi && (
+                      {(item.doi || item.url) && (
                         <>
                           {' '}
                           <a
-                            href={`https://doi.org/${item.doi}`}
+                            href={item.doi ? `https://doi.org/${item.doi}` : item.url}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="break-all text-[#00A0B7] underline hover:text-[#102D69]"
                           >
-                            https://doi.org/{item.doi}
+                            {item.doi ? `https://doi.org/${item.doi}` : item.url}
                           </a>
                         </>
                       )}

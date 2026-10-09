@@ -127,7 +127,7 @@ const AssignmentTestPanel = () => {
             <div className="mb-6">
               <input
                 type="text"
-                placeholder="Filtrar por nombre de prueba..."
+                placeholder="Buscar cuestionario..."
                 value={testTitleFilter}
                 onChange={(e) => setTestTitleFilter(e.target.value)}
                 className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#00A0B7] focus:border-[#00A0B7] transition-all"
@@ -204,16 +204,16 @@ const AssignmentTestPanel = () => {
                     <thead>
                       <tr className="border-b-2 border-gray-200">
                         <th className="text-left py-4 px-4 font-semibold text-gray-700">
-                          Nombre de la Prueba
+                          Cuestionario
                         </th>
                         <th className="text-left py-4 px-4 font-semibold text-gray-700">
                           Estado
                         </th>
                         <th className="text-left py-4 px-4 font-semibold text-gray-700">
-                          Fecha de Comienzo
+                          Fecha de Inicio
                         </th>
                         <th className="text-left py-4 px-4 font-semibold text-gray-700">
-                          Fecha de Vencimiento
+                          Fecha de Limite
                         </th>
                         <th className="text-left py-4 px-4 font-semibold text-gray-700">
                           Acciones
@@ -272,7 +272,7 @@ const AssignmentTestPanel = () => {
             )}
 
             <div className="mt-6 text-sm text-gray-600">
-              Total de pruebas: {filteredTests.length}
+              Total de cuestionarios: {filteredTests.length}
             </div>
           </div>
         </div>

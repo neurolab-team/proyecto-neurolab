@@ -3,7 +3,7 @@ import { TestSeedDefinition } from "../types";
 export const munichSeed: TestSeedDefinition = {
   testId: "c1e2d3d4-a5f6-1890-aecd-ef1234567890",
   testCode: "MUNICH",
-  title: "Cuestionario de Cronotipo de Munich",
+  title: "Cuestionario de Cronotipo de Múnich (MCTQ)",
   audience: "user",
   description:
     "Conoce tus horarios habituales de sueño y vigilia y descubre tu cronotipo a partir de tus patrones de sueño.",

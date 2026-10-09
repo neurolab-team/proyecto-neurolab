@@ -22,7 +22,6 @@ export default function TestPreviewPage() {
   const assignmentId = params?.assignmentId ?? '';
 
   const {
-    questions,
     title,
     description,
     testCode,
@@ -94,10 +93,10 @@ export default function TestPreviewPage() {
   }
 
   const presentation = getTestPreviewMetadata(testCode);
-  const metadata = buildTestPreviewMetadataItems(presentation, questions.length);
+  const metadata = buildTestPreviewMetadataItems(presentation);
 
   const data: TestPreviewData = {
-    category: 'ESCALA',
+    category: 'CUESTIONARIO',
     title: title || 'Vista previa de la prueba',
     description:
       description ??

@@ -11,7 +11,6 @@ export type AssignmentWithTestsDataResponse = {
         testCode?: string | null;
         title: string;
         description?: string | null;
-        questionCount?: number;
     };
     dueAt?: Date | null;
     startedAt?: Date | null;

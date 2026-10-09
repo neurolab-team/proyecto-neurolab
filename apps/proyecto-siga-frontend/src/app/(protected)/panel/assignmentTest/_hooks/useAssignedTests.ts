@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
 import { assignmentService } from "@/services/assignment/assignment";
+import { getTestQuestionCount } from "@/components/testPreview/testPreviewPresentation";
 
 const EMPTY_ASSIGNED_TESTS: any[] = [];
 
@@ -22,7 +23,7 @@ export const useAssignedTests = () => {
         description: item.test?.description ?? null,
         testId: item.test?.testId,
         testCode: item.test?.testCode ?? null,
-        questionCount: item.test?.questionCount ?? 0,
+        questionCount: getTestQuestionCount(item.test?.testCode),
         status: item.status,
         startDate: item.startedAt,
         dueDate: item.dueAt,
