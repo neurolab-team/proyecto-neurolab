@@ -1,72 +1,44 @@
 import LandingSection from "./LandingSection";
 import { COLORS, STEPS } from "./landingContent";
 
-function StepDot({ color, filled }: { color: string; filled: boolean }) {
-  if (filled) {
-    return (
-      <div
-        className="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0"
-        style={{ backgroundColor: color }}
-      >
-        <div className="w-2 h-2 bg-white rounded-full" />
-      </div>
-    );
-  }
-  return (
-    <div
-      className="w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0"
-      style={{ borderColor: color }}
-    >
-      <div className="w-2 h-2 rounded-full" style={{ backgroundColor: color }} />
-    </div>
-  );
-}
-
 export default function StepsSection() {
   return (
-    <LandingSection id="como-funciona" background="white" className="space-y-16">
-      {/* Header */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-start">
-        <h2
-          className="text-4xl lg:text-5xl font-extrabold leading-tight"
-          style={{ color: COLORS.primary }}
-        >
-          Cómo funciona
-        </h2>
-        <p className="text-base text-slate-500 leading-relaxed pt-2">
-          Conoce los instrumentos disponibles para valorar diferentes aspectos de tu sueño y tus ritmos circadianos.
-          Selecciona uno para comenzar.
-        </p>
-      </div>
+    <LandingSection id="como-funciona" background="white" className="space-y-12">
+      <h2
+        className="text-4xl lg:text-5xl font-extrabold leading-tight"
+        style={{ color: COLORS.ink }}
+      >
+        Cómo funciona
+      </h2>
 
       {/* Steps timeline */}
-      <div className="relative grid grid-cols-1 md:grid-cols-3 gap-8">
-        {/* Dashed connecting line (desktop only) */}
-        <div className="hidden md:block absolute top-3 left-[calc(16.67%+12px)] right-[calc(16.67%+12px)] border-t-2 border-dashed border-slate-300" />
+      <ol className="relative grid grid-cols-1 md:grid-cols-4 gap-10 md:gap-8">
+        {/* Línea punteada entre los centros del primer y último círculo (solo desktop) */}
+        <div
+          aria-hidden
+          className="hidden md:block absolute top-5 left-[12.5%] right-[12.5%] border-t-2 border-dotted border-slate-300"
+        />
 
-        {STEPS.map((step) => (
-          <div key={step.number} className="flex flex-col gap-4">
-            <StepDot color={step.dotColor} filled={step.dotFilled} />
+        {STEPS.map((step, index) => (
+          <li key={step.title} className="relative flex flex-col items-center text-center gap-4">
+            {/* El ring blanco abre un hueco en la línea alrededor de cada círculo */}
+            <span
+              className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold ring-8 ring-white"
+              style={{ backgroundColor: COLORS.primary }}
+            >
+              {index + 1}
+            </span>
             <div>
-              <p
-                className="text-xs font-bold uppercase tracking-widest mb-1"
-                style={{ color: step.dotColor }}
-              >
-                {step.number}
-              </p>
               <h3 className="text-lg font-bold mb-2" style={{ color: COLORS.ink }}>
                 {step.title}
               </h3>
-              <p
-                className="text-sm leading-relaxed"
-                style={{ color: step.descriptionColor ?? "#64748b" }}
-              >
+              <p className="text-sm leading-relaxed text-slate-500 max-w-[16rem] mx-auto">
                 {step.description}
               </p>
             </div>
-          </div>
+          </li>
         ))}
-      </div>
+      </ol>
     </LandingSection>
   );
 }

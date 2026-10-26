@@ -3,9 +3,9 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import HeroSection from "@/components/landing/HeroSection";
+import NoticesSection from "@/components/landing/NoticesSection";
 import TestsSection from "@/components/landing/TestsSection";
 import StepsSection from "@/components/landing/StepsSection";
-import BenefitsSection from "@/components/landing/BenefitsSection";
 import FinalCtaSection from "@/components/landing/FinalCtaSection";
 
 export default function PublicLanding() {
@@ -15,8 +15,8 @@ export default function PublicLanding() {
       <main className="flex-1 bg-[#F8FAFC]">
         <HeroSection />
         <TestsSection />
+        <NoticesSection />
         <StepsSection />
-        <BenefitsSection />
         <FinalCtaSection />
       </main>
       <Footer />

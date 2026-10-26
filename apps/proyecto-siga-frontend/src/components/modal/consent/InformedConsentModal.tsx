@@ -1,12 +1,11 @@
 import { useEffect, useState } from "react";
 import ModalShell from "../core/ModalShell";
+import InformedConsentContent from "../../consent/InformedConsentContent";
 import {
   INFORMED_CONSENT_ACKNOWLEDGEMENT,
-  INFORMED_CONSENT_INTRO,
   INFORMED_CONSENT_OPTIONAL_SLEEP_TIPS,
   INFORMED_CONSENT_OPTIONAL_STUDY_INVITES,
   INFORMED_CONSENT_OPTIONAL_TITLE,
-  INFORMED_CONSENT_SECTIONS,
   INFORMED_CONSENT_SUBTITLE,
   INFORMED_CONSENT_TITLE,
 } from "../../../libs/informedConsent";
@@ -71,28 +70,7 @@ export default function InformedConsentModal({
       </div>
 
       <div className="px-8 pb-6 overflow-y-auto text-sm leading-relaxed text-gray-700 flex flex-col gap-4">
-        {INFORMED_CONSENT_INTRO.map((paragraph, i) => (
-          <p key={`p-${i}`}>{paragraph}</p>
-        ))}
-
-        {INFORMED_CONSENT_SECTIONS.map((section) => (
-          <section key={section.title}>
-            <p className="mb-2 font-semibold text-gray-800">{section.title}</p>
-            {section.lead && <p className="mb-2">{section.lead}</p>}
-            {section.items && (
-              <ul className="list-disc pl-5 flex flex-col gap-1">
-                {section.items.map((item, i) => (
-                  <li key={`${section.title}-i-${i}`}>{item}</li>
-                ))}
-              </ul>
-            )}
-            {section.paragraphs?.map((paragraph, i) => (
-              <p key={`${section.title}-p-${i}`} className="mt-2">
-                {paragraph}
-              </p>
-            ))}
-          </section>
-        ))}
+        <InformedConsentContent />
 
         <p className="font-semibold text-gray-800">
           {INFORMED_CONSENT_ACKNOWLEDGEMENT}
