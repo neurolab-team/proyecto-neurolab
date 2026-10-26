@@ -2,7 +2,7 @@
 # NO recompila: copia el artefacto dist/ que produjo el job build:backend (NOTA #8).
 # `nx build ... --configuration=production` empaqueta el app (bundle) y genera dist/
 # con main.js + package.json/pnpm-lock.yaml podados (solo deps externas).
-FROM node:22-alpine AS runner
+FROM node:22.23.4-alpine AS runner
 
 ENV NODE_ENV=production
 ENV HOST=0.0.0.0

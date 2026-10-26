@@ -21,7 +21,7 @@ variables:
   IMAGE_FRONTEND: neurolab/frontend
   DEPLOY_DIR: /opt/neurolab
   # Node y Docker fijados aquí: cambiar versión = una sola línea.
-  NODE_IMAGE: "node:22-alpine"
+  NODE_IMAGE: "node:22.23.4-alpine"
   DOCKER_IMAGE: "docker:27-cli"
 
 workflow:

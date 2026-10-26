@@ -2,7 +2,7 @@
 # NO recompila: copia el artefacto .next que produjo el job build:frontend (NOTA #8).
 # REQUISITO: next.config.js debe tener `output: 'standalone'` para generar
 # .next/standalone con su propio node_modules mínimo (imagen final sin toolchain).
-FROM node:22-alpine AS runner
+FROM node:22.23.4-alpine AS runner
 
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
