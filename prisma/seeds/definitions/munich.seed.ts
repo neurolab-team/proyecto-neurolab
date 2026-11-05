@@ -20,7 +20,7 @@ export const munichSeed: TestSeedDefinition = {
       sectionCode: "dias_laborales",
       options: [],
       metadata: {
-        notice: { text: "Responda las siguientes preguntas de acuerdo a su Horario en dias laborales" },
+        notice: { variant: "section", title: "Días laborales o de estudio", text: "Responda las siguientes preguntas de acuerdo a su horario en dias laborales o estudios" },
         inputFormat: "12h",
         validHours: { min: 1, max: 12 },
         validMinutes: { min: 0, max: 59 },
@@ -34,6 +34,7 @@ export const munichSeed: TestSeedDefinition = {
       sectionCode: "dias_laborales",
       options: [],
       metadata: {
+        notice: { variant: "section", title: "Días laborales o de estudio", text: "Responda las siguientes preguntas de acuerdo a su horario en dias laborales o estudios" },
         inputFormat: "12h",
         validHours: { min: 1, max: 12 },
         validMinutes: { min: 0, max: 59 },
@@ -46,6 +47,9 @@ export const munichSeed: TestSeedDefinition = {
       type: "numeric",
       sectionCode: "dias_laborales",
       options: [],
+      metadata: {
+        notice: { variant: "section", title: "Días laborales o de estudio", text: "Responda las siguientes preguntas de acuerdo a su horario en dias laborales o estudios" },
+      }
     },
     {
       code: "MUNICH-4",
@@ -54,6 +58,7 @@ export const munichSeed: TestSeedDefinition = {
       sectionCode: "dias_laborales",
       options: [],
       metadata: {
+        notice: { variant: "section", title: "Días laborales o de estudio", text: "Responda las siguientes preguntas de acuerdo a su horario en dias laborales o estudios" },
         inputFormat: "12h",
         validHours: { min: 1, max: 12 },
         validMinutes: { min: 0, max: 59 },
@@ -69,6 +74,9 @@ export const munichSeed: TestSeedDefinition = {
         { label: "Con despertador", value: "0", scoreValue: 0 },
         { label: "Sin despertador", value: "1", scoreValue: 1 },
       ],
+      metadata: {
+        notice: { variant: "section", title: "Días laborales o de estudio", text: "Responda las siguientes preguntas de acuerdo a su horario en dias laborales o estudios" },
+      }
     },
     {
       code: "MUNICH-6",
@@ -76,6 +84,9 @@ export const munichSeed: TestSeedDefinition = {
       type: "numeric",
       sectionCode: "dias_laborales",
       options: [],
+      metadata: {
+        notice: { variant: "section", title: "Días laborales o de estudio", text: "Responda las siguientes preguntas de acuerdo a su horario en dias laborales o estudios" },
+      }
     },
     {
       code: "MUNICH-7",
@@ -84,7 +95,7 @@ export const munichSeed: TestSeedDefinition = {
       sectionCode: "dias_no_laborales",
       options: [],
       metadata: {
-        notice: { text: "Responda las siguientes preguntas de acuerdo a su Horario en dias de descanso" },
+        notice: { variant: "section", title: "Días de descanso", text: "Responda las siguientes preguntas de acuerdo a su horario en dias de descanso" },
         inputFormat: "12h",
         validHours: { min: 1, max: 12 },
         validMinutes: { min: 0, max: 59 },
@@ -98,6 +109,7 @@ export const munichSeed: TestSeedDefinition = {
       sectionCode: "dias_no_laborales",
       options: [],
       metadata: {
+        notice: { variant: "section", title: "Días de descanso", text: "Responda las siguientes preguntas de acuerdo a su horario en dias de descanso" },
         inputFormat: "12h",
         validHours: { min: 1, max: 12 },
         validMinutes: { min: 0, max: 59 },
@@ -110,6 +122,9 @@ export const munichSeed: TestSeedDefinition = {
       type: "numeric",
       sectionCode: "dias_no_laborales",
       options: [],
+      metadata: {
+        notice: { variant: "section", title: "Días de descanso", text: "Responda las siguientes preguntas de acuerdo a su horario en dias de descanso" },
+      }
     },
     {
       code: "MUNICH-10",
@@ -118,6 +133,7 @@ export const munichSeed: TestSeedDefinition = {
       sectionCode: "dias_no_laborales",
       options: [],
       metadata: {
+        notice: { variant: "section", title: "Días de descanso", text: "Responda las siguientes preguntas de acuerdo a su horario en dias de descanso" },
         inputFormat: "12h",
         validHours: { min: 1, max: 12 },
         validMinutes: { min: 0, max: 59 },
@@ -133,6 +149,9 @@ export const munichSeed: TestSeedDefinition = {
         { label: "Con despertador", value: "0", scoreValue: 0 },
         { label: "Sin despertador", value: "1", scoreValue: 1 },
       ],
+      metadata: {
+        notice: { variant: "section", title: "Días de descanso", text: "Responda las siguientes preguntas de acuerdo a su horario en dias de descanso" },
+      }
     },
     {
       code: "MUNICH-12",
@@ -140,15 +159,18 @@ export const munichSeed: TestSeedDefinition = {
       type: "numeric",
       sectionCode: "dias_no_laborales",
       options: [],
+      metadata: {
+        notice: { variant: "section", title: "Días de descanso", text: "Responda las siguientes preguntas de acuerdo a su horario en dias de descanso" },
+      }
     },
     {
       code: "MUNICH-13",
-      prompt: "Empiezo a trabajar a las _____ horas",
+      prompt: "Empiezo a trabajar o estudiar a las _____ horas",
       type: "time_input",
       sectionCode: "informacion_complementaria",
       options: [],
       metadata: {
-        notice: { text: "Responda la siguiente informacion complementaria" },
+        notice: { variant: "section", title: "Información complementaria", text: "Responda la siguiente informacion complementaria" },
         inputFormat: "12h",
         validHours: { min: 1, max: 12 },
         validMinutes: { min: 0, max: 59 },
@@ -157,11 +179,12 @@ export const munichSeed: TestSeedDefinition = {
     },
     {
       code: "MUNICH-14",
-      prompt: "Salgo de trabajar a las _____ horas",
+      prompt: "Salgo de trabajar o estudiar a las _____ horas",
       type: "time_input",
       sectionCode: "informacion_complementaria",
       options: [],
       metadata: {
+        notice: { variant: "section", title: "Información complementaria", text: "Responda la siguiente informacion complementaria" },
         inputFormat: "12h",
         validHours: { min: 1, max: 12 },
         validMinutes: { min: 0, max: 59 },
@@ -171,10 +194,13 @@ export const munichSeed: TestSeedDefinition = {
 
     {
       code: "MUNICH-15",
-      prompt: "Tardo en llegar de mi casa al trabajo _____ horas",
+      prompt: "Tardo en llegar de mi casa al trabajo o estudio _____ horas",
       type: "numeric",
       sectionCode: "informacion_complementaria",
       options: [],
+      metadata: {
+        notice: { variant: "section", title: "Información complementaria", text: "Responda la siguiente informacion complementaria" },
+      }
     },
     {
       code: "MUNICH-16",
@@ -183,13 +209,19 @@ export const munichSeed: TestSeedDefinition = {
       type: "numeric",
       sectionCode: "informacion_complementaria",
       options: [],
+      metadata: {
+        notice: { variant: "section", title: "Información complementaria", text: "Responda la siguiente informacion complementaria" },
+      }
     },
     {
       code: "MUNICH-17",
-      prompt: "Trabajo _____ dias a la semana",
+      prompt: "Trabajo o estudio _____ dias a la semana",
       type: "numeric",
       sectionCode: "informacion_complementaria",
       options: [],
+      metadata: {
+        notice: { variant: "section", title: "Información complementaria", text: "Responda la siguiente informacion complementaria" },
+      }
     },
   ],
 };

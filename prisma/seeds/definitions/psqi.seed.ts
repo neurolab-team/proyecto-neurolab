@@ -33,6 +33,7 @@ export const psqiSeed: TestSeedDefinition = {
       sectionCode: "habitos_sueno",
       options: [],
       metadata: {
+        notice: { variant: "section", label: "Hábitos de sueño", title: "Durante el último mes", text: "Responde las preguntas de acuerdo con lo que hiciste en la mayoría de los días y noches, no en una noche en particular." },
         inputFormat: "12h",
         validHours: { min: 1, max: 12 },
         validMinutes: { min: 0, max: 59 },
@@ -51,6 +52,9 @@ export const psqiSeed: TestSeedDefinition = {
         { label: "Entre 31 y 60 minutos", value: "2", scoreValue: 2 },
         { label: "Más de 60 minutos", value: "3", scoreValue: 3 },
       ],
+      metadata: {
+        notice: { variant: "section", label: "Hábitos de sueño", title: "Durante el último mes", text: "Responde las preguntas de acuerdo con lo que hiciste en la mayoría de los días y noches, no en una noche en particular." },
+      },
     },
     {
       code: "PSQI-3",
@@ -59,6 +63,7 @@ export const psqiSeed: TestSeedDefinition = {
       sectionCode: "habitos_sueno",
       options: [],
       metadata: {
+        notice: { variant: "section", label: "Hábitos de sueño", title: "Durante el último mes", text: "Responde las preguntas de acuerdo con lo que hiciste en la mayoría de los días y noches, no en una noche en particular." },
         inputFormat: "12h",
         validHours: { min: 1, max: 12 },
         validMinutes: { min: 0, max: 59 },
@@ -77,6 +82,9 @@ export const psqiSeed: TestSeedDefinition = {
         { label: "Entre 6 y 7 horas", value: "null", scoreValue: null },
         { label: "Más de 7 horas", value: "null", scoreValue: null },
       ],
+      metadata: {
+        notice: { variant: "section", label: "Hábitos de sueño", title: "Durante el último mes", text: "Responde las preguntas de acuerdo con lo que hiciste en la mayoría de los días y noches, no en una noche en particular." },
+      },
     },
     {
       code: "PSQI-4.1",
@@ -86,6 +94,7 @@ export const psqiSeed: TestSeedDefinition = {
       options: [],
       metadata: {
         followUpOf: "PSQI-4",
+        durationInput: { maxHours: 16, minuteStep: 15 },
       }
     },
     // — Problemas de sueño —
@@ -96,6 +105,7 @@ export const psqiSeed: TestSeedDefinition = {
       sectionCode: "problemas_sueno",
       options: FREQ_OPTIONS,
       metadata: {
+        notice: { variant: "section", label: "Problemas de sueño", title: "Durante el último mes", text: "Indica cuántas veces te ocurrió cada situación mientras intentabas dormir o durante la noche." },
         group: "PSQI-SLEEP-PROBLEMS",
         groupHeader:
           "Durante el mes pasado, ¿cuántas veces ha tenido usted problemas para dormir a causa de...?",
@@ -188,6 +198,9 @@ export const psqiSeed: TestSeedDefinition = {
           type: "single_choice",
           sectionCode: "medicacion",
           options: FREQ_OPTIONS,
+      metadata: {
+        notice: { variant: "section", label: "Medicación", title: "Durante el último mes", text: "Responde de acuerdo con el uso de medicamentos para dormir, ya sean recetados por un médico o tomados por tu cuenta." },
+      },
     },
     {
           code: "PSQI-7",
@@ -202,6 +215,9 @@ export const psqiSeed: TestSeedDefinition = {
             { label: "Muy problemático", value: "3", scoreValue: 3 }
 
           ],
+      metadata: {
+        notice: { variant: "section", label: "Disfunción diurna", title: "Durante el último mes", text: "Responde según cómo te sentiste durante el día al realizar tus actividades habituales." },
+      },
     },
     {
           code: "PSQI-8",
@@ -215,6 +231,9 @@ export const psqiSeed: TestSeedDefinition = {
             { label: "Moderadamente problemático", value: "2", scoreValue: 2 },
             { label: "Muy problemático", value: "3", scoreValue: 3 },
           ],
+      metadata: {
+        notice: { variant: "section", label: "Disfunción diurna", title: "Durante el último mes", text: "Responde según cómo te sentiste durante el día al realizar tus actividades habituales." },
+      },
     },
     {
       code: "PSQI-9",
@@ -228,6 +247,9 @@ export const psqiSeed: TestSeedDefinition = {
         { label: "Bastante mala", value: "2", scoreValue: 2 },
         { label: "Muy mala", value: "3", scoreValue: 3 },
       ],
+      metadata: {
+        notice: { variant: "section", label: "Calidad del sueño", title: "Durante el último mes", text: "Responde con tu valoración general de cómo has dormido, teniendo en cuenta todas las noches." },
+      },
     },
     {
       code: "PSQI-10",
@@ -256,6 +278,9 @@ export const psqiSeed: TestSeedDefinition = {
           scoreValue: null,
         },
       ],
+      metadata: {
+        notice: { variant: "section", label: "Entorno / convivencia", title: "Durante el último mes", text: "Responde de acuerdo con tu situación habitual al momento de dormir." },
+      },
     },
     {
       code: "PSQI-11.1",
@@ -269,6 +294,7 @@ export const psqiSeed: TestSeedDefinition = {
         showWhenNot: "No tengo pareja ni compañero/a de habitación",
       },
       metadata: {
+        notice: { variant: "section", label: "Observaciones del acompañante", title: "Durante el último mes", text: "Si compartes habitación, pídele a tu pareja o compañero/a que te ayude a responder según lo que haya notado mientras duermes." },
         group: "PSQI-PARTNER-OBS",
         groupHeader:
           "Si usted tiene pareja o compañero/a de habitación, pregúntele si usted durante el último mes ha tenido…",

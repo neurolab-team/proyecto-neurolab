@@ -1,57 +1,19 @@
 import { useState, useEffect } from 'react';
-import { Listbox, ListboxButton, ListboxOption, ListboxOptions } from '@headlessui/react';
 import { QuestionRendererProps } from './rendererProps.types';
 import { QuestionNotice } from './QuestionNotice';
+import { TimeSelect } from './TimeSelect';
+import { TimeReading } from './TimeReading';
 
 const HOURS = Array.from({ length: 12 }, (_, i) => String(i + 1).padStart(2, '0'));
 const MINUTES = Array.from({ length: 60 }, (_, i) => String(i).padStart(2, '0'));
 const AMPM = ['AM', 'PM'];
+const formatAmPm = (v: string) => (v === 'AM' ? 'a. m.' : 'p. m.');
 
 function parseTimeValue(val: string | null) {
   if (!val) return { hour: '', minute: '', ampm: '' };
   const match = val.match(/^(\d{2}):(\d{2})\s(AM|PM)$/);
   if (!match) return { hour: '', minute: '', ampm: '' };
   return { hour: match[1], minute: match[2], ampm: match[3] };
-}
-
-const ChevronIcon = ({ className }: { className?: string }) => (
-  <svg className={`w-4 h-4 text-gray-500 ${className ?? ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-    <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-  </svg>
-);
-
-function TimeSelect({ value, onChange, options, placeholder, width }: {
-  value: string;
-  onChange: (v: string) => void;
-  options: string[];
-  placeholder: string;
-  width: string;
-}) {
-  return (
-    <Listbox value={value} onChange={onChange}>
-      {({ open }) => (
-        <div className={`relative ${width}`}>
-          <ListboxButton className="w-full  py-3 pl-4 pr-8 border-2 border-gray-200 rounded-xl text-lg bg-white cursor-pointer text-left focus:outline-none focus:border-blue-400 transition-colors">
-            <span className={value ? 'text-gray-900' : 'text-gray-400'}>{value || placeholder}</span>
-            <span className="absolute inset-y-0 right-2 flex items-center">
-              <ChevronIcon className={`transition-transform duration-200 ${open ? 'rotate-180' : ''}`} />
-            </span>
-          </ListboxButton>
-          <ListboxOptions className="absolute z-10 mt-1 w-full max-h-48 overflow-auto rounded-xl bg-white border-2 border-gray-200 shadow-lg focus:outline-none">
-            {options.map((opt) => (
-              <ListboxOption
-                key={opt}
-                value={opt}
-                className="cursor-pointer px-4 py-2 text-lg data-[focus]:bg-gray-100 data-[selected]:bg-blue-100 data-[selected]:font-semibold"
-              >
-                {opt}
-              </ListboxOption>
-            ))}
-          </ListboxOptions>
-        </div>
-      )}
-    </Listbox>
-  );
 }
 
 export const TimeInputRenderer = ({
@@ -90,14 +52,18 @@ export const TimeInputRenderer = ({
       </h3>
 
       <div className="flex items-center gap-2">
-        <TimeSelect value={hour} onChange={setHour} options={HOURS} placeholder="HH" width="w-28" />
+        <TimeSelect value={hour} onChange={setHour} options={HOURS} placeholder="HH" width="w-28" ariaLabel="Hora" />
         <span className="text-2xl font-bold">:</span>
-        <TimeSelect value={minute} onChange={setMinute} options={MINUTES} placeholder="MM" width="w-28" />
-        <TimeSelect value={ampm} onChange={setAmpm} options={AMPM} placeholder="AM/PM" width="w-32" />
+        <TimeSelect value={minute} onChange={setMinute} options={MINUTES} placeholder="MM" width="w-28" ariaLabel="Minutos" />
+        <TimeSelect value={ampm} onChange={setAmpm} options={AMPM} placeholder="a. m./p. m." width="w-32" formatOption={formatAmPm} ariaLabel="a. m. o p. m." />
       </div>
 
-      {(hour || minute || ampm) && !(hour && minute && ampm) && (
-        <p className="text-red-500 text-sm mt-3">Complete todos los campos: hora, minutos y AM/PM.</p>
+      {hour && minute && ampm ? (
+        <TimeReading value={`${hour}:${minute} ${ampm}`} />
+      ) : (
+        (hour || minute || ampm) && (
+          <p className="text-red-500 text-sm mt-3">Complete todos los campos: hora, minutos y a. m./p. m.</p>
+        )
       )}
     </div>
   );

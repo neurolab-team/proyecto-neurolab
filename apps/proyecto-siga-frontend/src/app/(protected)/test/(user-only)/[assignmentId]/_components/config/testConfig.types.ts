@@ -1,3 +1,5 @@
+import { ConsistencyCheck } from './consistency.types';
+
 export interface TestConfig {
   testCode: string;
   displayName: string;
@@ -12,4 +14,6 @@ export interface TestConfig {
     selectedBorder: string;
     selectedText: string;
   };
+  /** Chequeos de consistencia entre respuestas (ver consistency.types.ts). */
+  consistencyChecks?: ConsistencyCheck[];
 }

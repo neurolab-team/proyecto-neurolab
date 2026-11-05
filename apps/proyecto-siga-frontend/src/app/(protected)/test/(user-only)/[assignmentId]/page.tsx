@@ -8,6 +8,7 @@ import { GroupedBlockRenderer } from "./_components/renderers/GroupedBlockRender
 import { FollowUpQuestion } from "./_components/renderers/FollowUpQuestion";
 import { TestProgress } from "./_components/TestProgress";
 import { TestNavigation } from "./_components/TestNavigation";
+import { ConsistencyDialog } from "./_components/ConsistencyDialog";
 import { getTestConfig } from "./_components/config/testConfigRegistry";
 import { fadeSlideUp } from "@/libs/animation";
 import Navbar from "@/components/Navbar";
@@ -29,6 +30,7 @@ export default function TestPage() {
     isFirstPage,
     isLastPage,
     isPageAnswered,
+    consistencyIssue,
     actions,
   } = useTest(safeAssignmentId);
 
@@ -128,6 +130,14 @@ export default function TestPage() {
                 isLast={isLastPage}
                 isAnswered={isPageAnswered}
                 testConfig={testConfig}
+              />
+
+              <ConsistencyDialog
+                issue={consistencyIssue}
+                testConfig={testConfig}
+                onConfirm={actions.confirmIssue}
+                onCorrect={actions.correctIssue}
+                onQuickFix={actions.applyIssueFix}
               />
             </>
           )}

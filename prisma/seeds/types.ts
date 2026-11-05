@@ -1,3 +1,5 @@
+import type { QuestionCondition, QuestionMetadata } from "../../packages/common-types/question.types";
+
 export type QuestionType =
   | "likert"
   | "single_choice"
@@ -19,8 +21,8 @@ export interface SeedQuestion {
   sectionCode: string;
   options: SeedOption[];
   required?: boolean;
-  condition?: object;
-  metadata?: object;
+  condition?: QuestionCondition;
+  metadata?: QuestionMetadata;
 }
 
 export interface SeedSection {

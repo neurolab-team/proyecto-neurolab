@@ -1,5 +1,6 @@
 import { Question, isTextBasedAnswer } from '@packages/common-types/question.types';
 import { TestConfig } from '../config/testConfig.types';
+import { QuestionNotice } from './QuestionNotice';
 
 interface GroupedBlockRendererProps {
   questions: Question[];
@@ -37,6 +38,8 @@ export const GroupedBlockRenderer = ({
 
   return (
     <div className="bg-white rounded-2xl shadow-xl p-6 sm:p-8">
+      {/* El aviso del bloque se toma de la primera pregunta del grupo */}
+      <QuestionNotice notice={questions[0]?.metadata?.notice} />
       <h3 className="text-xl sm:text-2xl font-bold mb-6" style={{ color: colors.primaryDark }}>
         <span style={{ color: colors.primaryLight }} className="mr-2">{current}.</span>
         {groupHeader}

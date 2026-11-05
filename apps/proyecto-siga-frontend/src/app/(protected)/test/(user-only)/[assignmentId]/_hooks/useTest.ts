@@ -3,6 +3,8 @@ import { useTestData } from "./useTestData";
 import { useTestAnswers } from "./useTestAnswers";
 import { useTestNavigation } from "./useTestNavigation";
 import { useTestSubmit } from "./useTestSubmit";
+import { useConsistencyChecks } from "./useConsistencyChecks";
+import { getTestConfig } from "../_components/config/testConfigRegistry";
 import { createLocalStorageProgress } from "@/libs/testProgressStorage";
 
 export const useTest = (assignmentId: string) => {
@@ -57,14 +59,34 @@ export const useTest = (assignmentId: string) => {
     () => storage?.clear(),
   );
 
-  const handleNext = useCallback(() => {
-    if (!isPageAnswered) return;
+  const consistency = useConsistencyChecks({
+    checks: getTestConfig(testCode || "DEFAULT").consistencyChecks,
+    questions,
+    answers,
+    currentPage,
+    selectAnswer,
+    goToCode: navigation.goToCode,
+  });
+
+  const proceed = useCallback(() => {
     if (navigation.isLastPage) {
       submitTest(answers, questions);
     } else {
       navigation.goToNext();
     }
-  }, [navigation, submitTest, answers, questions, isPageAnswered]);
+  }, [navigation, submitTest, answers, questions]);
+
+  const handleNext = useCallback(() => {
+    if (!isPageAnswered) return;
+    if (!consistency.runChecks()) return;
+    proceed();
+  }, [isPageAnswered, consistency, proceed]);
+
+  // Tras confirmar un aviso se vuelven a evaluar los demás chequeos de la página.
+  const confirmIssue = useCallback(() => {
+    consistency.confirm();
+    if (consistency.runChecks()) proceed();
+  }, [consistency, proceed]);
 
   return {
     isLoading: isLoading || isSubmitting,
@@ -80,11 +102,15 @@ export const useTest = (assignmentId: string) => {
     isFirstPage: navigation.isFirstPage,
     isLastPage: navigation.isLastPage,
     isPageAnswered,
+    consistencyIssue: consistency.issue,
     actions: {
       selectAnswer,
       getSelectedValue,
       goToNext: handleNext,
       goToBack: navigation.goToBack,
+      confirmIssue,
+      correctIssue: consistency.correct,
+      applyIssueFix: consistency.applyQuickFix,
     },
   };
 };

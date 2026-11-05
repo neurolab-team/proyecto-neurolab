@@ -1,4 +1,5 @@
 import { TestConfig } from '../testConfig.types';
+import { psqiChecks } from './psqi.checks';
 
 export const psqiConfig: TestConfig = {
   testCode: 'PSQI',
@@ -14,4 +15,5 @@ export const psqiConfig: TestConfig = {
     selectedBorder: '#0B3A66',
     selectedText: '#FFFFFF',
   },
+  consistencyChecks: psqiChecks,
 };

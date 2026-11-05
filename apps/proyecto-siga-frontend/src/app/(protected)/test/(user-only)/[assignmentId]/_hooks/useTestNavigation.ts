@@ -145,6 +145,21 @@ export const useTestNavigation = (
     }
   }, [currentIndex]);
 
+  /** Lleva a la página que contiene la pregunta con ese `code` (si está visible). */
+  const goToCode = useCallback(
+    (code: string) => {
+      const index = pages.findIndex((page) =>
+        page.type === "single"
+          ? page.question.code === code || page.followUps.some((f) => f.code === code)
+          : page.questions.some((q) => q.code === code),
+      );
+      if (index < 0 || index === currentIndex) return;
+      setCurrentIndex(index);
+      onIndexChangeRef.current?.(index);
+    },
+    [pages, currentIndex],
+  );
+
   const currentQuestion = currentPage?.type === "single" ? currentPage.question : null;
 
   return useMemo(
@@ -157,7 +172,8 @@ export const useTestNavigation = (
       isLastPage,
       goToNext,
       goToBack,
+      goToCode,
     }),
-    [currentPage, currentQuestion, currentIndex, totalPages, isFirstPage, isLastPage, goToNext, goToBack],
+    [currentPage, currentQuestion, currentIndex, totalPages, isFirstPage, isLastPage, goToNext, goToBack, goToCode],
   );
 };

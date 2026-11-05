@@ -7,11 +7,17 @@ export const OPTION_BASED_TYPES = new Set<QuestionType>(['single_choice', 'multi
 export const isTextBasedAnswer = (questionType?: string): boolean =>
   !OPTION_BASED_TYPES.has(questionType as QuestionType);
 
-export type NoticeVariant = 'info' | 'warning';
+// `section` marca el inicio de una nueva sección del cuestionario: se dibuja
+// como cabecera destacada de la tarjeta para que el cambio no pase desapercibido.
+export type NoticeVariant = 'info' | 'warning' | 'section';
 
 export interface QuestionNotice {
     text: string;
     variant?: NoticeVariant;
+    // Título corto mostrado en grande (p. ej. el nombre de la sección).
+    title?: string;
+    // Etiqueta pequeña sobre el título (por defecto "Sección" en la variante `section`).
+    label?: string;
 }
 
 export interface QuestionMetadata {
@@ -32,6 +38,11 @@ export interface QuestionMetadata {
     validHours?: { min: number; max: number };
     validMinutes?: { min: number; max: number };
     amPmRequired?: boolean;
+
+    // Captura de duración en una pregunta `numeric`: en lugar de un campo libre
+    // se muestran selectores de horas y minutos (evita valores como "430").
+    // La respuesta se guarda en horas decimales (p. ej. "7.5").
+    durationInput?: { maxHours: number; minuteStep: number };
 }
 
 export type QuestionCondition =

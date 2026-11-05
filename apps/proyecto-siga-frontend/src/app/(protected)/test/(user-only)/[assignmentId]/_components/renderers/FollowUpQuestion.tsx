@@ -1,5 +1,6 @@
 import { Question, isTextBasedAnswer } from '@packages/common-types/question.types';
 import { TestConfig } from '../config/testConfig.types';
+import { DurationInput } from './DurationInput';
 
 interface FollowUpQuestionProps {
   question: Question;
@@ -20,6 +21,7 @@ export const FollowUpQuestion = ({
 }: FollowUpQuestionProps) => {
   const { colors } = testConfig;
   const isText = isTextBasedAnswer(question.questionType);
+  const duration = question.metadata?.durationInput;
 
   return (
     <div className="ml-6 sm:ml-10">
@@ -34,7 +36,14 @@ export const FollowUpQuestion = ({
           {question.prompt}
         </p>
 
-        {isText ? (
+        {duration ? (
+          <DurationInput
+            value={selectedValue}
+            onChange={(v) => onOptionSelect(question.questionId, v)}
+            maxHours={duration.maxHours}
+            minuteStep={duration.minuteStep}
+          />
+        ) : isText ? (
           <input
             type={question.questionType === 'numeric' ? 'number' : 'text'}
             value={selectedValue ?? ''}
