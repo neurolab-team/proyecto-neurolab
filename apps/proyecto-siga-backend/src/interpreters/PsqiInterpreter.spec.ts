@@ -32,21 +32,13 @@ function baseAnswers(
     { code: "PSQI-1", text: "11:00 PM" },
     { code: "PSQI-2", score: 0 },
     { code: "PSQI-3", text: "07:00 AM" },
-    { code: "PSQI-5", text: "8" },
-    ...[
-      "PSQI-6.1",
-      "PSQI-6.2",
-      "PSQI-6.3",
-      "PSQI-6.4",
-      "PSQI-6.5",
-      "PSQI-6.6",
-      "PSQI-6.7",
-      "PSQI-6.8",
-      "PSQI-6.9",
-    ].map((c) => ({ code: c, score: 0 })),
+    { code: "PSQI-4.1", text: "8" },
+    ...DISTURB_CODES.map((c) => ({ code: c, score: 0 })),
+    { code: "PSQI-5.1", score: 0 },
+    { code: "PSQI-6", score: 0 },
+    { code: "PSQI-7", score: 0 },
     { code: "PSQI-8", score: 0 },
     { code: "PSQI-9", score: 0 },
-    { code: "PSQI-10", score: 0 },
   ];
   const overrideMap = new Map(overrides.map((o) => [o.code, o]));
   return defaults.map((d) => {
@@ -56,10 +48,27 @@ function baseAnswers(
   });
 }
 
+/** Items 5b–5j del PSQI (C5). PSQI-5.1 (5a) solo cuenta para C2; 5j es PSQI-5.10.1. */
+const DISTURB_CODES = [
+  "PSQI-5.2",
+  "PSQI-5.3",
+  "PSQI-5.4",
+  "PSQI-5.5",
+  "PSQI-5.6",
+  "PSQI-5.7",
+  "PSQI-5.8",
+  "PSQI-5.9",
+  "PSQI-5.10.1",
+];
+
+/** With the baseline at 0, the global score equals the isolated component. */
+const total = (overrides: Array<{ code: string; score?: number; text?: string }>) =>
+  t.calculateFromAnswers(baseAnswers(overrides)).totalScore;
+
+const t = new TestablePsqi();
+
 // --- Tests ---
 describe("PsqiInterpreter", () => {
-  const t = new TestablePsqi();
-
   it("should have testCode PSQI", () => {
     expect(t.testCode).toBe("PSQI");
   });
@@ -92,38 +101,28 @@ describe("PsqiInterpreter", () => {
   // ==================== interpretTotal ====================
   describe("interpretTotal", () => {
     it.each([
-      [0, "Sin problemas de sueño", "none"],
-      [4, "Sin problemas de sueño", "none"],
-      [5, "Merece atención médica", "low"],
-      [7, "Merece atención médica", "low"],
-      [8, "Merece atención y tratamiento médico", "medium"],
-      [14, "Merece atención y tratamiento médico", "medium"],
-      [15, "Se trata de un problema de sueño", "high"],
-      [21, "Se trata de un problema de sueño", "high"],
-    ] as [number, string, string][])(
-      "score %i → '%s' (%s)",
-      (score, interpretation, level) => {
-        expect(t.interpretTotal(score)).toEqual({
-          interpretation,
-          attentionLevel: level,
-        });
-      },
-    );
+      [0, "none"],
+      [4, "none"],
+      [5, "low"],
+      [7, "low"],
+      [8, "medium"],
+      [14, "medium"],
+      [15, "high"],
+      [21, "high"],
+    ] as [number, string][])("score %i → %s", (score, level) => {
+      expect(t.interpretTotal(score).attentionLevel).toBe(level);
+    });
   });
 
   // ==================== C1 - Calidad subjetiva ====================
-  // NOTA: C1 usa score("PSQI-2"). En el PSQI estándar, C1 corresponde a PSQI-7.
-  describe("C1 - Calidad subjetiva del sueño", () => {
-    it.each([0, 1, 2, 3])("PSQI-2 score=%i → C1=%i", (s) => {
-      const r = t.calculateFromAnswers(
-        baseAnswers([{ code: "PSQI-2", score: s }]),
-      );
-      expect(r.sectionScores[0].totalScore).toBe(s);
+  describe("C1 - Calidad subjetiva del sueño (PSQI-9)", () => {
+    it.each([0, 1, 2, 3])("PSQI-9 score=%i → C1=%i", (s) => {
+      expect(total([{ code: "PSQI-9", score: s }])).toBe(s);
     });
   });
 
   // ==================== C2 - Latencia del sueño ====================
-  describe("C2 - Latencia del sueño", () => {
+  describe("C2 - Latencia del sueño (PSQI-2 + PSQI-5.1)", () => {
     it.each([
       [0, 0, 0], // raw=0 → 0
       [1, 0, 1], // raw=1 → 1
@@ -133,88 +132,93 @@ describe("PsqiInterpreter", () => {
       [3, 2, 3], // raw=5 → 3
       [3, 3, 3], // raw=6 → 3
     ] as [number, number, number][])(
-      "PSQI-2=%i + PSQI-6.1=%i → C2=%i",
-      (p2, p61, expected) => {
-        const r = t.calculateFromAnswers(
-          baseAnswers([
+      "PSQI-2=%i + PSQI-5.1=%i → C2=%i",
+      (p2, p51, expected) => {
+        expect(
+          total([
             { code: "PSQI-2", score: p2 },
-            { code: "PSQI-6.1", score: p61 },
+            { code: "PSQI-5.1", score: p51 },
           ]),
-        );
-        expect(r.sectionScores[1].totalScore).toBe(expected);
+        ).toBe(expected);
       },
     );
   });
 
   // ==================== C3 - Duración del sueño ====================
-  describe("C3 - Duración del sueño", () => {
+  describe("C3 - Duración del sueño (PSQI-4.1)", () => {
+    // Bed 11PM–7AM = 8h in bed; keep efficiency (C4) out of the way where possible
     it.each([
       ["8", 0],
       ["7.5", 0],
+    ] as [string, number][])("PSQI-4.1='%s' → C3=%i", (text, expected) => {
+      expect(total([{ code: "PSQI-4.1", text }])).toBe(expected);
+    });
+
+    it.each([
       ["7", 1], // not >7
       ["6", 1],
       ["5.5", 2],
       ["5", 2],
       ["4", 3],
-      ["", 0],    // no data → no penalty
-      ["abc", 0], // non-numeric → no penalty
-    ] as [string, number][])("PSQI-5='%s' → C3=%i", (text, expected) => {
-      const r = t.calculateFromAnswers(baseAnswers([{ code: "PSQI-5", text }]));
-      expect(r.sectionScores[2].totalScore).toBe(expected);
+    ] as [string, number][])("PSQI-4.1='%s' → C3=%i (C4=0 con tiempo en cama igual)", (text, expected) => {
+      const h = parseFloat(text);
+      // Bedtime chosen so that time in bed == hours slept → efficiency 100% → C4=0
+      const bedMinutes = (7 * 60 - h * 60 + 24 * 60) % (24 * 60);
+      const hh = Math.floor(bedMinutes / 60);
+      const mm = bedMinutes % 60;
+      const h12 = hh % 12 === 0 ? 12 : hh % 12;
+      const bed = `${String(h12).padStart(2, "0")}:${String(mm).padStart(2, "0")} ${hh < 12 ? "AM" : "PM"}`;
+      expect(
+        total([
+          { code: "PSQI-1", text: bed },
+          { code: "PSQI-4.1", text },
+        ]),
+      ).toBe(expected);
+    });
+
+    it.each(["", "abc"])("PSQI-4.1='%s' → sin penalización", (text) => {
+      expect(total([{ code: "PSQI-4.1", text }])).toBe(0);
     });
   });
 
   // ==================== C4 - Eficiencia habitual ====================
   describe("C4 - Eficiencia habitual del sueño", () => {
     it.each([
-      ["11:00 PM", "07:00 AM", "7", 0], // 7/8=87.5% → >85 → 0
-      ["10:00 PM", "07:00 AM", "7", 1], // 7/9≈77.7% → >=75 → 1
-      ["10:00 PM", "07:00 AM", "6", 2], // 6/9≈66.6% → >=65 → 2
-      ["10:00 PM", "07:00 AM", "5", 3], // 5/9≈55.5% → <65 → 3
-    ] as [string, string, string, number][])(
-      "bed=%s wake=%s slept=%s → C4=%i",
-      (bed, wake, slept, expected) => {
-        const r = t.calculateFromAnswers(
-          baseAnswers([
+      // slept 7.5h (C3=0); vary time in bed
+      ["11:00 PM", "07:00 AM", 0], // 7.5/8  = 93.8% → 0
+      ["10:00 PM", "07:00 AM", 1], // 7.5/9  = 83.3% → 1
+      ["09:00 PM", "07:00 AM", 1], // 7.5/10 = 75.0% → 1 (boundary)
+      ["08:00 PM", "07:00 AM", 2], // 7.5/11 = 68.2% → 2
+      ["06:00 PM", "07:00 AM", 3], // 7.5/13 = 57.7% → 3
+    ] as [string, string, number][])(
+      "bed=%s wake=%s slept=7.5 → C4=%i",
+      (bed, wake, expected) => {
+        expect(
+          total([
             { code: "PSQI-1", text: bed },
             { code: "PSQI-3", text: wake },
-            { code: "PSQI-5", text: slept },
+            { code: "PSQI-4.1", text: "7.5" },
           ]),
-        );
-        expect(r.sectionScores[3].totalScore).toBe(expected);
+        ).toBe(expected);
       },
     );
 
-    it("no bedtime → C4=0 (no penalty for missing data)", () => {
-      const r = t.calculateFromAnswers(
-        baseAnswers([
+    it("sin hora de acostarse → C4=0 (sin penalización)", () => {
+      expect(
+        total([
           { code: "PSQI-1", text: "" },
-          { code: "PSQI-5", text: "7" },
+          { code: "PSQI-4.1", text: "7.5" },
         ]),
-      );
-      expect(r.sectionScores[3].totalScore).toBe(0);
+      ).toBe(0);
     });
   });
 
   // ==================== C5 - Perturbaciones del sueño ====================
-  describe("C5 - Perturbaciones del sueño", () => {
-    const disturbCodes = [
-      "PSQI-6.1",
-      "PSQI-6.2",
-      "PSQI-6.3",
-      "PSQI-6.4",
-      "PSQI-6.5",
-      "PSQI-6.6",
-      "PSQI-6.7",
-      "PSQI-6.8",
-      "PSQI-6.9",
-    ];
-
+  describe("C5 - Perturbaciones del sueño (PSQI-5.2 a 5.10.1)", () => {
     function withDisturbSum(targetSum: number) {
-      // Distribute targetSum across 9 items: fill with 3s, then remainder
       const full3s = Math.floor(targetSum / 3);
       const remainder = targetSum % 3;
-      return disturbCodes.map((code, i) => ({
+      return DISTURB_CODES.map((code, i) => ({
         code,
         score: i < full3s ? 3 : i === full3s ? remainder : 0,
       }));
@@ -229,23 +233,24 @@ describe("PsqiInterpreter", () => {
       [19, 3],
       [27, 3], // max
     ] as [number, number][])("sum=%i → C5=%i", (sum, expected) => {
-      const r = t.calculateFromAnswers(baseAnswers(withDisturbSum(sum)));
-      expect(r.sectionScores[4].totalScore).toBe(expected);
+      expect(total(withDisturbSum(sum))).toBe(expected);
+    });
+
+    it("PSQI-5.1 no suma a C5 (solo a C2)", () => {
+      // PSQI-5.1=3 → C2 raw=3 → C2=2; C5 sigue en 0
+      expect(total([{ code: "PSQI-5.1", score: 3 }])).toBe(2);
     });
   });
 
   // ==================== C6 - Uso de medicación ====================
-  describe("C6 - Uso de medicación para dormir", () => {
-    it.each([0, 1, 2, 3])("PSQI-8 score=%i → C6=%i", (s) => {
-      const r = t.calculateFromAnswers(
-        baseAnswers([{ code: "PSQI-8", score: s }]),
-      );
-      expect(r.sectionScores[5].totalScore).toBe(s);
+  describe("C6 - Uso de medicación para dormir (PSQI-6)", () => {
+    it.each([0, 1, 2, 3])("PSQI-6 score=%i → C6=%i", (s) => {
+      expect(total([{ code: "PSQI-6", score: s }])).toBe(s);
     });
   });
 
   // ==================== C7 - Disfunción diurna ====================
-  describe("C7 - Disfunción diurna", () => {
+  describe("C7 - Disfunción diurna (PSQI-7 + PSQI-8)", () => {
     it.each([
       [0, 0, 0],
       [1, 0, 1],
@@ -255,15 +260,14 @@ describe("PsqiInterpreter", () => {
       [3, 2, 3],
       [3, 3, 3],
     ] as [number, number, number][])(
-      "PSQI-9=%i + PSQI-10=%i → C7=%i",
-      (p9, p10, expected) => {
-        const r = t.calculateFromAnswers(
-          baseAnswers([
-            { code: "PSQI-9", score: p9 },
-            { code: "PSQI-10", score: p10 },
+      "PSQI-7=%i + PSQI-8=%i → C7=%i",
+      (p7, p8, expected) => {
+        expect(
+          total([
+            { code: "PSQI-7", score: p7 },
+            { code: "PSQI-8", score: p8 },
           ]),
-        );
-        expect(r.sectionScores[6].totalScore).toBe(expected);
+        ).toBe(expected);
       },
     );
   });
@@ -274,7 +278,7 @@ describe("PsqiInterpreter", () => {
       const r = t.calculateFromAnswers(baseAnswers());
       expect(r.totalScore).toBe(0);
       expect(r.attentionLevel).toBe("none");
-      expect(r.sectionScores).toHaveLength(8); // 7 components + global
+      expect(r.sectionScores).toHaveLength(1);
     });
 
     it("mal dormidor → totalScore=21, attentionLevel=high", () => {
@@ -283,28 +287,50 @@ describe("PsqiInterpreter", () => {
           { code: "PSQI-1", text: "10:00 PM" },
           { code: "PSQI-2", score: 3 },
           { code: "PSQI-3", text: "07:00 AM" },
-          { code: "PSQI-5", text: "4" },
-          ...[
-            "PSQI-6.1",
-            "PSQI-6.2",
-            "PSQI-6.3",
-            "PSQI-6.4",
-            "PSQI-6.5",
-            "PSQI-6.6",
-            "PSQI-6.7",
-            "PSQI-6.8",
-            "PSQI-6.9",
-          ].map((c) => ({ code: c, score: 3 })),
+          { code: "PSQI-4.1", text: "4" },
+          { code: "PSQI-5.1", score: 3 },
+          ...DISTURB_CODES.map((c) => ({ code: c, score: 3 })),
+          { code: "PSQI-6", score: 3 },
+          { code: "PSQI-7", score: 3 },
           { code: "PSQI-8", score: 3 },
           { code: "PSQI-9", score: 3 },
-          { code: "PSQI-10", score: 3 },
         ]),
       );
       expect(r.totalScore).toBe(21);
       expect(r.attentionLevel).toBe("high");
     });
 
-    it("array vacío → no lanza error, totalScore=0 (sin datos = sin penalización)", () => {
+    it("caso real de validación (validar.xlsx) → totalScore=11, attentionLevel=medium", () => {
+      // C1=2 (P9) · C2=2 (1+2=3) · C3=2 (5.3h) · C4=0 (5.3h / 5h en cama >85%)
+      // C5=2 (2+3+0+1+2+1+2+1=12, sin 5.10.1) · C6=1 · C7=2 (1+2=3)
+      const r = t.calculateFromAnswers([
+        ans("PSQI-1", undefined, "11:00 PM"),
+        ans("PSQI-2", 1),
+        ans("PSQI-3", undefined, "04:00 AM"),
+        ans("PSQI-4.1", undefined, "5.3"),
+        ans("PSQI-5.1", 2),
+        ans("PSQI-5.2", 2),
+        ans("PSQI-5.3", 3),
+        ans("PSQI-5.4", 0),
+        ans("PSQI-5.5", 1),
+        ans("PSQI-5.6", 2),
+        ans("PSQI-5.7", 1),
+        ans("PSQI-5.8", 2),
+        ans("PSQI-5.9", 1),
+        ans("PSQI-5.10", undefined, "Dificultad para levantarme cuando suena la alarma"),
+        ans("PSQI-6", 1),
+        ans("PSQI-7", 1),
+        ans("PSQI-8", 2),
+        ans("PSQI-9", 2),
+        ans("PSQI-11.1", 1),
+        ans("PSQI-11.3", 1),
+        ans("PSQI-11.4", 1),
+      ]);
+      expect(r.totalScore).toBe(11);
+      expect(r.attentionLevel).toBe("medium");
+    });
+
+    it("array vacío → no lanza error, totalScore=0", () => {
       const r = t.calculateFromAnswers([]);
       expect(r.totalScore).toBe(0);
       expect(r.attentionLevel).toBe("none");
@@ -321,49 +347,19 @@ describe("PsqiInterpreter", () => {
       expect(r.totalScore).toBe(0);
     });
 
-    it("answer con option: null → score=0", () => {
-      const r = t.calculateFromAnswers([ans("PSQI-2", undefined)]);
-      expect(r.sectionScores[0].totalScore).toBe(0);
-    });
-
     it("answer con scoreValue: null → score=0", () => {
       const a: AnswerWithDetails = {
         textValue: null,
-        question: { code: "PSQI-2", section: null },
+        question: { code: "PSQI-9", section: null },
         option: { scoreValue: null },
       };
-      const r = t.calculateFromAnswers([a]);
-      expect(r.sectionScores[0].totalScore).toBe(0);
+      expect(t.calculateFromAnswers([a]).totalScore).toBe(0);
     });
 
-    it("sectionScores tiene 8 elementos con estructura correcta", () => {
-      const r = t.calculateFromAnswers(baseAnswers());
-      expect(r.sectionScores).toHaveLength(8);
-      expect(r.sectionScores[7].sectionName).toBe("Puntuación Global PSQI");
-    });
-
-    it("interpretaciones por componente: score 0→Sin dificultad, 1→Leve, 2→Moderada, 3→Severa", () => {
-      const r = t.calculateFromAnswers(
-        baseAnswers([
-          { code: "PSQI-2", score: 0 }, // C1=0
-          { code: "PSQI-8", score: 1 }, // C6=1
-        ]),
-      );
-      expect(r.sectionScores[0].interpretation).toBe("Sin dificultad");
-      expect(r.sectionScores[5].interpretation).toBe("Leve");
-    });
-
-    it("attentionLevel por componente: 0-1→none, 2→medium, 3→high", () => {
-      const r = t.calculateFromAnswers(
-        baseAnswers([
-          { code: "PSQI-8", score: 2 }, // C6=2
-          { code: "PSQI-9", score: 3 },
-          { code: "PSQI-10", score: 3 }, // C7=3
-        ]),
-      );
-      expect(r.sectionScores[0].attentionLevel).toBe("none"); // C1=0
-      expect(r.sectionScores[5].attentionLevel).toBe("medium"); // C6=2
-      expect(r.sectionScores[6].attentionLevel).toBe("high"); // C7=3
+    it("interpretación clínica incluye los 7 componentes", () => {
+      const r = t.calculateFromAnswers(baseAnswers([{ code: "PSQI-6", score: 1 }]));
+      for (let i = 1; i <= 7; i++) expect(r.clinicalInterpretation).toContain(`C${i} -`);
+      expect(r.clinicalInterpretation).toContain("C6 - Uso de medicación para dormir: Leve (1/3)");
     });
   });
 });

@@ -20,15 +20,15 @@ export class PsqiInterpreter implements IRawAnswerInterpreter {
     const score = (code: string) => byCode.get(code)?.option?.scoreValue?.toNumber() ?? 0;
     const text = (code: string) => byCode.get(code)?.textValue ?? "";
 
-    // C1: Calidad subjetiva del sueño (PSQI-2)
-    const c1 = score("PSQI-2");
+    // C1: Calidad subjetiva del sueño (PSQI-9)
+    const c1 = score("PSQI-9");
 
-    // C2: Latencia del sueño (PSQI-2 scoreValue + PSQI-6.1 scoreValue)
-    const c2Raw = score("PSQI-2") + score("PSQI-6.1");
+    // C2: Latencia del sueño (PSQI-2 scoreValue + PSQI-5.1 scoreValue)
+    const c2Raw = score("PSQI-2") + score("PSQI-5.1");
     const c2 = c2Raw === 0 ? 0 : c2Raw <= 2 ? 1 : c2Raw <= 4 ? 2 : 3;
 
-    // C3: Duración del sueño (PSQI-5 numeric hours)
-    const rawHours = text("PSQI-5");
+    // C3: Duración del sueño (PSQI-4.1 numeric hours)
+    const rawHours = text("PSQI-4.1");
     const hoursSlept = rawHours ? parseFloat(rawHours) : NaN;
     const c3 = isNaN(hoursSlept) ? 0 : hoursSlept > 7 ? 0 : hoursSlept >= 6 ? 1 : hoursSlept >= 5 ? 2 : 3;
 
@@ -39,16 +39,16 @@ export class PsqiInterpreter implements IRawAnswerInterpreter {
     const efficiency = hoursInBed > 0 && !isNaN(hoursSlept) ? (hoursSlept / hoursInBed) * 100 : NaN;
     const c4 = isNaN(efficiency) ? 0 : efficiency > 85 ? 0 : efficiency >= 75 ? 1 : efficiency >= 65 ? 2 : 3;
 
-    // C5: Perturbaciones del sueño (sum of PSQI-6.1 to PSQI-6.9)
-    const sleepDisturbCodes = ["PSQI-6.1", "PSQI-6.2", "PSQI-6.3", "PSQI-6.4", "PSQI-6.5", "PSQI-6.6", "PSQI-6.7", "PSQI-6.8", "PSQI-6.9"];
+    // C5: Perturbaciones del sueño (5b–5j: PSQI-5.2 to PSQI-5.9 + PSQI-5.10.1 frequency; 5.1 belongs to C2)
+    const sleepDisturbCodes = ["PSQI-5.2", "PSQI-5.3", "PSQI-5.4", "PSQI-5.5", "PSQI-5.6", "PSQI-5.7", "PSQI-5.8", "PSQI-5.9", "PSQI-5.10.1"];
     const c5Raw = sleepDisturbCodes.reduce((sum, code) => sum + score(code), 0);
     const c5 = c5Raw === 0 ? 0 : c5Raw <= 9 ? 1 : c5Raw <= 18 ? 2 : 3;
 
-    // C6: Uso de medicación para dormir (PSQI-8)
-    const c6 = score("PSQI-8");
+    // C6: Uso de medicación para dormir (PSQI-6)
+    const c6 = score("PSQI-6");
 
-    // C7: Disfunción diurna (PSQI-9 + PSQI-10)
-    const c7Raw = score("PSQI-9") + score("PSQI-10");
+    // C7: Disfunción diurna (PSQI-7 + PSQI-8)
+    const c7Raw = score("PSQI-7") + score("PSQI-8");
     const c7 = c7Raw === 0 ? 0 : c7Raw <= 2 ? 1 : c7Raw <= 4 ? 2 : 3;
 
     const components = [

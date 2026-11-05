@@ -1,4 +1,3 @@
-import { group } from "node:console";
 import { TestSeedDefinition, SeedOption } from "../types";
 
 const FREQ_OPTIONS: SeedOption[] = [
@@ -161,6 +160,14 @@ export const psqiSeed: TestSeedDefinition = {
     {
       code: "PSQI-5.9",
       prompt: "Tener dolores",
+      type: "single_choice",
+      sectionCode: "problemas_sueno",
+      options: FREQ_OPTIONS,
+      metadata: { group: "PSQI-SLEEP-PROBLEMS" },
+    },
+    {
+      code: "PSQI-5.10.1",
+      prompt: "Otras razones (descríbalas en el campo de abajo)",
       type: "single_choice",
       sectionCode: "problemas_sueno",
       options: FREQ_OPTIONS,
