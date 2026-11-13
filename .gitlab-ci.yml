@@ -125,7 +125,11 @@ build:frontend:
   script:
     - npx nx build proyecto-siga-frontend
   artifacts:
-    paths: ["apps/proyecto-siga-frontend/.next"]
+    # Solo lo que copia el Dockerfile. Subir todo .next incluye .next/cache
+    # (cientos de MB de caché de webpack) y supera el límite de artefactos (413).
+    paths:
+      - apps/proyecto-siga-frontend/.next/standalone
+      - apps/proyecto-siga-frontend/.next/static
     expire_in: 1 hour
   rules:
     - *never_on_schedule
