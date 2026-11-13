@@ -111,6 +111,11 @@ export const PsychologistStudentResultsFiltersDto = z.object({
     .refine((value) => !value || !Number.isNaN(Date.parse(value)), {
       message: "toDate inválida",
     }),
-  onlyWithInterpretation: z.coerce.boolean().optional().default(false),
-  limit: z.coerce.number().int().min(1).max(5000).optional().default(5000),
+  // z.coerce.boolean() convierte el string "false" del query en true.
+  onlyWithInterpretation: z
+    .preprocess((value) => value === true || value === "true", z.boolean())
+    .optional()
+    .default(false),
+  // Sin tope: omitirlo devuelve todos los registros.
+  limit: z.coerce.number().int().min(1).optional(),
 });

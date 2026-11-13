@@ -236,7 +236,7 @@ export class PsychologistStudentsQueryService {
       fromDate: filters.fromDate ? new Date(filters.fromDate) : null,
       toDate,
       onlyWithInterpretation: Boolean(filters.onlyWithInterpretation),
-      limit: Math.max(1, Math.min(filters.limit ?? 5000, 5000)),
+      limit: filters.limit ? Math.max(1, filters.limit) : null,
     };
 
     const students =
@@ -392,7 +392,10 @@ export class PsychologistStudentsQueryService {
           })
         : filteredAssignmentRows;
 
-    const rows = detailedRows.slice(0, normalizedFilters.limit);
+    const rows =
+      normalizedFilters.limit === null
+        ? detailedRows
+        : detailedRows.slice(0, normalizedFilters.limit);
 
     const uniqueStudents = new Set(rows.map((row) => row.studentId));
 

@@ -9,7 +9,7 @@ import { notify } from "@/libs/toastService";
 import {
   PsychologistStudentResultsFilters,
 } from "@packages/common-types/psychologist.types";
-import { createResultsCsv } from "./_components/exports.csv";
+import { createResultsXlsx } from "./_components/exports.xlsx";
 import { ExportResultsFilters } from "./_components/ExportResultsFilters";
 import { ExportResultsPreviewTable } from "./_components/ExportResultsPreviewTable";
 import { StatPill } from "./_components/StatPill";
@@ -22,7 +22,6 @@ export default function PsychologistExportsPage() {
     caseStatus: "all",
     detailLevel: "assignment",
     onlyWithInterpretation: true,
-    limit: 5000,
   });
 
   const { data: exportResults, isLoading, isFetching } = useQuery({
@@ -30,7 +29,7 @@ export default function PsychologistExportsPage() {
     queryFn: () => usersService.getPsychologistStudentResults(filters),
   });
 
-  const handleExportCsv = async () => {
+  const handleExportXlsx = async () => {
     try {
       setIsExporting(true);
 
@@ -45,14 +44,13 @@ export default function PsychologistExportsPage() {
         return;
       }
 
-      const csv = createResultsCsv(rows);
-      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+      const blob = await createResultsXlsx(rows);
       const url = URL.createObjectURL(blob);
       const anchor = document.createElement("a");
       const stamp = format(new Date(), "yyyyMMdd-HHmm");
 
       anchor.href = url;
-      anchor.setAttribute("download", `resultados-psicologo-${stamp}.csv`);
+      anchor.setAttribute("download", `resultados-psicologo-${stamp}.xlsx`);
       document.body.appendChild(anchor);
       anchor.click();
       document.body.removeChild(anchor);
@@ -78,7 +76,7 @@ export default function PsychologistExportsPage() {
           </h1>
           <p className="mt-3 max-w-3xl text-slate-600">
             Filtra resultados por prueba, estado y prioridad para análisis clínico
-            y exportación en CSV.
+            y exportación en Excel.
           </p>
         </section>
 
@@ -89,16 +87,16 @@ export default function PsychologistExportsPage() {
                 Filtros y vista previa
               </h2>
               <p className="mt-2 max-w-3xl text-sm text-slate-600">
-                Esta vista muestra registros agregados. La exportación CSV se
-                genera con detalle por pregunta (label y value de opción).
+                Esta vista muestra registros agregados. La exportación Excel
+                se genera con una fila por pregunta respondida.
               </p>
             </div>
             <button
-              onClick={handleExportCsv}
+              onClick={handleExportXlsx}
               disabled={isExporting}
               className="rounded-xl bg-[#102D69] px-4 py-3 text-sm font-semibold text-white transition-all hover:bg-[#0D4A8C] disabled:cursor-not-allowed disabled:opacity-70"
             >
-              {isExporting ? "Generando CSV..." : "Exportar CSV"}
+              {isExporting ? "Generando Excel..." : "Exportar Excel"}
             </button>
           </div>
 
